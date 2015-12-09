@@ -12,6 +12,7 @@
 #include <TChain.h>
 #include <TFile.h>
 #include <TSelector.h>
+#include "constant.h"
 
 // Header file for the classes stored in the TTree if any.
 
@@ -40,6 +41,7 @@ public :
    Int_t coinReg;
    //--------- gate
    Int_t gate;
+   Int_t vetogate, blockgate,stackgate;
    //--------- GR plastic
    Double_t grdE1, grdE2;
    Double_t grT1avg, grT2avg;
@@ -154,6 +156,8 @@ void Selector_Sort::Init(TTree *tree)
    saveFileName = fChain->GetDirectory()->GetName();
    saveFileName = "S_"+saveFileName;
    
+   totnumEntry = tree->GetEntries();
+   
    printf("Converting %s ------> %s , total Entry : %d \n", fChain->GetDirectory()->GetName(), saveFileName.Data(), totnumEntry);
    
    saveFile = new TFile( saveFileName,"recreate");
@@ -163,12 +167,16 @@ void Selector_Sort::Init(TTree *tree)
    clock.Start("timer");
    shown = 0;
 
+  
    //================================= Initialize Tree variable
    eventID = 0;
    //---------coinReg
    coinReg = -1;
    //--------- gate
    gate = -1;
+   vetogate = -1;
+   blockgate = -1;
+   stackgate = -1;
    //--------- GR
    //GRX = TMath::QuietNaN();
    //GRY = TMath::QuietNaN();
@@ -231,8 +239,8 @@ void Selector_Sort::Init(TTree *tree)
    //--------- RF
    grf = TMath::QuietNaN();
    brf = TMath::QuietNaN();
-
-
+ 
+ 
    //=================================== Declare Leaf of Tree
    newTree->Branch("eventID", &eventID, "eventID/I");
    newTree->Branch("coinReg", &coinReg, "coinReg/I");
@@ -252,6 +260,7 @@ void Selector_Sort::Init(TTree *tree)
 
    newTree->Branch("badEl", &badEl, "badEl/D");
    newTree->Branch("badEr", &badEr, "badEr/D");
+   newTree->Branch("vetogate", &vetogate, "vetogate/I");
    newTree->Branch("blo1", &blo1, "blo1/D");
    newTree->Branch("blo2", &blo2, "blo2/D");
    newTree->Branch("blo3", &blo3, "blo3/D");
@@ -262,6 +271,7 @@ void Selector_Sort::Init(TTree *tree)
    newTree->Branch("blo2TOF", &blo2TOF, "blo2TOF/D");
    newTree->Branch("blo3TOF", &blo3TOF, "blo3TOF/D");
    newTree->Branch("blo4TOF", &blo4TOF, "blo4TOF/D");
+   newTree->Branch("blockgate", &blockgate, "blockgate/I");
 
    newTree->Branch("sta_odd", &sta_odd, "sta_odd/D");
    newTree->Branch("sta_even", &sta_even, "sta_even/D");
@@ -272,6 +282,7 @@ void Selector_Sort::Init(TTree *tree)
    newTree->Branch("sta2vTOF", &sta2vTOF, "sta2vTOF/D");
    newTree->Branch("sta3vTOF", &sta3vTOF, "sta3vTOF/D");
    newTree->Branch("sta4vTOF", &sta4vTOF, "sta4vTOF/D");
+   newTree->Branch("stackgate", &stackgate, "stackgate/I");
 
    newTree->Branch("liqlf", &liqlf, "liqlf/D");
    newTree->Branch("liqld", &liqld, "liqld/D");
@@ -281,6 +292,7 @@ void Selector_Sort::Init(TTree *tree)
    newTree->Branch("liqrTOF", &liqrTOF, "liqrTOF/D");
 
    newTree->Branch("brf", &brf, "brf/D");
+   
 }
 
 Bool_t Selector_Sort::Notify()

@@ -6,7 +6,7 @@ void Count3He(){
 
         //======================================================== InPut setting
 
-        char * rootfile = "S_run1035.root";
+        char * rootfile = "X_run1035.root";
         Int_t Div[2] = {1,1};  //x,y
         Int_t size[2] = {600,400}; //x,y
 
@@ -49,7 +49,7 @@ void Count3He(){
 	//tree->Draw("grdE1:grTOF1>>h1(500, 100, 350, 500, 0, 500)", "", "colz");
 	//tree->Draw("grdE1:grTOF1>>h1g(500, 100, 350, 500, 0, 500)", "cut3He_a || cut3He_b", "colz");
 	tree->Draw("grth*TMath::RadToDeg():grXC>>h2(600,-1000,1000,600,-1.5,1.5)", "cut3He_a || cut3He_b", "colz");
-	tree->Draw("grXC>>h2px(600,-600,600)", "cut3He_a || cut3He_b", "colz");
+	tree->Draw("grXC>>h2px(1200,-600,600)", "cut3He_a || cut3He_b", "colz");
 
         //h2->ProjectionX("h2px")->Draw();
         
@@ -162,4 +162,4 @@ double df_dPar(double * x, double * p) {
 
    return grad[ipar]; 
 }
-
+*/

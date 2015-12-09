@@ -68,13 +68,7 @@ Bool_t Selector_Sort::Process(Long64_t entry)
    //
    // The return value is currently not used.
 
-  //_______________________________ constant
-  const Double_t GR_CH2NS[2] = {0.123,0.123};
-  const Double_t LAS_CH2NS = 0.144;
-  const Double_t GR_TOF1_OFFSET = 40.4+201.045;
-  const Double_t BLOCK_TOF_OFFSET = 102.0+2.37;
-  const Double_t STACK_TOF_OFFSET = 139.0+2.37;
-  const Double_t c = 299.792458;
+
   
 
   //_______________________________ Get Branch Entry
@@ -117,13 +111,13 @@ Bool_t Selector_Sort::Process(Long64_t entry)
    
    grT1avg = (grtdc[0]+36+grtdc[1])/2.*GR_CH2NS;
    grT2avg = (grtdc[2]+36+grtdc[3])/2.*GR_CH2NS;
-   grTOF1 = grT1avg - grf + GR_TOF1_OFFSET[0];
-   grTOF2 = grT2avg - grf + GR_TOF1_OFFSET[1];
+   grTOF1 = grT1avg - grf + GR_TOF1_OFFSET;
+   grTOF2 = grT2avg - grf + GR_TOF1_OFFSET;
   
    grXC = grx - 380./2.3*grth*TMath::RadToDeg();
 
    //_______________________________ Gate
-   /*
+   
    blockgate = 0;
    stackgate = 0;
    vetogate = 0;
@@ -139,7 +133,7 @@ Bool_t Selector_Sort::Process(Long64_t entry)
    if((tdc[6]>0)&&(tdc[6]<400)&&(tdc[7]>0)&&(tdc[7]<400)) stackgate += 8;
    if((tdc[8]>0)&&(tdc[8]<400)&&(tdc[9]>0)&&(tdc[9]<400)) stackgate += 16;
    if((tdc[10]>0)&&(tdc[10]<400)&&(tdc[11]>0)&&(tdc[11]<400)) stackgate += 32;
-   */
+   
    
    //_______________________________ BAND telesope
    badEl = adc2[8];
@@ -152,14 +146,14 @@ Bool_t Selector_Sort::Process(Long64_t entry)
    blo2Tavg = (tdc2[2]+tdc2[3])/2.*LAS_CH2NS;
    blo3Tavg = (tdc2[4]+tdc2[5])/2.*LAS_CH2NS;
    blo4Tavg = (tdc2[6]+tdc2[7])/2.*LAS_CH2NS;
-   /*
+   
    if (tdc2[8]>0) badElTOF = tdc2[8]*LAS_CH2NS-brf+BLOCK_TOF_OFFSET;
    if (tdc2[9]>0) badErTOF = tdc2[9]*LAS_CH2NS-brf+BLOCK_TOF_OFFSET;
    if (blockgate&1) blo1TOF = blo1Tavg-brf+BLOCK_TOF_OFFSET;
    if (blockgate&2) blo2TOF = blo2Tavg-brf+BLOCK_TOF_OFFSET;
    if (blockgate&4) blo3TOF = blo3Tavg-brf+BLOCK_TOF_OFFSET;
    if (blockgate&8) blo4TOF = blo4Tavg-brf+BLOCK_TOF_OFFSET;
-   */
+   
    //_______________________________ BAND stack
    if (adc[0]>-5 && adc[1]>-5) sta1h = sqrt(adc[0]/112.*adc[1]/118.);
    if (adc[2]>-5 && adc[3]>-5) sta2h = sqrt(adc[2]/131.*adc[3]/109.);
@@ -169,7 +163,7 @@ Bool_t Selector_Sort::Process(Long64_t entry)
    if (adc[10]>-5 && adc[11]>-5) sta4v = sqrt(adc[10]/127.*adc[11]/124.);
    sta_even = 6.4*(sta1h+sta2h);
    sta_odd = 6.4*(sta1v+sta2v+sta3v+sta4v);
-   //if (sta_even+sta_odd>0.&& stackgate) sta_ratio = (sta_even-sta_odd)/(sta_even+sta_odd);
+   if (sta_even+sta_odd>0.&& stackgate) sta_ratio = (sta_even-sta_odd)/(sta_even+sta_odd);
    sta1hTavg = (tdc[0]+tdc[1])/2.*LAS_CH2NS;
    sta2hTavg = (tdc[2]+tdc[3])/2.*LAS_CH2NS;
    sta1vTavg = (tdc[4]+tdc[5])/2.*LAS_CH2NS;
@@ -197,7 +191,7 @@ Bool_t Selector_Sort::Process(Long64_t entry)
    //_______________________________ Filter Phsyical data
     
    
-   
+   /**/
    count ++;
    
    ///______________________________________________________________   
