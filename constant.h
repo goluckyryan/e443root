@@ -6,6 +6,9 @@
   const Double_t GR_TOF1_OFFSET = 241.545; //ns
   const Double_t BLOCK_TOF_OFFSET[4] = {103.87, 104.37, 102.87, 100.87}; //ns
   const Double_t STACK_TOF_OFFSET[6] = {146.0+2.37, 144.4+2.37, 139.0+2.37, 135.6+2.37, 139.0+2.37, 136.8+2.37}; //ns
+//  const Double_t BLOCK_TOF_OFFSET[4] = {0., 0., 0., 0.}; //ns
+//  const Double_t STACK_TOF_OFFSET[6] = {0., 0., 0., 0., 0., 0.}; //ns
+  
   const Double_t GR_LENGTH = 20000.; // mm 
   const Double_t GR_RHO = 3000.; //mm 
   const Double_t BRHO_3HE = GR_RHO*0.548506; // T.m
