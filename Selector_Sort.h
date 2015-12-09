@@ -61,7 +61,7 @@ public :
    Double_t badElTOF,badErTOF,blo1TOF,blo2TOF,blo3TOF,blo4TOF;
    Double_t sta1hTOF,sta2hTOF,sta1vTOF,sta2vTOF,sta3vTOF,sta4vTOF;
    Double_t liqlTOF,liqrTOF;
-   Double_t sta_odd,sta_even,sta_ratio;
+   Double_t sta_odd,sta_even,sta_ratio,sta_sum;
 
    Double_t grXC;
    
@@ -231,6 +231,7 @@ void Selector_Sort::Init(TTree *tree)
    sta_odd = TMath::QuietNaN();
    sta_even = TMath::QuietNaN();
    sta_ratio = TMath::QuietNaN();
+   sta_sum = TMath::QuietNaN();
    //--------- BAND_LIQUID
    liqlf = TMath::QuietNaN();
    liqld = TMath::QuietNaN();
@@ -267,22 +268,30 @@ void Selector_Sort::Init(TTree *tree)
    newTree->Branch("blo4", &blo4, "blo4/D");
    newTree->Branch("badElTOF", &badElTOF, "badElTOF/D");
    newTree->Branch("badErTOF", &badErTOF, "badErTOF/D");
+   newTree->Branch("blo1Tavg", &blo1Tavg, "blo1Tavg/D");
+   newTree->Branch("blo2Tavg", &blo2Tavg, "blo2Tavg/D");
+   newTree->Branch("blo3Tavg", &blo3Tavg, "blo3Tavg/D");
+   newTree->Branch("blo4Tavg", &blo4Tavg, "blo4Tavg/D");
    newTree->Branch("blo1TOF", &blo1TOF, "blo1TOF/D");
    newTree->Branch("blo2TOF", &blo2TOF, "blo2TOF/D");
    newTree->Branch("blo3TOF", &blo3TOF, "blo3TOF/D");
    newTree->Branch("blo4TOF", &blo4TOF, "blo4TOF/D");
-   newTree->Branch("blockgate", &blockgate, "blockgate/I");
 
    newTree->Branch("sta_odd", &sta_odd, "sta_odd/D");
    newTree->Branch("sta_even", &sta_even, "sta_even/D");
    newTree->Branch("sta_ratio", &sta_ratio, "sta_ratio/D");
+   newTree->Branch("sta1hTavg", &sta1hTavg, "sta1hTavg/D");
+   newTree->Branch("sta2hTavg", &sta2hTavg, "sta2hTavg/D");
+   newTree->Branch("sta1vTavg", &sta1vTavg, "sta1vTavg/D");
+   newTree->Branch("sta2vTavg", &sta2vTavg, "sta2vTavg/D");
+   newTree->Branch("sta3vTavg", &sta3vTavg, "sta3vTavg/D");
+   newTree->Branch("sta4vTavg", &sta4vTavg, "sta4vTavg/D");
    newTree->Branch("sta1hTOF", &sta1hTOF, "sta1hTOF/D");
    newTree->Branch("sta2hTOF", &sta2hTOF, "sta2hTOF/D");
    newTree->Branch("sta1vTOF", &sta1vTOF, "sta1vTOF/D");
    newTree->Branch("sta2vTOF", &sta2vTOF, "sta2vTOF/D");
    newTree->Branch("sta3vTOF", &sta3vTOF, "sta3vTOF/D");
    newTree->Branch("sta4vTOF", &sta4vTOF, "sta4vTOF/D");
-   newTree->Branch("stackgate", &stackgate, "stackgate/I");
 
    newTree->Branch("liqlf", &liqlf, "liqlf/D");
    newTree->Branch("liqld", &liqld, "liqld/D");

@@ -1,13 +1,14 @@
 {
         gROOT->Reset();
         gROOT->ProcessLine(".!date");
-
+        gROOT->ProcessLine(".L ~/ana/yulei/rootmacro/constant.h");
+        
         //======================================================== InPut setting
-
-        char * rootfile = "S_run1035.root";
-        Int_t Div[2] = {3,1};  //x,y
+        char * rootfile = "../dstroot/S_run1035.root";
+        Int_t Div[2] = {1,1};  //x,y
         Int_t size[2] = {400,400}; //x,y
-
+        
+        Double_t BGscale = 1.0;
 
 	//====================================== Load root file
         TFile *f0 = new TFile (rootfile, "read"); 
@@ -21,43 +22,26 @@
         cAna->Divide(Div[0],Div[1]);
         cAna->cd(1);
         //======================================================== Cut/Gate
-        //TCut gateCry = "";
-        //TCut gateCry = "s0x*s0x+TMath::Power(s0y-1.8,2)<49";
-        //TCut gateCry = "s0x*s0x+TMath::Power(s0y-1.8,2)>49 && s0x*s0x+TMath::Power(s0y-1.8,2)<14.0*14.0";
-        //TCut gateCryc = "s0x*s0x+TMath::Power(s0y-1.8,2)>49 && s0x*s0x+TMath::Power(s0y-1.8,2)<196";
-        //TCut gateCryc2 = "s0x*s0x+TMath::Power(s0y-1.8,2)>49";
-        //TCut gateTofS1 = "32<tofS1 && tofS1<35";
-        //TCut gateTofS1 = "32<tofS0DS1 && tofS0DS1<35";
-        //TCut gateS0D = "TMath::Finite(s0dx)";
-        //TCut gateVertexZ = "TMath::Abs(vertexZ-10)<60";
-        //TCut gateVertexZs = "TMath::Abs(vertexZ-10)>60 && TMath::Abs(vertexZ-10)<100";
-        //TCut gateVertexZc = "TMath::Abs(vertexZ-160)<60";
-        //TCut gateBeamZ = "TMath::Abs(beamZ-10)<30";
-        //TCut gateBeamZc = "TMath::Abs(beamZ-160)<30";
-        //TCut gateZ = "8.9>pidZ && pidZ>7.2";
-        //TCut gateZn = "7.3>pidZ && pidZ>6.4";
-        //TCut gateNID = "nyokiID > 6";
-        //TCut gateAOQ = "23.5>pidAOQ*8 && pidAOQ*8>18.5";
+        TString gateStr; 
         
-        //------- final gate
-        //TCut gateb  = gateCry + gateTofS1 + gateVertexZc + gateOpenAng + gateNID /*+ gateS0D*/ //+ gateZ + gateAOQ; 
-        //TCut gate   = gateCry + gateTofS1 + gateVertexZ  + gateOpenAng + gateNID /*+ gateS0D*/ + gateZ + gateAOQ;
-        //TCut gateb2 = gateCryc2 + gateTofS1 + gateVertexZ  + gateOpenAng + gateNID /*+ gateS0D*/ + gateZ + gateAOQ;
+        gateStr.Form("0<blo1Tavg && blo1Tavg<250*%f",LAS_CH2NS); TCut gateBlo1 = gateStr;
+        gateStr.Form("0<blo2Tavg && blo2Tavg<250*%f",LAS_CH2NS); TCut gateBlo2 = gateStr;
+        gateStr.Form("0<blo1Tavg && blo1Tavg<250*%f",LAS_CH2NS); TCut gateBlo3 = gateStr;
+        gateStr.Form("0<blo1Tavg && blo1Tavg<250*%f",LAS_CH2NS); TCut gateBlo4 = gateStr;
         
-        //TString gate0Str = "";//"r_Crystal<7 X 32<tofS1<35 X |vertexZ-10|<30 X Finite(S0D)";
-        //TString gatecStr = "";//"r_Crystal<7 X 32<tofS1<35 X |vertexZ-160|<30 X Finite(S0D) X 8.6>pidZ>7.4";
-        //TString gateStr  = "";//"r_Crystal<7 X 32<tofS1<35 X |vertexZ-10|<30 X Finite(S0D) X 8.6>pidZ>7.4";
-/*
-        Double_t BGscale = 1.0;
-/*        
-        TCut cut23o = "TMath::Abs(pidAOQ*8-23)<0.5";
-        TCut cut22o = "TMath::Abs(pidAOQ*8-22)<0.5";
-        TCut cut21o = "TMath::Abs(pidAOQ*8-21)<0.5";
-        TCut cut20o = "TMath::Abs(pidAOQ*8-20)<0.5";
-        TCut cut19o = "TMath::Abs(pidAOQ*8-19)<0.5";
-        TCut cut18o = "TMath::Abs(pidAOQ*8-18)<0.5";
-
-/**/
+        gateStr.Form("0<sta1hTavg && sta1hTavg<400*%f",LAS_CH2NS); TCut gateSta1h = gateStr;
+        gateStr.Form("0<sta2hTavg && sta2hTavg<400*%f",LAS_CH2NS); TCut gateSta2h = gateStr;
+        gateStr.Form("0<sta1vTavg && sta1vTavg<400*%f",LAS_CH2NS); TCut gateSta1v = gateStr;
+        gateStr.Form("0<sta2vTavg && sta2vTavg<400*%f",LAS_CH2NS); TCut gateSta2v = gateStr;
+        gateStr.Form("0<sta3vTavg && sta3vTavg<400*%f",LAS_CH2NS); TCut gateSta3v = gateStr;
+        gateStr.Form("0<sta4vTavg && sta4vTavg<400*%f",LAS_CH2NS); TCut gateSta4v = gateStr;
+        
+        TCut gateN = "";
+        
+        //------- complex gate
+        TCut gateStaAll  = gateSta1h || gateSta2h || gateSta1v || gateSta1v || gateSta2v || gateSta3v || gateSta4v;
+   
+        //------- Graphical Cut
         TCutG * gate3He_a = new TCutG("cut3He_a", 5);
         gate3He_a->SetVarX("grTOF1");
         gate3He_a->SetVarY("grdE1");
@@ -67,7 +51,6 @@
         gate3He_a->SetPoint(3, 225.9, 304.6);
         gate3He_a->SetPoint(4, 208.6, 343.0);
         gate3He_a->SetPoint(5, 183.7, 305.8);
-
 	
         TCutG * gate3He_b = new TCutG("cut3He_b", 5);
         gate3He_b->SetVarX("grTOF1");
@@ -78,46 +61,41 @@
         gate3He_b->SetPoint(3, 225.9+99, 304.6);
         gate3He_b->SetPoint(4, 208.6+99, 343.0);
         gate3He_b->SetPoint(5, 183.7+99, 305.8);
-	/*
-        TCutG * gate20o = new TCutG("cut20o", 6);
-        gate20o->SetVarX("pidAOQ");
-        gate20o->SetVarY("pidZ");
-        gate20o->SetPoint(0, 2.42, 8.27);
-        gate20o->SetPoint(1, 2.42, 7.65);
-        gate20o->SetPoint(2, 2.50, 7.20);
-        gate20o->SetPoint(3, 2.56, 7.53);
-        gate20o->SetPoint(4, 2.56, 8.24);
-        gate20o->SetPoint(5, 2.49, 8.71);
-        gate20o->SetPoint(6, 2.42, 8.27);
-
-        TCutG * gate19o = new TCutG("cut19o", 6);
-        gate19o->SetVarX("pidAOQ");
-        gate19o->SetVarY("pidZ");
-        gate19o->SetPoint(0, 2.31, 8.33);
-        gate19o->SetPoint(1, 2.31, 7.62);
-        gate19o->SetPoint(2, 2.37, 7.31);
-        gate19o->SetPoint(3, 2.42, 7.65);
-        gate19o->SetPoint(4, 2.42, 8.27);
-        gate19o->SetPoint(5, 2.37, 8.64);
-        gate19o->SetPoint(6, 2.31, 8.33);
-
-        TCutG * gate18o = new TCutG("cut18o", 6);
-        gate18o->SetVarX("pidAOQ");
-        gate18o->SetVarY("pidZ");
-        gate18o->SetPoint(0, 2.19, 8.35);
-        gate18o->SetPoint(1, 2.19, 7.62);
-        gate18o->SetPoint(2, 2.27, 7.36);
-        gate18o->SetPoint(3, 2.31, 7.64);
-        gate18o->SetPoint(4, 2.31, 8.33);
-        gate18o->SetPoint(5, 2.26, 8.71);
-        gate18o->SetPoint(6, 2.19, 8.35);
 
         //*///======================================================== analysis
-        //tree->Draw
-
 	//tree->Draw("grdE1:grTOF1>>h1(500, 100, 350, 500, 0, 500)", "", "colz");
 	//tree->Draw("grdE1:grTOF1>>h1g(500, 100, 350, 500, 0, 500)", "cut3He_a || cut3He_b", "colz");
-	tree->Draw("grth*TMath::RadToDeg():grXC>>h2(600,-1000,1000,600,-1.5,1.5)", "cut3He_a || cut3He_b", "colz");
+	//tree->Draw("grth*TMath::RadToDeg():grXC>>h2(600,-1000,1000,600,-1.5,1.5)", "cut3He_a || cut3He_b", "colz");
+
+
+
+	/*
+        tree->Draw("Ex>>oAll( 50, -140, 180)", gate )  ; oAll->SetTitle(gateStr);
+        tree->Draw("Ex>>oAllc(50, -140, 180)", gatec ) ; oAllc->SetTitle(gatecStr); oAllc->SetLineColor(2);
+        
+        oAllc->Scale(BGscale); TH1F* mAll = new TH1F(*oAll - *oAllc); mAll->SetName("mAll");mAll->SetTitle("23F(p,2p)22O*"); mAll->SetLineColor(1); mAll->SetLineWidth(2);
+
+        m21->SetXTitle("Ex [MeV]"); m21->SetYTitle("count / 2 MeV");
+
+        THStack *mS = new THStack("mS", "Stack of Ex for 22O - 18O");
+        mS->Add(m22);
+        mS->Add(m21);
+        mS->Add(m20);
+        //mS->Add(m19);
+        //mS->Add(m18);
+        
+        leg = new TLegend(0.1,0.6,0.3,0.9);
+        //leg->SetHeader("");
+        leg->SetTextSize(0.05);
+        leg->AddEntry(fit22o, "(^{23}F,^{22}O)", "l");
+        leg->AddEntry(fit21o, "(^{23}F,^{21}O)", "l");
+        leg->AddEntry(fit20o, "(^{23}F,^{20}O)", "l"); // latex OK!
+        leg->Draw();
+        
+
+
+//=================================================== Count 3He by 3 Gauss
+/*
 	tree->Draw("grXC>>h2px(1200,-600,600)", "cut3He_a || cut3He_b", "colz");
 
         //h2->ProjectionX("h2px")->Draw();
@@ -151,31 +129,7 @@
         TH1F* k2 = new TH1F(*h2px - *k1);
         k2->Draw();
         
-          
-
-	/*
-        tree->Draw("Ex>>oAll( 50, -140, 180)", gate )  ; oAll->SetTitle(gateStr);
-        tree->Draw("Ex>>oAllc(50, -140, 180)", gatec ) ; oAllc->SetTitle(gatecStr); oAllc->SetLineColor(2);
-        
-        oAllc->Scale(BGscale); TH1F* mAll = new TH1F(*oAll - *oAllc); mAll->SetName("mAll");mAll->SetTitle("23F(p,2p)22O*"); mAll->SetLineColor(1); mAll->SetLineWidth(2);
-
-        m21->SetXTitle("Ex [MeV]"); m21->SetYTitle("count / 2 MeV");
-
-        THStack *mS = new THStack("mS", "Stack of Ex for 22O - 18O");
-        mS->Add(m22);
-        mS->Add(m21);
-        mS->Add(m20);
-        //mS->Add(m19);
-        //mS->Add(m18);
-        
-        leg = new TLegend(0.1,0.6,0.3,0.9);
-        //leg->SetHeader("");
-        leg->SetTextSize(0.05);
-        leg->AddEntry(fit22o, "(^{23}F,^{22}O)", "l");
-        leg->AddEntry(fit21o, "(^{23}F,^{21}O)", "l");
-        leg->AddEntry(fit20o, "(^{23}F,^{20}O)", "l"); // latex OK!
-        leg->Draw();
-        
+/**///============================================================
 
 /*++++++++++++++++++++++++++++++++++++++++++++++ Momentum*/
 	/*	
