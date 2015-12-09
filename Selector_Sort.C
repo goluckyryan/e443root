@@ -70,7 +70,7 @@ Bool_t Selector_Sort::Process(Long64_t entry)
    
    
    //_______________________________ Setting
-   Double_t Brho = BRHO_3HE;
+   //Double_t Brho = BRHO_3HE;
    
    
    
@@ -165,10 +165,16 @@ Bool_t Selector_Sort::Process(Long64_t entry)
    if( tdc2[8] != -1 ) badElTOF = (tdc2[8] + gRandom->Uniform(0,1))*LAS_CH2NS[0] - brf ;
    if( tdc2[9] != -1 ) badErTOF = (tdc2[9] + gRandom->Uniform(0,1))*LAS_CH2NS[0] - brf ;
    
-   if(blo1Tavg != -1*LAS_CH2NS[0] )blo1TOF = blo1Tavg + ((gRandom->Uniform(0,1)+gRandom->Uniform(0,1))/2. - (lrf[1] + gRandom->Uniform(0,1)))*LAS_CH2NS[0] + BLOCK_TOF_OFFSET[0];
-   if(blo2Tavg != -1*LAS_CH2NS[1] )blo2TOF = blo2Tavg + ((gRandom->Uniform(0,1)+gRandom->Uniform(0,1))/2. - (lrf[1] + gRandom->Uniform(0,1)))*LAS_CH2NS[1] + BLOCK_TOF_OFFSET[1];
-   if(blo3Tavg != -1*LAS_CH2NS[2] )blo3TOF = blo3Tavg + ((gRandom->Uniform(0,1)+gRandom->Uniform(0,1))/2. - (lrf[1] + gRandom->Uniform(0,1)))*LAS_CH2NS[2] + BLOCK_TOF_OFFSET[2];
-   if(blo4Tavg != -1*LAS_CH2NS[3] )blo4TOF = blo4Tavg + ((gRandom->Uniform(0,1)+gRandom->Uniform(0,1))/2. - (lrf[1] + gRandom->Uniform(0,1)))*LAS_CH2NS[3] + BLOCK_TOF_OFFSET[3];
+//   if(blo1Tavg != -LAS_CH2NS[0] )blo1TOF = blo1Tavg + ((gRandom->Uniform(0,1)+gRandom->Uniform(0,1))/2. - (lrf[1] + gRandom->Uniform(0,1)))*LAS_CH2NS[0] + BLOCK_TOF_OFFSET[0];
+//   if(blo2Tavg != -LAS_CH2NS[1] )blo2TOF = blo2Tavg + ((gRandom->Uniform(0,1)+gRandom->Uniform(0,1))/2. - (lrf[1] + gRandom->Uniform(0,1)))*LAS_CH2NS[1] + BLOCK_TOF_OFFSET[1];
+//   if(blo3Tavg != -LAS_CH2NS[2] )blo3TOF = blo3Tavg + ((gRandom->Uniform(0,1)+gRandom->Uniform(0,1))/2. - (lrf[1] + gRandom->Uniform(0,1)))*LAS_CH2NS[2] + BLOCK_TOF_OFFSET[2];
+//   if(blo4Tavg != -LAS_CH2NS[3] )blo4TOF = blo4Tavg + ((gRandom->Uniform(0,1)+gRandom->Uniform(0,1))/2. - (lrf[1] + gRandom->Uniform(0,1)))*LAS_CH2NS[3] + BLOCK_TOF_OFFSET[3];
+   
+   
+   if(blo1Tavg != -LAS_CH2NS[0] )blo1TOF = blo1Tavg + ((gRandom->Uniform(0,1)+gRandom->Uniform(0,1))/2.)*LAS_CH2NS[0] ;//+ BLOCK_TOF_OFFSET[0];
+   if(blo2Tavg != -LAS_CH2NS[1] )blo2TOF = blo2Tavg + ((gRandom->Uniform(0,1)+gRandom->Uniform(0,1))/2.)*LAS_CH2NS[1] ;//+ BLOCK_TOF_OFFSET[1];
+   if(blo3Tavg != -LAS_CH2NS[2] )blo3TOF = blo3Tavg + ((gRandom->Uniform(0,1)+gRandom->Uniform(0,1))/2.)*LAS_CH2NS[2] ;//+ BLOCK_TOF_OFFSET[2];
+   if(blo4Tavg != -LAS_CH2NS[3] )blo4TOF = blo4Tavg + ((gRandom->Uniform(0,1)+gRandom->Uniform(0,1))/2.)*LAS_CH2NS[3] ;//+ BLOCK_TOF_OFFSET[3];
    
    
    //_______________________________ BAND stack
@@ -214,12 +220,19 @@ Bool_t Selector_Sort::Process(Long64_t entry)
    //if((tdc[8]>0)&&(tdc[8]<110)&&(tdc[9]>0)&&(tdc[9]<110)) sta3vTOF = sta3vTavg-brf+STACK_TOF_OFFSET;
    //if((tdc[10]>0)&&(tdc[10]<120)&&(tdc[11]>0)&&(tdc[11]<120)) sta4vTOF = sta4vTavg-brf+STACK_TOF_OFFSET;
    
-   if(sta1hTavg != -1*LAS_CH2NS[4] ) sta1hTOF = sta1hTavg + ((gRandom->Uniform(0,1)+gRandom->Uniform(0,1))/2. - (lrf[1] + gRandom->Uniform(0,1)))*LAS_CH2NS[4] + STACK_TOF_OFFSET[0];
-   if(sta2hTavg < 700*LAS_CH2NS[5] ) sta2hTOF = sta2hTavg + ((gRandom->Uniform(0,1)+gRandom->Uniform(0,1))/2. - (lrf[1] + gRandom->Uniform(0,1)))*LAS_CH2NS[5] + STACK_TOF_OFFSET[1];
-   if(sta1vTavg != -1*LAS_CH2NS[6] ) sta1vTOF = sta1vTavg + ((gRandom->Uniform(0,1)+gRandom->Uniform(0,1))/2. - (lrf[1] + gRandom->Uniform(0,1)))*LAS_CH2NS[6] + STACK_TOF_OFFSET[2];
-   if(sta2vTavg != -1*LAS_CH2NS[7] ) sta2vTOF = sta2vTavg + ((gRandom->Uniform(0,1)+gRandom->Uniform(0,1))/2. - (lrf[1] + gRandom->Uniform(0,1)))*LAS_CH2NS[7] + STACK_TOF_OFFSET[3];
-   if(sta3vTavg != -1*LAS_CH2NS[8] ) sta3vTOF = sta3vTavg + ((gRandom->Uniform(0,1)+gRandom->Uniform(0,1))/2. - (lrf[1] + gRandom->Uniform(0,1)))*LAS_CH2NS[8] + STACK_TOF_OFFSET[4];
-   if(sta4vTavg != -1*LAS_CH2NS[9] ) sta4vTOF = sta4vTavg + ((gRandom->Uniform(0,1)+gRandom->Uniform(0,1))/2. - (lrf[1] + gRandom->Uniform(0,1)))*LAS_CH2NS[9] + STACK_TOF_OFFSET[5];
+//   if(sta1hTavg != -LAS_CH2NS[4] ) sta1hTOF = sta1hTavg + ((gRandom->Uniform(0,1)+gRandom->Uniform(0,1))/2. - (lrf[1] + gRandom->Uniform(0,1)))*LAS_CH2NS[4] + STACK_TOF_OFFSET[0];
+//   if(sta2hTavg < 700*LAS_CH2NS[5] ) sta2hTOF = sta2hTavg + ((gRandom->Uniform(0,1)+gRandom->Uniform(0,1))/2. - (lrf[1] + gRandom->Uniform(0,1)))*LAS_CH2NS[5] + STACK_TOF_OFFSET[1];
+//   if(sta1vTavg != -LAS_CH2NS[6] ) sta1vTOF = sta1vTavg + ((gRandom->Uniform(0,1)+gRandom->Uniform(0,1))/2. - (lrf[1] + gRandom->Uniform(0,1)))*LAS_CH2NS[6] + STACK_TOF_OFFSET[2];
+//   if(sta2vTavg != -LAS_CH2NS[7] ) sta2vTOF = sta2vTavg + ((gRandom->Uniform(0,1)+gRandom->Uniform(0,1))/2. - (lrf[1] + gRandom->Uniform(0,1)))*LAS_CH2NS[7] + STACK_TOF_OFFSET[3];
+//   if(sta3vTavg != -LAS_CH2NS[8] ) sta3vTOF = sta3vTavg + ((gRandom->Uniform(0,1)+gRandom->Uniform(0,1))/2. - (lrf[1] + gRandom->Uniform(0,1)))*LAS_CH2NS[8] + STACK_TOF_OFFSET[4];
+//   if(sta4vTavg != -LAS_CH2NS[9] ) sta4vTOF = sta4vTavg + ((gRandom->Uniform(0,1)+gRandom->Uniform(0,1))/2. - (lrf[1] + gRandom->Uniform(0,1)))*LAS_CH2NS[9] + STACK_TOF_OFFSET[5];
+   
+   if(sta1hTavg != -LAS_CH2NS[4]   ) sta1hTOF = sta1hTavg + ((gRandom->Uniform(0,1)+gRandom->Uniform(0,1))/2.)*LAS_CH2NS[4] ;//+ STACK_TOF_OFFSET[0];
+   if(sta2hTavg < 700*LAS_CH2NS[5] ) sta2hTOF = sta2hTavg + ((gRandom->Uniform(0,1)+gRandom->Uniform(0,1))/2.)*LAS_CH2NS[5] ;//+ STACK_TOF_OFFSET[1];
+   if(sta1vTavg != -LAS_CH2NS[6]   ) sta1vTOF = sta1vTavg + ((gRandom->Uniform(0,1)+gRandom->Uniform(0,1))/2.)*LAS_CH2NS[6] ;//+ STACK_TOF_OFFSET[2];
+   if(sta2vTavg != -LAS_CH2NS[7]   ) sta2vTOF = sta2vTavg + ((gRandom->Uniform(0,1)+gRandom->Uniform(0,1))/2.)*LAS_CH2NS[7] ;//+ STACK_TOF_OFFSET[3];
+   if(sta3vTavg != -LAS_CH2NS[8]   ) sta3vTOF = sta3vTavg + ((gRandom->Uniform(0,1)+gRandom->Uniform(0,1))/2.)*LAS_CH2NS[8] ;//+ STACK_TOF_OFFSET[4];
+   if(sta4vTavg != -LAS_CH2NS[9]   ) sta4vTOF = sta4vTavg + ((gRandom->Uniform(0,1)+gRandom->Uniform(0,1))/2.)*LAS_CH2NS[9] ;//+ STACK_TOF_OFFSET[5];
    
    //_______________________________ BAND liquid
    liqlf = adc2[10];
