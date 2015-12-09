@@ -5,315 +5,343 @@
 #include <stdlib.h>
 #include <cmath>
 #include <cstring>
+#include "TTree.h"
+#include "TROOT.h"
+#include "TMath.h"
+#include "TBenchmark.h"
+#include "constant.h"
 
 using namespace std;
 
-void DataConvertor(TString openFileName){
-   //gROOT->Reset();
+void dst2root(TString openFileName){ //the file name should be "../dstroot/runXXXX_asci.dst"
    gROOT->ProcessLine(".!date");
    gStyle->SetOptStat(0);
    
    TString saveFileName = openFileName;
-   saveFileName.Remove(0,5); //remove head
+   printf("%s \n", saveFileName.Data());
+   saveFileName.Remove(0,11); //remove head
    Int_t len = saveFileName.Length();
-   saveFileName.Remove(len  - 4); // remove tail
+   saveFileName.Remove(len  - 9); // remove tail
    saveFileName = saveFileName + ".root";
    printf("%s \n", saveFileName.Data());
    
-   
    TFile *f1 = new TFile (saveFileName,"recreate");
    TTree * t1 = new TTree("tree","tree");
-   
-   //================ make historgram
-   /*
-   Int_t Div[2] = {3,2};
-   TCanvas * cPlot = new TCanvas("cPlot", "Plot", 100,0 , 400*Div[0], 400*Div[1]);
-   cPlot->Divide(Div[0],Div[1]);
-   
-   TH1F * hk1 = new TH1F ("hk1", "k distribution", 30,0, 300);
-   TH1F * hk2 = new TH1F ("hk2", "k distribution", 30,0, 300);
-   TH1F * hk3 = new TH1F ("hk3", "k distribution", 30,0, 300);
-   hk1->SetMinimum(0);
-   hk2->SetLineColor(2);
-   hk3->SetLineColor(3);
-   hk1->SetXTitle("k [MeV/c]");
-   hk1->SetYTitle("xsec [a.u.]");
-   
-   TH1F * htheta_k1 = new TH1F ("htheta_k1", "theta_k distribution", 18, 0, 180);
-   TH1F * htheta_k2 = new TH1F ("htheta_k2", "theta_k distribution", 18, 0, 180);
-   TH1F * htheta_k3 = new TH1F ("htheta_k3", "theta_k distribution", 18, 0, 180);
-   htheta_k1->SetMinimum(0);
-   htheta_k2->SetLineColor(2);
-   htheta_k3->SetLineColor(3);
-   
-   TH1F * hangL1 = new TH1F ("hangL1", "Theta1", 100, 70, 90);
-   TH1F * hangL2 = new TH1F ("hangL2", "Theta1", 100, 70, 90);
-   TH1F * hangL3 = new TH1F ("hangL3", "Theta1", 100, 70, 90);
-   hangL2->SetLineColor(2);
-   hangL3->SetLineColor(3);
-   
-   TH1F * hangR1 = new TH1F ("hangR1", "Theta2", 30, 10, 70);  
-   TH1F * hangR2 = new TH1F ("hangR2", "Theta2", 30, 10, 70);  
-   TH1F * hangR3 = new TH1F ("hangR3", "Theta2", 30, 10, 70);  
-   hangR2->SetLineColor(2);
-   hangR3->SetLineColor(3);
-   
-   TH1F * OffPlane1 = new TH1F ("OffPlane1", "Off-Plane Angle", 20, -20, 20);  
-   TH1F * OffPlane2 = new TH1F ("OffPlane2", "Off-Plane Angle", 20, -20, 20);  
-   TH1F * OffPlane3 = new TH1F ("OffPlane3", "Off-Plane Angle", 20, -20, 20);  
-   OffPlane2->SetLineColor(2);
-   OffPlane3->SetLineColor(3);
-   
-   
-   */
    //================ Tree branch
-   Double_t Tc, theta_c, phi_c, Td, theta_d, phi_d, offPlane;
-   Double_t k, theta_k, phi_k, theta_NN;
-   Double_t kp, kt;
-   Double_t T1, theta1, phi1, T2, theta2, phi2; // the offPlane angle is same in all frame. 
-   Double_t xsec1s1, xsec1p3, xsec1p1,xsec1d5, xsec2s1, xsec1d3;
-   Double_t asym1s1, asym1p3, asym1p1,asym1d5, asym2s1, asym1d3;
+   //---------eventID
+   Int_t eventID = 0;
+   //---------coinReg
+   Int_t coinReg = -1;
+   //--------- gate
+   Int_t vetogate = 0;
+   //----------GR
+   Double_t grx,gry, grth, grph;
+   //--------- GR plastic
+   Double_t grdE1, grdE2;
+   Double_t grT1avg, grT2avg;
+   //--------- BAND telesope
+   Double_t badEl,badEr,blo1,blo2,blo3,blo4;
+   Double_t blo1Tavg,blo2Tavg,blo3Tavg,blo4Tavg;
+   //--------- BAND Stack
+   Double_t sta1h,sta2h,sta1v,sta2v,sta3v,sta4v;
+   Double_t sta1hTavg,sta2hTavg,sta1vTavg,sta2vTavg,sta3vTavg,sta4vTavg;
+   //--------- BAND liquid
+   Double_t liqlf,liqld,liqrf,liqrd;
+   //--------- GRRF & BANDRF
+   Double_t grf,brf;
+   //-------------------------------------------------Phsyics
+   Double_t grTOF1, grTOF2;
+   Double_t badElTOF,badErTOF,blo1TOF,blo2TOF,blo3TOF,blo4TOF;
+   Double_t sta1hTOF,sta2hTOF,sta1vTOF,sta2vTOF,sta3vTOF,sta4vTOF;
+   Double_t liqlTOF,liqrTOF;
+   Double_t sta_odd,sta_even,sta_ratio,sta_sum;
+
+   Double_t grXC;
+
+
+   //------------make tree branch
+   t1->Branch("eventID", &eventID, "eventID/I");
+   t1->Branch("coinReg", &coinReg, "coinReg/I");
+   t1->Branch("vetogate", &vetogate, "vetogate/I");
    
-   Double_t x1, y1, z1;
+   t1->Branch("grx", &grx, "grx/D");
+   t1->Branch("gry", &gry, "gry/D");
+   t1->Branch("grth", &grth, "grth/D");
+   t1->Branch("grph", &grph, "grph/D");
+
+   t1->Branch("grdE1", &grdE1, "grdE1/D");
+   t1->Branch("grdE2", &grdE2, "grdE2/D");
+   t1->Branch("grTOF1", &grTOF1, "grTOF1/D");
+   t1->Branch("grTOF2", &grTOF2, "grTOF2/D");
    
-   t1->Branch("Tc", &Tc, "Tc/D");
-   t1->Branch("theta_c", &theta_c, "theta_c/D");
-   t1->Branch("phi_d", &phi_c, "phi_c/D");
-   
-   t1->Branch("Td", &Td, "Td/D");
-   t1->Branch("theta_d", &theta_d, "theta_d/D");
-   t1->Branch("phi_d", &phi_d, "phi_d/D");
-   
-   t1->Branch("offPlane", &offPlane, "offPlane/D");
-   
-   t1->Branch("k", &k, "k/D");
-   t1->Branch("theta_k", &theta_k, "theta_k/D");
-   t1->Branch("phi_k", &phi_k, "phi_k/D");
-   t1->Branch("theta_NN", &theta_NN, "theta_NN/D");
-   
-   t1->Branch("kp", &kp, "kp/D");
-   t1->Branch("kt", &kt, "kt/D");
-   
-   t1->Branch("T1", &T1, "T1/D");
-   t1->Branch("theta1", &theta1, "theta1/D");
-   t1->Branch("phi1", &phi1, "phi1/D");
-   
-   t1->Branch("T2", &T2, "T2/D");
-   t1->Branch("theta2", &theta2, "theta2/D");
-   t1->Branch("phi2", &phi2, "phi2/D");
-   
-   t1->Branch("x1", &x1, "x1/D");
-   t1->Branch("y1", &y1, "y1/D");
-   t1->Branch("z1", &z1, "z1/D");
-   
-   t1->Branch("xsec1s1", &xsec1s1, "xsec1s1/D");
-   t1->Branch("xsec1p3", &xsec1p3, "xsec1p3/D");
-   t1->Branch("xsec1p1", &xsec1p1, "xsec1p1/D");
-   t1->Branch("xsec1d5", &xsec1d5, "xsec1d5/D");
-   t1->Branch("xsec2s1", &xsec2s1, "xsec2s1/D");
-   t1->Branch("xsec1d3", &xsec1d3, "xsec1d3/D");
-   
-   t1->Branch("asym1s1", &asym1s1, "asym1s1/D");
-   t1->Branch("asym1p3", &asym1p3, "asym1p3/D");
-   t1->Branch("asym1p1", &asym1p1, "asym1p1/D");
-   t1->Branch("asym1d5", &asym1d5, "asym1d5/D");
-   t1->Branch("asym2s1", &asym2s1, "asym2s1/D");
-   t1->Branch("asym1d3", &asym1d3, "asym1d3/D");
+   t1->Branch("grf", &grf, "grf/D");
+   t1->Branch("grXC", &grXC, "grXC/D");
+
+   t1->Branch("badEl", &badEl, "badEl/D");
+   t1->Branch("badEr", &badEr, "badEr/D");
+
+   t1->Branch("blo1", &blo1, "blo1/D");
+   t1->Branch("blo2", &blo2, "blo2/D");
+   t1->Branch("blo3", &blo3, "blo3/D");
+   t1->Branch("blo4", &blo4, "blo4/D");
+   t1->Branch("badElTOF", &badElTOF, "badElTOF/D");
+   t1->Branch("badErTOF", &badErTOF, "badErTOF/D");
+   t1->Branch("blo1Tavg", &blo1Tavg, "blo1Tavg/D");
+   t1->Branch("blo2Tavg", &blo2Tavg, "blo2Tavg/D");
+   t1->Branch("blo3Tavg", &blo3Tavg, "blo3Tavg/D");
+   t1->Branch("blo4Tavg", &blo4Tavg, "blo4Tavg/D");
+   t1->Branch("blo1TOF", &blo1TOF, "blo1TOF/D");
+   t1->Branch("blo2TOF", &blo2TOF, "blo2TOF/D");
+   t1->Branch("blo3TOF", &blo3TOF, "blo3TOF/D");
+   t1->Branch("blo4TOF", &blo4TOF, "blo4TOF/D");
+
+   t1->Branch("sta_odd", &sta_odd, "sta_odd/D");
+   t1->Branch("sta_even", &sta_even, "sta_even/D");
+   t1->Branch("sta_ratio", &sta_ratio, "sta_ratio/D");
+   t1->Branch("sta1hTavg", &sta1hTavg, "sta1hTavg/D");
+   t1->Branch("sta2hTavg", &sta2hTavg, "sta2hTavg/D");
+   t1->Branch("sta1vTavg", &sta1vTavg, "sta1vTavg/D");
+   t1->Branch("sta2vTavg", &sta2vTavg, "sta2vTavg/D");
+   t1->Branch("sta3vTavg", &sta3vTavg, "sta3vTavg/D");
+   t1->Branch("sta4vTavg", &sta4vTavg, "sta4vTavg/D");
+   t1->Branch("sta1hTOF", &sta1hTOF, "sta1hTOF/D");
+   t1->Branch("sta2hTOF", &sta2hTOF, "sta2hTOF/D");
+   t1->Branch("sta1vTOF", &sta1vTOF, "sta1vTOF/D");
+   t1->Branch("sta2vTOF", &sta2vTOF, "sta2vTOF/D");
+   t1->Branch("sta3vTOF", &sta3vTOF, "sta3vTOF/D");
+   t1->Branch("sta4vTOF", &sta4vTOF, "sta4vTOF/D");
+
+   t1->Branch("liqlf", &liqlf, "liqlf/D");
+   t1->Branch("liqld", &liqld, "liqld/D");
+   t1->Branch("liqrf", &liqrf, "liqrf/D");
+   t1->Branch("liqrd", &liqrd, "liqrd/D");
+   t1->Branch("liqlTOF", &liqlTOF, "liqlTOF/D");
+   t1->Branch("liqrTOF", &liqrTOF, "liqrTOF/D");
+
+   t1->Branch("brf", &brf, "brf/D");
    
    
    //=================== read file
    ifstream fp;
    fp.open(openFileName);
-   
-   const double deg2rad = 3.141592654/180;
-   
-   Int_t lineLength = 0;
-   Int_t lineLength_valid = 0;
-   Int_t lineNum = 0;
-   Int_t DataLineNum = 0;
+
    string line;
+   Int_t gradc[4],grtdc[4],grrf,adc[12],adc2[14],tdc[12],tdc2[12],lrf[3],dummy;
    
-   double DTc;
-   double Dthetac;
-   double Dthetad;
-   double Dphic ;
-   double Dphid ;
-   double totalXsec_1s1 = 0;
-   double totalXsec_1p3 = 0;
-   double totalXsec_1p1 = 0;
-   double totalXsec_1d5 = 0;
-   double totalXsec_2s1 = 0;
-   double totalXsec_1d3 = 0;
+   TBenchmark clock;
+   Bool_t shown;
+   
+   clock.Reset();
+   clock.Start("timer");
+   shown = 0;
    
    do{
-      
-      lineNum ++;
-      getline(fp, line); // read fp and store in line
-      
-      lineLength = line.length();
-      
-      string lineHEAD = line.substr(0,2);
-      
-      if ( lineHEAD == "##" ) printf("%s\n",line.c_str());
-      if ( lineHEAD == "#X" ) DTc = atoi(line.substr(17,2).c_str());
-      if ( lineHEAD == "#Y" ) Dthetac = atoi(line.substr(17,2).c_str())*deg2rad;
-      if ( lineHEAD == "#Z" ) Dthetad = atoi(line.substr(17,2).c_str())*deg2rad;
-      if ( lineHEAD == "#B" ) Dphic = atoi(line.substr(17,2).c_str())*deg2rad;
-      if ( lineHEAD == "#A" ) Dphid = atoi(line.substr(17,2).c_str())*deg2rad;
-      
-      
-      if( lineHEAD == "# ") lineLength_valid = lineLength;
-      //printf("lineNum:%d, linelength = %d, valid_length = %d, lineHEAD : %s \n", lineNum, lineLength, lineLength_valid, lineHEAD);
-      
-      if( /*lineHEAD == "  " && */ lineNum > 10 && lineLength == lineLength_valid){
-         DataLineNum ++;
-         Tc          = atof(line.substr(12*(1-1)+1,12).c_str());
-         theta_c     = atof(line.substr(12*(2-1)+1,12).c_str());
-         phi_c       = atof(line.substr(12*(3-1)+1,12).c_str());
-         Td          = atof(line.substr(12*(4-1)+1,12).c_str());
-         theta_d = abs(atof(line.substr(12*(5-1)+1,12).c_str()));
-         phi_d   = abs(atof(line.substr(12*(6-1)+1,12).c_str()));
-         offPlane    = atof(line.substr(12*(7-1)+1,12).c_str());
-         
-         k        = atof(line.substr(12*(8-1)+1 ,12).c_str());
-         theta_k  = atof(line.substr(12*(9-1)+1 ,12).c_str());
-         phi_k    = atof(line.substr(12*(10-1)+1,12).c_str());
-         theta_NN = atof(line.substr(12*(11-1)+1,12).c_str());
-         
-         kt = k*sin(theta_NN*deg2rad);
-         kp = k*cos(theta_NN*deg2rad);
-         
-         T1     = atof(line.substr(12*(13-1)+1,12).c_str());
-         theta1 = atof(line.substr(12*(14-1)+1,12).c_str());
-         phi1   = atof(line.substr(12*(15-1)+1,12).c_str());
-         
-         Double_t dis = 1200/cos((60-theta1)*deg2rad);
-         
-         x1 = dis*sin(theta1*deg2rad)*cos(phi1*deg2rad);
-         y1 = dis*sin(theta1*deg2rad)*sin(phi1*deg2rad);
-         z1 = dis*cos(theta1*deg2rad);
-         
-         T2     = atof(line.substr(12*(16-1)+1,12).c_str());
-         theta2 = atof(line.substr(12*(17-1)+1,12).c_str());
-         phi2   = atof(line.substr(12*(18-1)+1,12).c_str());
-         
-         
-         //----------- Acceptance gate
-         //if ( TMath::Abs(theta1 -45) < 15 && TMath::Abs(theta2 - 45) < 15 ){ 
-         
-         xsec1s1 = atof(line.substr(12*(19-1)+1,12+1).c_str());
-         xsec1p3 = atof(line.substr(12*(21-1)+1,12+1).c_str());
-         xsec1p1 = atof(line.substr(12*(23-1)+1,12+1).c_str());
-         xsec1d5 = atof(line.substr(12*(25-1)+1,12+1).c_str());
-         xsec2s1 = atof(line.substr(12*(27-1)+1,12+1).c_str());
-         xsec1d3 = atof(line.substr(12*(29-1)+1,12+1).c_str());
-                  
-         asym1s1 = atof(line.substr(12*(20-1)+1,12+1).c_str());
-         asym1p3 = atof(line.substr(12*(22-1)+1,12+1).c_str());
-         asym1p1 = atof(line.substr(12*(24-1)+1,12+1).c_str());
-         asym1d5 = atof(line.substr(12*(26-1)+1,12+1).c_str());
-         asym2s1 = atof(line.substr(12*(28-1)+1,12+1).c_str());
-         asym1d3 = atof(line.substr(12*(30-1)+1,12+1).c_str());
-         
-         double ang = 0;
-         
-         ang = sin(theta_c*deg2rad)*sin(theta_d*deg2rad)*Dthetac*Dthetad*DTc*Dphic*Dphid;
-         
-         //printf("%4d(%3d), T_c = %7.1f, theta_c = %5.1f(%6.2f), theta_d = %5.1f(%6.2f), phi_c = %5.1f, beta_d = %5.1f , Xsec_1s1 = %12.9f, fac = %12.9f, %12.9f\n"
-         //     , lineNum, lineLength, Tc, thetac/deg2rad, theta1, thetad/deg2rad, theta2, phi1, beta_d, Xsec_1s1, ang, ang*Xsec_1s1);
-            
-         totalXsec_1s1 += ang*xsec1s1;
-         totalXsec_1p3 += ang*xsec1p3;
-         totalXsec_1p1 += ang*xsec1p1;
-         totalXsec_1d5 += ang*xsec1d5;
-         totalXsec_2s1 += ang*xsec2s1;
-         totalXsec_1d3 += ang*xsec1d3;
-         
-         //---------- Fill histogram
-         /*
-         hk1->Fill(k, xsec1s1);
-         hk2->Fill(k, xsec1p1);
-         hk3->Fill(k, xsec1d5);
-         
-         htheta_k1->Fill(TMath::Abs(theta_k), xsec1s1);
-         htheta_k2->Fill(TMath::Abs(theta_k), xsec1p1);
-         htheta_k3->Fill(TMath::Abs(theta_k), xsec1d5);
-         
-         hangL1->Fill(theta1+theta2, xsec1s1);
-         hangL2->Fill(theta1+theta2, xsec1p1);
-         hangL3->Fill(theta1+theta2, xsec1d5);
-         
-         hangR1->Fill(theta2, xsec1s1);
-         hangR2->Fill(theta2, xsec1p1);
-         hangR3->Fill(theta2, xsec1d5);
-         
-         OffPlane1->Fill(offPlane, xsec1s1);
-         OffPlane2->Fill(offPlane, xsec1p1);
-         OffPlane3->Fill(offPlane, xsec1d5);
-         */
-         //printf("k:%.2f, xsec1s1:%.2f \n", k, xsec1s1);
-         //----------- Fill        
-         f1->cd(); //set focus on this file
-         t1->Fill(); 
-         //}
-      }
    
+      
+      //if( eventID > 10) break;
+      
+      eventID ++;
+      
+      fp>>coinReg;
+      
+      //----------- GR
+      fp>>grx;
+      fp>>gry;
+      fp>>grth;
+      fp>>grph;       
+      //----------- GR ADC, TDC
+      fp>>gradc[0]; 
+      fp>>gradc[1];
+      fp>>gradc[2];
+      fp>>gradc[3];
+      fp>>grtdc[0];
+      fp>>grtdc[1];
+      fp>>grtdc[2];
+      fp>>grtdc[3];
+      //------------ GR rf
+      fp>>grrf;
+      //------------ Stack ADC
+      fp>>adc[0];
+      fp>>adc[1];
+      fp>>adc[2];
+      fp>>adc[3];
+      fp>>adc[4];
+      fp>>adc[5];
+      fp>>adc[6];
+      fp>>adc[7];
+      fp>>adc[8];
+      fp>>adc[9];
+      fp>>adc[10];
+      fp>>adc[11];
+      //------------ BAND telesope ADC, Liquid ADC
+      fp>>adc2[0];
+      fp>>adc2[1];
+      fp>>adc2[2];
+      fp>>adc2[3];
+      fp>>adc2[4];
+      fp>>adc2[5];
+      fp>>adc2[6];
+      fp>>adc2[7];
+      fp>>adc2[8];
+      fp>>adc2[9];
+      fp>>adc2[10];
+      fp>>adc2[11];
+      fp>>adc2[12];
+      fp>>adc2[13];
+      //------------ STACK TDC
+      fp>>tdc[0];
+      fp>>tdc[1];
+      fp>>tdc[2];
+      fp>>tdc[3];
+      fp>>tdc[4];
+      fp>>tdc[5];
+      fp>>tdc[6];
+      fp>>tdc[7];
+      fp>>tdc[8];
+      fp>>tdc[9];
+      fp>>tdc[10];
+      fp>>tdc[11];
+      //------------- BAND telesope, Liquid TDC
+      fp>>tdc2[0];
+      fp>>tdc2[1];
+      fp>>tdc2[2];
+      fp>>tdc2[3];
+      fp>>tdc2[4];
+      fp>>tdc2[5];
+      fp>>tdc2[6];
+      fp>>tdc2[7];
+      fp>>tdc2[8];
+      fp>>tdc2[9];
+      fp>>tdc2[10];
+      fp>>tdc2[11];
+      //------------- Liquid 
+      fp>>lrf[0];
+      fp>>lrf[1];
+      fp>>lrf[2];
+      //fp>>dummy;
+      
+      //================================ 2ndary data processing
+      //------------- Axuillary 
+      grXC = grx - 380./2.3*grth*TMath::RadToDeg();
+      
+      //_______________________________ Gate
+   
+      vetogate = 0;
+      if((tdc2[8]<0)&&tdc2[9]<0) vetogate += 1;
+      
+      //------------- RF
+      grf = (grrf + gRandom->Uniform(0,1))*GR_CH2NS[0];
+      brf = (lrf[1] + gRandom->Uniform(0,1))*LAS_CH2NS[0];
+      //------------ GR 
+      grdE1 = TMath::Sqrt(gradc[0]*gradc[1]);
+      grdE2 = TMath::Sqrt(gradc[2]*gradc[3]);
+  
+      grT1avg = (grtdc[0]+36+grtdc[1])/2.*GR_CH2NS[0];
+      grT2avg = (grtdc[2]+36+grtdc[3])/2.*GR_CH2NS[0];
+  
+      grTOF1 = grT1avg + (gRandom->Uniform(0,1)+gRandom->Uniform(0,1))/2.*GR_CH2NS[0] - grf + GR_TOF1_OFFSET;
+      grTOF2 = grT2avg + (gRandom->Uniform(0,1)+gRandom->Uniform(0,1))/2.*GR_CH2NS[0] - grf + GR_TOF1_OFFSET;
+      
+      //----------- STACK 
+      sta1h = sqrt(adc[0]/112.*adc[1]/118.);
+      sta2h = sqrt(adc[2]/131.*adc[3]/109.);
+      sta1v = sqrt(adc[4]/116.*adc[5]/126.);
+      sta2v = sqrt(adc[6]/113.*adc[7]/123.);
+      sta3v = sqrt(adc[8]/122.*adc[9]/131.);
+      sta4v = sqrt(adc[10]/127.*adc[11]/124.);
+      
+      sta_even = 6.4*(sta1h+sta2h);
+      sta_odd = 6.4*(sta1v+sta2v+sta3v+sta4v);
+      if (sta_even + sta_odd > 0.) {
+          sta_sum = sta_even+sta_odd;
+          sta_ratio = (sta_even-sta_odd)/(sta_even+sta_odd);
+      }
+      
+      sta1hTavg = (tdc[0] + tdc[1] )/2.*LAS_CH2NS[4];
+      sta2hTavg = (tdc[2] + tdc[3] )/2.*LAS_CH2NS[5];
+      sta1vTavg = (tdc[4] + tdc[5] )/2.*LAS_CH2NS[6];
+      sta2vTavg = (tdc[6] + tdc[7] )/2.*LAS_CH2NS[7];
+      sta3vTavg = (tdc[8] + tdc[9] )/2.*LAS_CH2NS[8];
+      sta4vTavg = (tdc[10]+ tdc[11])/2.*LAS_CH2NS[9];
+      
+      if(sta1hTavg != -LAS_CH2NS[4] ) sta1hTOF = sta1hTavg + ((gRandom->Uniform(0,1)+gRandom->Uniform(0,1))/2. - (lrf[1] + gRandom->Uniform(0,1)))*LAS_CH2NS[4] + STACK_TOF_OFFSET[0];
+      if(sta2hTavg < 700*LAS_CH2NS[5] ) sta2hTOF = sta2hTavg + ((gRandom->Uniform(0,1)+gRandom->Uniform(0,1))/2. - (lrf[1] + gRandom->Uniform(0,1)))*LAS_CH2NS[5] + STACK_TOF_OFFSET[1];
+      if(sta1vTavg != -LAS_CH2NS[6] ) sta1vTOF = sta1vTavg + ((gRandom->Uniform(0,1)+gRandom->Uniform(0,1))/2. - (lrf[1] + gRandom->Uniform(0,1)))*LAS_CH2NS[6] + STACK_TOF_OFFSET[2];
+      if(sta2vTavg != -LAS_CH2NS[7] ) sta2vTOF = sta2vTavg + ((gRandom->Uniform(0,1)+gRandom->Uniform(0,1))/2. - (lrf[1] + gRandom->Uniform(0,1)))*LAS_CH2NS[7] + STACK_TOF_OFFSET[3];
+      if(sta3vTavg != -LAS_CH2NS[8] ) sta3vTOF = sta3vTavg + ((gRandom->Uniform(0,1)+gRandom->Uniform(0,1))/2. - (lrf[1] + gRandom->Uniform(0,1)))*LAS_CH2NS[8] + STACK_TOF_OFFSET[4];
+      if(sta4vTavg != -LAS_CH2NS[9] ) sta4vTOF = sta4vTavg + ((gRandom->Uniform(0,1)+gRandom->Uniform(0,1))/2. - (lrf[1] + gRandom->Uniform(0,1)))*LAS_CH2NS[9] + STACK_TOF_OFFSET[5];
+   
+           
+      //------------- Telescope      
+      badEl = adc2[8];
+      badEr = adc2[9];
+      blo1 = TMath::Sqrt(adc2[0]*adc[1]);
+      blo2 = TMAth::Sqrt(adc2[2]*adc[3]);
+      blo3 = TMath::Sqrt(adc2[4]*adc[5]);
+      blo4 = TMath::Sqrt(adc2[6]*adc[7]);
+      
+      blo1Tavg = (tdc2[0]+tdc2[1])/2.*LAS_CH2NS[0];
+      blo2Tavg = (tdc2[2]+tdc2[3])/2.*LAS_CH2NS[1];
+      blo3Tavg = (tdc2[4]+tdc2[5])/2.*LAS_CH2NS[2];
+      blo4Tavg = (tdc2[6]+tdc2[7])/2.*LAS_CH2NS[3];
+      
+      blo1TOF = TMath::QuietNaN();
+      blo2TOF = TMath::QuietNaN();
+      blo3TOF = TMath::QuietNaN();
+      blo4TOF = TMath::QuietNaN();
+   
+      if( tdc2[8] != -1 ) badElTOF = (tdc2[8] + gRandom->Uniform(0,1))*LAS_CH2NS[0] - brf ;
+      if( tdc2[9] != -1 ) badErTOF = (tdc2[9] + gRandom->Uniform(0,1))*LAS_CH2NS[0] - brf ;
+      if(blo1Tavg != -LAS_CH2NS[0] )blo1TOF = blo1Tavg + ((gRandom->Uniform(0,1)+gRandom->Uniform(0,1))/2. - (lrf[1] + gRandom->Uniform(0,1)))*LAS_CH2NS[0] + BLOCK_TOF_OFFSET[0];
+      if(blo2Tavg != -LAS_CH2NS[1] )blo2TOF = blo2Tavg + ((gRandom->Uniform(0,1)+gRandom->Uniform(0,1))/2. - (lrf[1] + gRandom->Uniform(0,1)))*LAS_CH2NS[1] + BLOCK_TOF_OFFSET[1];
+      if(blo3Tavg != -LAS_CH2NS[2] )blo3TOF = blo3Tavg + ((gRandom->Uniform(0,1)+gRandom->Uniform(0,1))/2. - (lrf[1] + gRandom->Uniform(0,1)))*LAS_CH2NS[2] + BLOCK_TOF_OFFSET[2];
+      if(blo4Tavg != -LAS_CH2NS[3] )blo4TOF = blo4Tavg + ((gRandom->Uniform(0,1)+gRandom->Uniform(0,1))/2. - (lrf[1] + gRandom->Uniform(0,1)))*LAS_CH2NS[3] + BLOCK_TOF_OFFSET[3];
+   
+   
+      //-------------- Liquid
+      liqlf = adc2[10];
+      liqld = adc2[11];
+      liqrf = adc2[12];
+      liqrd = adc2[13];
+      liqlTOF = (tdc2[10] + gRandom->Uniform(0,1))*LAS_CH2NS[0] - brf ;
+      liqrTOF = (tdc2[11] + gRandom->Uniform(0,1))*LAS_CH2NS[0] - brf ;
+      
+      //----------- Fill       
+      f1->cd(); //set focus on this file
+      t1->Fill(); 
+      
+      ///______________________________________________________________   
+      clock.Stop("timer");
+      Double_t time = clock.GetRealTime("timer");
+      clock.Start("timer");
+
+      if ( !shown ) {
+         if (fmod(time, 10) < 1 ){
+            printf( "%10d[%2d%%]|%3d min %5.2f sec | expect:%5.1fmin %10d\n", 
+               entry, 
+               TMath::Nint((entry+1)*100./totnumEntry),
+               TMath::Floor(time/60), time - TMath::Floor(time/60)*60,
+               totnumEntry*time/(entry+1)/60.,
+               count);
+               shown = 1;
+         }
+      }else{
+         if (fmod(time, 10) > 9 ){
+            shown = 0;
+         }
+      }
+
+    
+//nextLine:
+//      getline(fp, line, '\r'); // read fp and store in line, and next line
+
+
    }while(! fp.eof());
    
-   
-  //  }while( lineLength != 34);
+  
   printf("=======================================\n");
-  printf(" DTc %2.0f, Dangc %2.0f, Dangd %2.0f, Dphic %2.0f, Dphid %2.0f \n", DTc, Dthetac/deg2rad, Dthetad/deg2rad, Dphic/deg2rad, Dphid/deg2rad);
-  printf(" total number of line = %d\n Total X-sec: \n", DataLineNum-1);
-  printf("1s1 = %14.6f ub\n", totalXsec_1s1);
-  printf("1p3 = %14.6f ub\n", totalXsec_1p3);
-  printf("1p1 = %14.6f ub\n", totalXsec_1p1);
-  printf("1d5 = %14.6f ub\n", totalXsec_1d5);
-  printf("2s1 = %14.6f ub\n", totalXsec_2s1);
-  printf("1d3 = %14.6f ub\n", totalXsec_1d3);
-   
-   f1->cd();
-   t1->Write();
-   fp.close();
-   //f1->Close();
    
    
-   
-   
-   /*
-   cPlot->cd(1);
-   hangL->Draw();
-   hangL2->Draw("same");
-   hangL3->Draw("same");
-   
-   cPlot->cd(2);
-   hangR3->Draw("");
-   hangR2->Draw("same");
-   hangR->Draw("same");
-   
-   cPlot->cd(3);
-   hk->Draw();
-   hk2->Draw("same");
-   hk3->Draw("same");
-   
-   cPlot->cd(4);
-   htheta_k->Draw();
-   htheta_k2->Draw("same");
-   htheta_k3->Draw("same");
-   
-   cPlot->cd(5);
-   OffPlane1->Draw("same");
-   OffPlane2->Draw("same");
-   OffPlane3->Draw("same");
-   
-   cPlot->cd(3);
-   TLatex text;
-   text.SetNDC();
-   text.SetTextColor(4);   text.DrawLatex(0.7, 0.7, "1s1/2");
-   text.SetTextColor(2);   text.DrawLatex(0.7, 0.6, "1p1/2");
-   text.SetTextColor(3);   text.DrawLatex(0.7, 0.5, "1d5/2");
-   
-   */
    /*//======================================================================
    TFile *f1 = new TFile ("test.root","read");
    TTree *t1 = (TTree*)f1->Get("t1");

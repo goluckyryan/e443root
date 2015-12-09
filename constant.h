@@ -20,6 +20,7 @@
 
 
 //_____________________________ Universial constant  
+  const double deg2rad = 3.141592654/180;
   const Double_t cVAC = 299.792458; // mm/ns
   const Double_t mp = 938.272; // MeV/c^2
   const Double_t mn = 939.565; // MeV/c^2
