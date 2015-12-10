@@ -155,7 +155,77 @@ void dst2root(TString openFileName, Int_t nEntries = 990000000){ //the file name
     
     eventID ++;
     if( eventID > nEntries) break;
-      
+
+    //================================initialization
+       //---------coinReg
+   coinReg = -1;
+   //--------- gate
+   vetogate = -1;
+   //--------- GR
+   //GRX = TMath::QuietNaN();
+   //GRY = TMath::QuietNaN();
+   //GRTH = TMath::QuietNaN();
+   //GRPH = TMath::QuietNaN();
+
+   grdE1 = TMath::QuietNaN();
+   grdE2 = TMath::QuietNaN();
+   grT1avg = TMath::QuietNaN();
+   grT2avg = TMath::QuietNaN();
+   grTOF1 = TMath::QuietNaN();
+   grTOF2 = TMath::QuietNaN();
+
+   grXC = TMath::QuietNaN();
+
+   //--------- BAND_TELE
+   badEl = TMath::QuietNaN();
+   badEr = TMath::QuietNaN();
+   blo1 = TMath::QuietNaN();
+   blo2 = TMath::QuietNaN();
+   blo3 = TMath::QuietNaN();
+   blo4 = TMath::QuietNaN();
+   blo1Tavg = TMath::QuietNaN();
+   blo2Tavg = TMath::QuietNaN();
+   blo3Tavg = TMath::QuietNaN();
+   blo4Tavg = TMath::QuietNaN();
+   badElTOF = TMath::QuietNaN();
+   badErTOF = TMath::QuietNaN();
+   blo1TOF = TMath::QuietNaN();
+   blo2TOF = TMath::QuietNaN();
+   blo3TOF = TMath::QuietNaN();
+   blo4TOF = TMath::QuietNaN();
+   //--------- BAND_STACK
+   sta1h = TMath::QuietNaN();
+   sta2h = TMath::QuietNaN();
+   sta1v = TMath::QuietNaN();
+   sta2v = TMath::QuietNaN();
+   sta3v = TMath::QuietNaN();
+   sta4v = TMath::QuietNaN();
+   sta1hTavg = TMath::QuietNaN();
+   sta2hTavg = TMath::QuietNaN();
+   sta1vTavg = TMath::QuietNaN();
+   sta2vTavg = TMath::QuietNaN();
+   sta3vTavg = TMath::QuietNaN();
+   sta4vTavg = TMath::QuietNaN();
+   sta1hTOF = TMath::QuietNaN();
+   sta2hTOF = TMath::QuietNaN();
+   sta1vTOF = TMath::QuietNaN();
+   sta2vTOF = TMath::QuietNaN();
+   sta3vTOF = TMath::QuietNaN();
+   sta4vTOF = TMath::QuietNaN();
+   sta_odd = TMath::QuietNaN();
+   sta_even = TMath::QuietNaN();
+   sta_ratio = TMath::QuietNaN();
+   sta_sum = TMath::QuietNaN();
+   //--------- BAND_LIQUID
+   liqlf = TMath::QuietNaN();
+   liqld = TMath::QuietNaN();
+   liqrf = TMath::QuietNaN();
+   liqrd = TMath::QuietNaN();
+   //--------- RF
+   grf = TMath::QuietNaN();
+   brf = TMath::QuietNaN();
+
+   //============================================= read from file
     //------------ CoinReg
     fp>>coinReg;
     //----------- GR
@@ -233,9 +303,8 @@ void dst2root(TString openFileName, Int_t nEntries = 990000000){ //the file name
     fp>>lrf[1];
     fp>>lrf[2];
     fp>>dummy;
-    // fp>>coinReg>>grx>>grth>>gry>>grph>>gradc[0]>>gradc[1]>>gradc[2]>>gradc[3]>>grtdc[0]>>grtdc[1]>>grtdc[2]>>grtdc[3]>>grrf>>adc[0]>>adc[1]>>adc[2]>>adc[3]>>adc[4]>>adc[5]>>adc[6]>>adc[7]>>adc[8]>>adc[9]>>adc[10]>>adc[11]>>adc2[0]>>adc2[1]>>adc2[2]>>adc2[3]>>adc2[4]>>adc2[5]>>adc2[6]>>adc2[7]>>adc2[8]>>adc2[9]>>adc2[10]>>adc2[11]>>adc2[12]>>adc2[13]>>tdc[0]>>tdc[1]>>tdc[2]>>tdc[3]>>tdc[4]>>tdc[5]>>tdc[6]>>tdc[7]>>tdc[8]>>tdc[9]>>tdc[10]>>tdc[11]>>tdc2[0]>>tdc2[1]>>tdc2[2]>>tdc2[3]>>tdc2[4]>>tdc2[5]>>tdc2[6]>>tdc2[7]>>tdc2[8]>>tdc2[9]>>tdc2[10]>>tdc2[11]>>lrf[0]>>lrf[1]>>lrf[2]>>dummy;
 
-    //================================ 2ndary data processing
+    //===================================== 2ndary data processing
     //------------- Axuillary 
     grXC = grx - 380./2.3*grth*TMath::RadToDeg();
       
@@ -264,7 +333,8 @@ void dst2root(TString openFileName, Int_t nEntries = 990000000){ //the file name
     sta2v = TMath::Sqrt(adc[6]/113.*adc[7]/123.);
     sta3v = TMath::Sqrt(adc[8]/122.*adc[9]/131.);
     sta4v = TMath::Sqrt(adc[10]/127.*adc[11]/124.);
-                  
+
+    
     sta_even = 6.4*(sta1h+sta2h);
     sta_odd = 6.4*(sta1v+sta2v+sta3v+sta4v);
     if (sta_even + sta_odd > 0.) {
