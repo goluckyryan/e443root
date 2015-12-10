@@ -4,9 +4,9 @@
         gROOT->ProcessLine(".L ~/ana/yulei/rootmacro/constant.h");
         
         //======================================================== InPut setting
-        char * rootfile = "../dstroot/S_run1035.root";
-        Int_t Div[2] = {1,1};  //x,y
-        Int_t size[2] = {400,400}; //x,y
+        char * rootfile = "run1035.root";
+        Int_t Div[2] = {3,1};  //x,y
+        Int_t size[2] = {1200,400}; //x,y
         
         Double_t BGscale = 1.0;
 
@@ -24,21 +24,22 @@
         //======================================================== Cut/Gate
         TString gateStr; 
         
-        gateStr.Form("0<blo1Tavg && blo1Tavg<250*%f",LAS_CH2NS); TCut gateBlo1 = gateStr;
-        gateStr.Form("0<blo2Tavg && blo2Tavg<250*%f",LAS_CH2NS); TCut gateBlo2 = gateStr;
-        gateStr.Form("0<blo1Tavg && blo1Tavg<250*%f",LAS_CH2NS); TCut gateBlo3 = gateStr;
-        gateStr.Form("0<blo1Tavg && blo1Tavg<250*%f",LAS_CH2NS); TCut gateBlo4 = gateStr;
+        gateStr.Form("0<blo1Tavg && blo1Tavg<250*%f",LAS_CH2NS[0]); TCut gateBlo1 = gateStr;
+        gateStr.Form("0<blo2Tavg && blo2Tavg<250*%f",LAS_CH2NS[1]); TCut gateBlo2 = gateStr;
+        gateStr.Form("0<blo3Tavg && blo3Tavg<250*%f",LAS_CH2NS[2]); TCut gateBlo3 = gateStr;
+        gateStr.Form("0<blo4Tavg && blo4Tavg<250*%f",LAS_CH2NS[3]); TCut gateBlo4 = gateStr;
         
-        gateStr.Form("0<sta1hTavg && sta1hTavg<400*%f",LAS_CH2NS); TCut gateSta1h = gateStr;
-        gateStr.Form("0<sta2hTavg && sta2hTavg<400*%f",LAS_CH2NS); TCut gateSta2h = gateStr;
-        gateStr.Form("0<sta1vTavg && sta1vTavg<400*%f",LAS_CH2NS); TCut gateSta1v = gateStr;
-        gateStr.Form("0<sta2vTavg && sta2vTavg<400*%f",LAS_CH2NS); TCut gateSta2v = gateStr;
-        gateStr.Form("0<sta3vTavg && sta3vTavg<400*%f",LAS_CH2NS); TCut gateSta3v = gateStr;
-        gateStr.Form("0<sta4vTavg && sta4vTavg<400*%f",LAS_CH2NS); TCut gateSta4v = gateStr;
+        gateStr.Form("0<sta1hTavg && sta1hTavg<400*%f",LAS_CH2NS[4]); TCut gateSta1h = gateStr;
+        gateStr.Form("0<sta2hTavg && sta2hTavg<400*%f",LAS_CH2NS[5]); TCut gateSta2h = gateStr;
+        gateStr.Form("0<sta1vTavg && sta1vTavg<400*%f",LAS_CH2NS[6]); TCut gateSta1v = gateStr;
+        gateStr.Form("0<sta2vTavg && sta2vTavg<400*%f",LAS_CH2NS[7]); TCut gateSta2v = gateStr;
+        gateStr.Form("0<sta3vTavg && sta3vTavg<400*%f",LAS_CH2NS[8]); TCut gateSta3v = gateStr;
+        gateStr.Form("0<sta4vTavg && sta4vTavg<400*%f",LAS_CH2NS[9]); TCut gateSta4v = gateStr;
         
         TCut gateN = "";
         
         //------- complex gate
+        TCut gateBloAll  = gateBlo1  || gateBlo2  || gateBlo3  || gateBlo4;
         TCut gateStaAll  = gateSta1h || gateSta2h || gateSta1v || gateSta1v || gateSta2v || gateSta3v || gateSta4v;
    
         //------- Graphical Cut
@@ -62,11 +63,16 @@
         gate3He_b->SetPoint(4, 208.6+99, 343.0);
         gate3He_b->SetPoint(5, 183.7+99, 305.8);
 
-        //*///======================================================== analysis
-	//tree->Draw("grdE1:grTOF1>>h1(500, 100, 350, 500, 0, 500)", "", "colz");
-	//tree->Draw("grdE1:grTOF1>>h1g(500, 100, 350, 500, 0, 500)", "cut3He_a || cut3He_b", "colz");
-	//tree->Draw("grth*TMath::RadToDeg():grXC>>h2(600,-1000,1000,600,-1.5,1.5)", "cut3He_a || cut3He_b", "colz");
+        /////======================================================== analysis
+        tree->Draw("grdE1:grTOF1>>h1(500, 100, 350, 500, 0, 500)", "", "colz");
+        tree->Draw("grdE1:grTOF1>>h1g(500, 100, 350, 500, 0, 500)", "cut3He_a || cut3He_b", "colz");
+        tree->Draw("grth*TMath::RadToDeg():grXC>>h2(600,-1000,1000,600,-1.5,1.5)", "cut3He_a || cut3He_b", "colz");
 
+        tree->Draw("sta_sum:sta_ratio>>s1(200,-1.1,1.1, 200,0.,30.)", gateStaAll, "colz");
+        cAna->cd(2);
+        tree->Draw("sta_sum:sta_ratio>>s2(200,-1.1,1.1, 200,0.,30.)", gateStaAll + "vetogate == 1 && (cut3He_a || cut3He_b)", "colz");
+        cAna->cd(3);
+        tree->Draw("sta1hTOF>>s3(200,-50,150)", "cut3He_a || cut3He_b");
 
 
 	/*
@@ -93,10 +99,10 @@
         leg->Draw();
         
 
-
+    */
 //=================================================== Count 3He by 3 Gauss
 /*
-	tree->Draw("grXC>>h2px(1200,-600,600)", "cut3He_a || cut3He_b", "colz");
+	    tree->Draw("grXC>>h2px(1200,-600,600)", "cut3He_a || cut3He_b", "colz");
 
         //h2->ProjectionX("h2px")->Draw();
         
@@ -129,7 +135,7 @@
         TH1F* k2 = new TH1F(*h2px - *k1);
         k2->Draw();
         
-/**///============================================================
+        *////============================================================
 
 /*++++++++++++++++++++++++++++++++++++++++++++++ Momentum*/
 	/*	
@@ -191,6 +197,7 @@
         
         q22->Draw();hk0a->Draw("same");hk0b->Draw("same");hk0c->Draw("same"); hk0d->Draw("same");
 //        q21->Draw();hk1a->Draw("same");hk1b->Draw("same");hk1c->Draw("same"); hk1d->Draw("same");
+*/
 
 /*++++++++++++++++++++++++++++++++++++++++++++++ Asymmetry*//*
         TCutG* cutAsy = gate20o;
@@ -277,6 +284,5 @@
                 
         
 
-        
-/***********/
+        /* */
 }

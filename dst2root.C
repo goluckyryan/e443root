@@ -31,6 +31,11 @@ void dst2root(TString openFileName, Int_t nEntries = 990000000){ //the file name
   TFile *f1 = new TFile (saveFileName,"recreate");
   TTree * t1 = new TTree("tree","tree");
   TRandom * rand = new TRandom();
+
+  //================ Primary data
+  Double_t gradc[4],grtdc[4],grrf,adc[12],adc2[14],tdc[12],tdc2[12],lrf[3],dummy;
+  
+
   //================ Tree branch
   //---------eventID
   Int_t eventID = 0;
@@ -84,6 +89,7 @@ void dst2root(TString openFileName, Int_t nEntries = 990000000){ //the file name
   t1->Branch("badEl", &badEl, "badEl/D");
   t1->Branch("badEr", &badEr, "badEr/D");
 
+  
   t1->Branch("blo1", &blo1, "blo1/D");
   t1->Branch("blo2", &blo2, "blo2/D");
   t1->Branch("blo3", &blo3, "blo3/D");
@@ -99,8 +105,17 @@ void dst2root(TString openFileName, Int_t nEntries = 990000000){ //the file name
   t1->Branch("blo3TOF", &blo3TOF, "blo3TOF/D");
   t1->Branch("blo4TOF", &blo4TOF, "blo4TOF/D");
 
+  t1->Branch("adc", adc, "adc[12]/D");
+  t1->Branch("sta1h", &sta1h, "sta1h/D");
+  t1->Branch("sta2h", &sta2h, "sta2h/D");
+  t1->Branch("sta1v", &sta1v, "sta1v/D");
+  t1->Branch("sta2v", &sta2v, "sta2v/D");
+  t1->Branch("sta3v", &sta3v, "sta3v/D");
+  t1->Branch("sta4v", &sta4v, "sta4v/D");
+  
   t1->Branch("sta_odd", &sta_odd, "sta_odd/D");
   t1->Branch("sta_even", &sta_even, "sta_even/D");
+  t1->Branch("sta_sum", &sta_sum, "sta_sum/D");
   t1->Branch("sta_ratio", &sta_ratio, "sta_ratio/D");
   t1->Branch("sta1hTavg", &sta1hTavg, "sta1hTavg/D");
   t1->Branch("sta2hTavg", &sta2hTavg, "sta2hTavg/D");
@@ -128,9 +143,6 @@ void dst2root(TString openFileName, Int_t nEntries = 990000000){ //the file name
   //=================== read file
   ifstream fp;
   fp.open(openFileName);
-
-  string line;
-  Double_t gradc[4],grtdc[4],grrf,adc[12],adc2[14],tdc[12],tdc2[12],lrf[3],dummy;
   
   TBenchmark clock;
   Bool_t shown = 0;
@@ -148,8 +160,8 @@ void dst2root(TString openFileName, Int_t nEntries = 990000000){ //the file name
     fp>>coinReg;
     //----------- GR
     fp>>grx;   if(grx == -1)  grx  = TMath::QuietNaN();
-    fp>>gry;   if(gry == -1)  gry  = TMath::QuietNaN();
     fp>>grth;  if(grth == -1) grth = TMath::QuietNaN();
+    fp>>gry;   if(gry == -1)  gry  = TMath::QuietNaN();
     fp>>grph;  if(grph == -1) grph = TMath::QuietNaN();    
     //----------- GR ADC, TDC
     fp>>gradc[0]; 
@@ -163,18 +175,18 @@ void dst2root(TString openFileName, Int_t nEntries = 990000000){ //the file name
     //------------ GR rf
     fp>>grrf;
     //------------ Stack ADC
-    fp>>adc[0]; 
-    fp>>adc[1];
-    fp>>adc[2];
-    fp>>adc[3];
-    fp>>adc[4];
-    fp>>adc[5];
-    fp>>adc[6];
-    fp>>adc[7];
-    fp>>adc[8];
-    fp>>adc[9];
-    fp>>adc[10];
-    fp>>adc[11];
+    fp>>adc[0];  //if(adc[0] < 0) adc[0] = TMath::QuietNaN();
+    fp>>adc[1];  //if(adc[1] < 0) adc[1] = TMath::QuietNaN();
+    fp>>adc[2];  //if(adc[2] < 0) adc[2] = TMath::QuietNaN();
+    fp>>adc[3];  //if(adc[3] < 0) adc[3] = TMath::QuietNaN();
+    fp>>adc[4];  //if(adc[4] < 0) adc[4] = TMath::QuietNaN();
+    fp>>adc[5];  //if(adc[5] < 0) adc[5] = TMath::QuietNaN();
+    fp>>adc[6];  //if(adc[6] < 0) adc[6] = TMath::QuietNaN();
+    fp>>adc[7];  //if(adc[7] < 0) adc[7] = TMath::QuietNaN();
+    fp>>adc[8];  //if(adc[8] < 0) adc[8] = TMath::QuietNaN();
+    fp>>adc[9];  //if(adc[9] < 0) adc[9] = TMath::QuietNaN();
+    fp>>adc[10]; //if(adc[10] < 0) adc[10] = TMath::QuietNaN();
+    fp>>adc[11]; //if(adc[11] < 0) adc[11] = TMath::QuietNaN();
     //------------ BAND telesope ADC, Liquid ADC
     fp>>adc2[0];
     fp>>adc2[1];
@@ -230,7 +242,7 @@ void dst2root(TString openFileName, Int_t nEntries = 990000000){ //the file name
     //_______________________________ Gate
    
     vetogate = 0;
-    if((tdc2[8]<0)&&tdc2[9]<0) vetogate += 1;
+    if( TMath::IsNaN(tdc2[8]) && TMath::IsNaN(tdc2[9])  ) vetogate += 1;
       
     //------------- RF
     grf = (grrf + rand->Uniform(0,1))*GR_CH2NS[0];
@@ -246,13 +258,13 @@ void dst2root(TString openFileName, Int_t nEntries = 990000000){ //the file name
     grTOF2 = grT2avg + (rand->Uniform(0,1)+rand->Uniform(0,1))/2.*GR_CH2NS[0] - grf + GR_TOF1_OFFSET;
       
     //----------- STACK 
-    sta1h = sqrt(adc[0]/112.*adc[1]/118.);
-    sta2h = sqrt(adc[2]/131.*adc[3]/109.);
-    sta1v = sqrt(adc[4]/116.*adc[5]/126.);
-    sta2v = sqrt(adc[6]/113.*adc[7]/123.);
-    sta3v = sqrt(adc[8]/122.*adc[9]/131.);
-    sta4v = sqrt(adc[10]/127.*adc[11]/124.);
-      
+    sta1h = TMath::Sqrt(adc[0]/112.*adc[1]/118.);
+    sta2h = TMath::Sqrt(adc[2]/131.*adc[3]/109.);
+    sta1v = TMath::Sqrt(adc[4]/116.*adc[5]/126.);
+    sta2v = TMath::Sqrt(adc[6]/113.*adc[7]/123.);
+    sta3v = TMath::Sqrt(adc[8]/122.*adc[9]/131.);
+    sta4v = TMath::Sqrt(adc[10]/127.*adc[11]/124.);
+                  
     sta_even = 6.4*(sta1h+sta2h);
     sta_odd = 6.4*(sta1v+sta2v+sta3v+sta4v);
     if (sta_even + sta_odd > 0.) {
@@ -308,6 +320,30 @@ void dst2root(TString openFileName, Int_t nEntries = 990000000){ //the file name
     liqrd = adc2[13];
     liqlTOF = (tdc2[10] + rand->Uniform(0,1))*LAS_CH2NS[0] - brf ;
     liqrTOF = (tdc2[11] + rand->Uniform(0,1))*LAS_CH2NS[0] - brf ;
+
+    //_______________________________ Physical
+    /*
+    //======= Stack X-pos
+    Double_t staX1h = tdc[0]-tdc[1];
+    Double_t staX2h = tdc[2]-tdc[3];
+   
+    //=======3He
+    Double_t beta = GR_LENGTH/grTOF1;
+    Double_t gamma = 1/TMath::Sqrt(1-beta*beta);
+    Double_t redMomt = Brho * (1 + grx/X_D) * cVAC;
+   
+    //======= PID
+    Double_t pidAOQ = Brho * (1 + grx/X_D) * cVAC / amu / beta/ gamma;
+    Double_t pidZ   = beta* TMath::Sqrt(grdE1) ;// 1st approx
+   
+    //======= neutron
+    Double_t beta_n = 0;
+   
+    //======= 3-body kinematics
+    TVector3 vInc, vGR, vn;
+    TLorentzVector pInc, pGR, pn;
+
+    /**/
       
     //----------- Fill       
     f1->cd(); //set focus on this file
@@ -324,7 +360,7 @@ void dst2root(TString openFileName, Int_t nEntries = 990000000){ //the file name
                 eventID,
                 eventID*100./nEntries,
                 time,
-                TMath::Floor(time/60), time - TMath::Floor(time/60)*60);
+                TMath::Floor(time/60.), time - TMath::Floor(time/60.)*60.);
         shown = 1;
       }
     }else{
