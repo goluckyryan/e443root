@@ -1,12 +1,12 @@
 const Int_t NPAR=9;
 
-void Count3He(){
+void Count3He(Double_t dx = 159.74){
         gROOT->Reset();
         gROOT->ProcessLine(".!date");
 
         //======================================================== InPut setting
 
-        char * rootfile = "X_run1035.root";
+        char * rootfile = "run1035.root";
         Int_t Div[2] = {1,1};  //x,y
         Int_t size[2] = {600,400}; //x,y
 
@@ -48,7 +48,7 @@ void Count3He(){
 
 	//tree->Draw("grdE1:grTOF1>>h1(500, 100, 350, 500, 0, 500)", "", "colz");
 	//tree->Draw("grdE1:grTOF1>>h1g(500, 100, 350, 500, 0, 500)", "cut3He_a || cut3He_b", "colz");
-	tree->Draw("grth*TMath::RadToDeg():grXC>>h2(600,-1000,1000,600,-1.5,1.5)", "cut3He_a || cut3He_b", "colz");
+	//tree->Draw("grth*TMath::RadToDeg():grXC>>h2(600,-1000,1000,600,-1.5,1.5)", "cut3He_a || cut3He_b", "colz");
 	tree->Draw("grXC>>h2px(1200,-600,600)", "cut3He_a || cut3He_b", "colz");
 
         //h2->ProjectionX("h2px")->Draw();
@@ -68,7 +68,28 @@ void Count3He(){
         TF1* g1 = new TF1("g1", CusFunc2, -600, 600, 3); g1->SetParameters(&para[0]); g1->SetLineColor(4); g1->Draw("same");
         TF1* g2 = new TF1("g2", "gaus(0)", -600, 600); g2->SetParameters(&para[3]); g2->SetLineColor(3); g2->Draw("same");
         TF1* g3 = new TF1("g3", "gaus(0)", -600, 600); g3->SetParameters(&para[6]); g3->SetLineColor(2); g3->Draw("same");
+
+        //Double_t xmin = para[7]-(para[4]-para[7]);
+        Double_t xmin = para[1]-3*para[2];
+        Double_t xmax = para[4];
         
+        Double_t gSide1 = g3->Integral(xmin-dx, xmin);
+        Double_t gSide2 = g3->Integral(xmax, xmax + dx);
+
+        printf("%9s count (%8.2f,%8.2f): %8.2f \n","g1+g2+g3",xmin,    xmax     , g1->Integral(xmin, xmax) + g2->Integral(xmin, xmax) + g3->Integral(xmin, xmax));
+        printf("%9s count (%8.2f,%8.2f): %8.2f \n","g1      ",xmin,    xmax     , g1->Integral(xmin, xmax));
+        printf("%9s	count (%8.2f,%8.2f): %8.2f \n","g3 Cent.",xmin,	 xmax	  , g3->Integral(xmin, xmax) );
+		printf("%9s	count (%8.2f,%8.2f): %8.2f \n","g3 Side1",xmin-dx, xmin	  , gSide1);
+		printf("%9s	count (%8.2f,%8.2f): %8.2f \n","g3 Side2",xmax,	 xmax + dx, gSide2);
+        printf("%9s  %8s%8s      count : %8.2f , diff : %8.2f \n","gSide",  "",           "", gSide1+gSide2, g3->Integral(xmin, xmax) - gSide1 - gSide2);
+
+        TLine line;
+        line.SetLineColor(9);
+        line.DrawLine(xmin, 0, xmin, h2px->GetMaximum());
+        line.DrawLine(xmax, 0, xmax, h2px->GetMaximum());
+        line.DrawLine(xmin-dx, 0, xmin-dx, (h2px->GetMaximum())/2);
+        line.DrawLine(xmax+dx, 0, xmax+dx, (h2px->GetMaximum())/2);
+
         /*
 	TVirtualFitter * fitter = TVirtualFitter::GetFitter();
 	assert(fitter !=0);
