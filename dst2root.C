@@ -54,6 +54,8 @@ void dst2root(TString openFileName, Int_t nEntries = 990000000){ //the file name
   //--------- BAND Stack
   Double_t sta1h,sta2h,sta1v,sta2v,sta3v,sta4v;
   Double_t sta1hTavg,sta2hTavg,sta1vTavg,sta2vTavg,sta3vTavg,sta4vTavg;
+  Double_t sta1hTdif,sta2hTdif,sta1vTdif,sta2vTdif,sta3vTdif,sta4vTdif;
+  Int_t staMult;
   //--------- BAND liquid
   Double_t liqlf,liqld,liqrf,liqrd;
   //--------- GRRF & BANDRF
@@ -106,6 +108,8 @@ void dst2root(TString openFileName, Int_t nEntries = 990000000){ //the file name
   t1->Branch("blo4TOF", &blo4TOF, "blo4TOF/D");
 
   t1->Branch("adc", adc, "adc[12]/D");
+  t1->Branch("tdc", tdc, "tdc[12]/D");
+  t1->Branch("staMult", &staMult, "staMult/I");
   t1->Branch("sta1h", &sta1h, "sta1h/D");
   t1->Branch("sta2h", &sta2h, "sta2h/D");
   t1->Branch("sta1v", &sta1v, "sta1v/D");
@@ -123,6 +127,14 @@ void dst2root(TString openFileName, Int_t nEntries = 990000000){ //the file name
   t1->Branch("sta2vTavg", &sta2vTavg, "sta2vTavg/D");
   t1->Branch("sta3vTavg", &sta3vTavg, "sta3vTavg/D");
   t1->Branch("sta4vTavg", &sta4vTavg, "sta4vTavg/D");
+
+  t1->Branch("sta1hTdif", &sta1hTdif, "sta1hTdif/D");
+  t1->Branch("sta2hTdif", &sta2hTdif, "sta2hTdif/D");
+  t1->Branch("sta1vTdif", &sta1vTdif, "sta1vTdif/D");
+  t1->Branch("sta2vTdif", &sta2vTdif, "sta2vTdif/D");
+  t1->Branch("sta3vTdif", &sta3vTdif, "sta3vTdif/D");
+  t1->Branch("sta4vTdif", &sta4vTdif, "sta4vTdif/D");
+  
   t1->Branch("sta1hTOF", &sta1hTOF, "sta1hTOF/D");
   t1->Branch("sta2hTOF", &sta2hTOF, "sta2hTOF/D");
   t1->Branch("sta1vTOF", &sta1vTOF, "sta1vTOF/D");
@@ -206,6 +218,14 @@ void dst2root(TString openFileName, Int_t nEntries = 990000000){ //the file name
    sta2vTavg = TMath::QuietNaN();
    sta3vTavg = TMath::QuietNaN();
    sta4vTavg = TMath::QuietNaN();
+   
+   sta1hTdif = TMath::QuietNaN();
+   sta2hTdif = TMath::QuietNaN();
+   sta1vTdif = TMath::QuietNaN();
+   sta2vTdif = TMath::QuietNaN();
+   sta3vTdif = TMath::QuietNaN();
+   sta4vTdif = TMath::QuietNaN();
+     
    sta1hTOF = TMath::QuietNaN();
    sta2hTOF = TMath::QuietNaN();
    sta1vTOF = TMath::QuietNaN();
@@ -245,18 +265,18 @@ void dst2root(TString openFileName, Int_t nEntries = 990000000){ //the file name
     //------------ GR rf
     fp>>grrf;
     //------------ Stack ADC
-    fp>>adc[0];  //if(adc[0] < 0) adc[0] = TMath::QuietNaN();
-    fp>>adc[1];  //if(adc[1] < 0) adc[1] = TMath::QuietNaN();
-    fp>>adc[2];  //if(adc[2] < 0) adc[2] = TMath::QuietNaN();
-    fp>>adc[3];  //if(adc[3] < 0) adc[3] = TMath::QuietNaN();
-    fp>>adc[4];  //if(adc[4] < 0) adc[4] = TMath::QuietNaN();
-    fp>>adc[5];  //if(adc[5] < 0) adc[5] = TMath::QuietNaN();
-    fp>>adc[6];  //if(adc[6] < 0) adc[6] = TMath::QuietNaN();
-    fp>>adc[7];  //if(adc[7] < 0) adc[7] = TMath::QuietNaN();
-    fp>>adc[8];  //if(adc[8] < 0) adc[8] = TMath::QuietNaN();
-    fp>>adc[9];  //if(adc[9] < 0) adc[9] = TMath::QuietNaN();
-    fp>>adc[10]; //if(adc[10] < 0) adc[10] = TMath::QuietNaN();
-    fp>>adc[11]; //if(adc[11] < 0) adc[11] = TMath::QuietNaN();
+    fp>>adc[0];  //if(adc[0]  < 5) adc[0] = TMath::QuietNaN();
+    fp>>adc[1];  //if(adc[1]  < 5) adc[1] = TMath::QuietNaN();
+    fp>>adc[2];  //if(adc[2]  < 5) adc[2] = TMath::QuietNaN();
+    fp>>adc[3];  //if(adc[3]  < 5) adc[3] = TMath::QuietNaN();
+    fp>>adc[4];  //if(adc[4]  < 5) adc[4] = TMath::QuietNaN();
+    fp>>adc[5];  //if(adc[5]  < 5) adc[5] = TMath::QuietNaN();
+    fp>>adc[6];  //if(adc[6]  < 5) adc[6] = TMath::QuietNaN();
+    fp>>adc[7];  //if(adc[7]  < 5) adc[7] = TMath::QuietNaN();
+    fp>>adc[8];  //if(adc[8]  < 5) adc[8] = TMath::QuietNaN();
+    fp>>adc[9];  //if(adc[9]  < 5) adc[9] = TMath::QuietNaN();
+    fp>>adc[10]; //if(adc[10] < 5) adc[10] = TMath::QuietNaN();
+    fp>>adc[11]; //if(adc[11] < 5) adc[11] = TMath::QuietNaN();
     //------------ BAND telesope ADC, Liquid ADC
     fp>>adc2[0];
     fp>>adc2[1];
@@ -334,6 +354,8 @@ void dst2root(TString openFileName, Int_t nEntries = 990000000){ //the file name
     sta3v = TMath::Sqrt(adc[8]/122.*adc[9]/131.);
     sta4v = TMath::Sqrt(adc[10]/127.*adc[11]/124.);
 
+
+    staMult = 0;
     
     sta_even = 6.4*(sta1h+sta2h);
     sta_odd = 6.4*(sta1v+sta2v+sta3v+sta4v);
@@ -349,7 +371,14 @@ void dst2root(TString openFileName, Int_t nEntries = 990000000){ //the file name
     sta2vTavg = (tdc[6] + tdc[7] )/2.*LAS_CH2NS[7];
     sta3vTavg = (tdc[8] + tdc[9] )/2.*LAS_CH2NS[8];
     sta4vTavg = (tdc[10]+ tdc[11])/2.*LAS_CH2NS[9];
-      
+
+    sta1hTdif = (tdc[0] - tdc[1] + rand -> Uniform(0,1)- rand -> Uniform(0,1))*LAS_CH2NS[4];   
+    sta2hTdif = (tdc[2] - tdc[3] + rand -> Uniform(0,1)- rand -> Uniform(0,1))*LAS_CH2NS[5];   
+    sta1vTdif = (tdc[4] - tdc[5] + rand -> Uniform(0,1)- rand -> Uniform(0,1))*LAS_CH2NS[6];   
+    sta2vTdif = (tdc[6] - tdc[7] + rand -> Uniform(0,1)- rand -> Uniform(0,1))*LAS_CH2NS[7];   
+    sta3vTdif = (tdc[8] - tdc[9] + rand -> Uniform(0,1)- rand -> Uniform(0,1))*LAS_CH2NS[8];   
+    sta4vTdif = (tdc[10]- tdc[11]+ rand -> Uniform(0,1)- rand -> Uniform(0,1))*LAS_CH2NS[9];   
+    
     sta1hTOF = sta1hTavg + ((rand->Uniform(0,1)+rand->Uniform(0,1))/2. - (lrf[1] + rand->Uniform(0,1)))*LAS_CH2NS[4] + STACK_TOF_OFFSET[0];
     sta2hTOF = sta2hTavg + ((rand->Uniform(0,1)+rand->Uniform(0,1))/2. - (lrf[1] + rand->Uniform(0,1)))*LAS_CH2NS[5] + STACK_TOF_OFFSET[1];
     sta1vTOF = sta1vTavg + ((rand->Uniform(0,1)+rand->Uniform(0,1))/2. - (lrf[1] + rand->Uniform(0,1)))*LAS_CH2NS[6] + STACK_TOF_OFFSET[2];
@@ -384,10 +413,10 @@ void dst2root(TString openFileName, Int_t nEntries = 990000000){ //the file name
     blo4TOF = blo4Tavg + ((rand->Uniform(0,1)+rand->Uniform(0,1))/2. - (lrf[1] + rand->Uniform(0,1)))*LAS_CH2NS[3] + BLOCK_TOF_OFFSET[3];
    
     //-------------- Liquid
-    liqlf = adc2[10];
-    liqld = adc2[11];
-    liqrf = adc2[12];
-    liqrd = adc2[13];
+    liqlf = adc2[10] + rand->Uniform(0,1);
+    liqld = adc2[11] + rand->Uniform(0,1);
+    liqrf = adc2[12] + rand->Uniform(0,1);
+    liqrd = adc2[13] + rand->Uniform(0,1);
     liqlTOF = (tdc2[10] + rand->Uniform(0,1))*LAS_CH2NS[0] - brf ;
     liqrTOF = (tdc2[11] + rand->Uniform(0,1))*LAS_CH2NS[0] - brf ;
 

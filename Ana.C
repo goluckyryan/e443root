@@ -2,46 +2,25 @@
         gROOT->Reset();
         gROOT->ProcessLine(".!date");
         gROOT->ProcessLine(".L ~/ana/yulei/rootmacro/constant.h");
+        gROOT->ProcessLine(".L ~/ana/yulei/rootmacro/nuclei_mass.h");
         
         //======================================================== InPut setting
         char * rootfile = "run1035.root";
-        Int_t Div[2] = {3,1};  //x,y
-        Int_t size[2] = {1200,400}; //x,y
+        Int_t Div[2] = {2,2};  //x,y
+        Int_t size[2] = {400,400}; //x,y
+        
+        Bool_t analysis = 0; // 0 = no analysis, only load root file and gate; 1 = analysis.
         
         Double_t BGscale = 1.0;
-
-	//====================================== Load root file
+        
+	    //====================================== Load root file
         TFile *f0 = new TFile (rootfile, "read"); 
         TTree *tree = (TTree*)f0->Get("tree");
         printf("=====> /// %15s //// is loaded. Total #Entry: %10d \n", rootfile,  tree->GetEntries());
         gStyle->SetOptStat(1112211);
         gStyle->SetOptFit(1);
-        
-        //======================================================== Browser or Canvas
-        TCanvas * cAna = new TCanvas("cAna", "cAna", 200, 0 , size[0]*Div[0], size[1]*Div[1]);
-        cAna->Divide(Div[0],Div[1]);
-        cAna->cd(1);
-        //======================================================== Cut/Gate
-        TString gateStr; 
-        
-        gateStr.Form("0<blo1Tavg && blo1Tavg<250*%f",LAS_CH2NS[0]); TCut gateBlo1 = gateStr;
-        gateStr.Form("0<blo2Tavg && blo2Tavg<250*%f",LAS_CH2NS[1]); TCut gateBlo2 = gateStr;
-        gateStr.Form("0<blo3Tavg && blo3Tavg<250*%f",LAS_CH2NS[2]); TCut gateBlo3 = gateStr;
-        gateStr.Form("0<blo4Tavg && blo4Tavg<250*%f",LAS_CH2NS[3]); TCut gateBlo4 = gateStr;
-        
-        gateStr.Form("0<sta1hTavg && sta1hTavg<400*%f",LAS_CH2NS[4]); TCut gateSta1h = gateStr;
-        gateStr.Form("0<sta2hTavg && sta2hTavg<400*%f",LAS_CH2NS[5]); TCut gateSta2h = gateStr;
-        gateStr.Form("0<sta1vTavg && sta1vTavg<400*%f",LAS_CH2NS[6]); TCut gateSta1v = gateStr;
-        gateStr.Form("0<sta2vTavg && sta2vTavg<400*%f",LAS_CH2NS[7]); TCut gateSta2v = gateStr;
-        gateStr.Form("0<sta3vTavg && sta3vTavg<400*%f",LAS_CH2NS[8]); TCut gateSta3v = gateStr;
-        gateStr.Form("0<sta4vTavg && sta4vTavg<400*%f",LAS_CH2NS[9]); TCut gateSta4v = gateStr;
-        
-        TCut gateN = "";
-        
-        //------- complex gate
-        TCut gateBloAll  = gateBlo1  || gateBlo2  || gateBlo3  || gateBlo4;
-        TCut gateStaAll  = gateSta1h || gateSta2h || gateSta1v || gateSta1v || gateSta2v || gateSta3v || gateSta4v;
-   
+
+        //======================================================== Cut/Gate      
         //------- Graphical Cut
         TCutG * gate3He_a = new TCutG("cut3He_a", 5);
         gate3He_a->SetVarX("grTOF1");
@@ -63,16 +42,76 @@
         gate3He_b->SetPoint(4, 208.6+99, 343.0);
         gate3He_b->SetPoint(5, 183.7+99, 305.8);
 
+        //--------- Simple cut
+        TString gateStr; 
+        
+        gateStr.Form("0<blo1Tavg && blo1Tavg<250*%f",LAS_CH2NS[0]); TCut gateBlo1 = gateStr;
+        gateStr.Form("0<blo2Tavg && blo2Tavg<250*%f",LAS_CH2NS[1]); TCut gateBlo2 = gateStr;
+        gateStr.Form("0<blo3Tavg && blo3Tavg<250*%f",LAS_CH2NS[2]); TCut gateBlo3 = gateStr;
+        gateStr.Form("0<blo4Tavg && blo4Tavg<250*%f",LAS_CH2NS[3]); TCut gateBlo4 = gateStr;
+        
+        gateStr.Form("0<sta1hTavg && sta1hTavg<400*%f",LAS_CH2NS[4]); TCut gateSta1h = gateStr;
+        gateStr.Form("0<sta2hTavg && sta2hTavg<400*%f",LAS_CH2NS[5]); TCut gateSta2h = gateStr;
+        gateStr.Form("0<sta1vTavg && sta1vTavg<400*%f",LAS_CH2NS[6]); TCut gateSta1v = gateStr;
+        gateStr.Form("0<sta2vTavg && sta2vTavg<400*%f",LAS_CH2NS[7]); TCut gateSta2v = gateStr;
+        gateStr.Form("0<sta3vTavg && sta3vTavg<400*%f",LAS_CH2NS[8]); TCut gateSta3v = gateStr;
+        gateStr.Form("0<sta4vTavg && sta4vTavg<400*%f",LAS_CH2NS[9]); TCut gateSta4v = gateStr;
+
+        //-----------------stack neutron gate
+        Double_t gnmin = -12.0, gnmax = -8.0; //ns
+        TCut gateStaNeu1h = "(gnmin < sta1hTOF && sta1hTOF < gnmax) || (gnmin + 98.5 < sta1hTOF && sta1hTOF < gnmax + 98.5)";
+        TCut gateStaNeu2h = "(gnmin < sta2hTOF && sta2hTOF < gnmax) || (gnmin + 98.5 < sta2hTOF && sta2hTOF < gnmax + 98.5)";
+        TCut gateStaNeu1v = "(gnmin < sta1vTOF && sta1vTOF < gnmax) || (gnmin + 98.5 < sta1vTOF && sta1vTOF < gnmax + 98.5)";
+        TCut gateStaNeu2v = "(gnmin < sta2vTOF && sta2vTOF < gnmax) || (gnmin + 98.5 < sta2vTOF && sta2vTOF < gnmax + 98.5)";
+        TCut gateStaNeu3v = "(gnmin < sta3vTOF && sta3vTOF < gnmax) || (gnmin + 98.5 < sta3vTOF && sta3vTOF < gnmax + 98.5)";
+        TCut gateStaNeu4v = "(gnmin < sta4vTOF && sta4vTOF < gnmax) || (gnmin + 98.5 < sta4vTOF && sta4vTOF < gnmax + 98.5)";
+
+        TCut gateStaNeu = (gateStaNeu1h || gateStaNeu2h || gateStaNeu1v || gateStaNeu2v || gateStaNeu3v || gateStaNeu4v); 
+       
+
+        TCut gateXC_cent = "-171.79 < grXC && grXC < 107.67";
+        TCut gateXC_side1 = "-331.53 < grXC && grXC < -171.79";
+        TCut gateXC_side2 = "107.67 < grXC && grXC < 267.41";
+
+        TCut gateGRLAS = "coinReg == 16";
+        TCut gateFinite = "TMath::Finite(grXC)";
+
+         //------- complex gate
+        TCut gate3He = "cut3He_a || cut3He_b";
+        TCut gateBloTri  = (gateBlo1  || gateBlo2  || gateBlo3  || gateBlo4);
+        TCut gateStaTri  = (gateSta1h || gateSta2h || gateSta1v || gateSta1v || gateSta2v || gateSta3v || gateSta4v);
+        TCut gateTem  = "vetogate == 1" && gateFinite + gateGRLAS + gate3He + gateStaTri;
+        
+
+
+        printf("........ loaded gates\n"); 
+        
+
+        if( analysis == 0) {
+          printf("............. end of Ana.C\n");
+          return;
+        }
+
+        //======================================================== Browser or Canvas
+        TCanvas * cAna = new TCanvas("cAna", "cAna", 200, 0 , size[0]*Div[0], size[1]*Div[1]);
+        cAna->Divide(Div[0],Div[1]);
+        cAna->cd(1);
+
         /////======================================================== analysis
         tree->Draw("grdE1:grTOF1>>h1(500, 100, 350, 500, 0, 500)", "", "colz");
         tree->Draw("grdE1:grTOF1>>h1g(500, 100, 350, 500, 0, 500)", "cut3He_a || cut3He_b", "colz");
         tree->Draw("grth*TMath::RadToDeg():grXC>>h2(600,-1000,1000,600,-1.5,1.5)", "cut3He_a || cut3He_b", "colz");
 
-        tree->Draw("sta_sum:sta_ratio>>s1(200,-1.1,1.1, 200,0.,30.)", gateStaAll, "colz");
+        /*
+        tree->Draw("sta_sum:sta_ratio>>s1(200,-1.1,1.1, 200,0.,50.)", gateStaAll + gateXC_cent, "colz");
         cAna->cd(2);
-        tree->Draw("sta_sum:sta_ratio>>s2(200,-1.1,1.1, 200,0.,30.)", gateStaAll + "vetogate == 1 && (cut3He_a || cut3He_b)", "colz");
+        tree->Draw("sta_sum:sta_ratio>>s2(200,-1.1,1.1, 200,0.,50.)", gateStaAll + ( gateXC_side1 || gateXC_side2), "colz");
         cAna->cd(3);
-        tree->Draw("sta1hTOF>>s3(200,-50,150)", "cut3He_a || cut3He_b");
+        tree->Draw("grXC>>s3(200,-600,600)", gateStaAll + gateXC_cent);
+        
+        //tree->Draw("sta1hTOF>>s3(200,-50,150)", gateStaAll + gateXC_cent);
+        cAna->cd(4);
+        tree->Draw("grXC>>s4(200,-600,600)", gateStaAll + ( gateXC_side1 || gateXC_side2));
 
 
 	/*
@@ -285,4 +324,6 @@
         
 
         /* */
+
+        printf("............. end of Ana.C\n");
 }

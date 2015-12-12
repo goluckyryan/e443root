@@ -75,6 +75,7 @@
         TCut gateStaAll  = gateSta1h || gateSta2h || gateSta1v || gateSta1v || gateSta2v || gateSta3v || gateSta4v;
         TCut gateSta  = gateStaAll + "vetogate == 1 && (cut3He_a || cut3He_b)" + gateGRLAS;
         
+        
         /////======================================================== analysis
 		tree->Draw("adc[0]:adc[1]>>h1h(100, -50, 150, 100, -50, 100)",	 gateGRLAS, "colz");
 		//tree->Draw("adc[2]:adc[2]>>h2h(100, -50, 150, 100, -50, 100)",   gateGRLAS, "colz");
@@ -83,17 +84,17 @@
 		//tree->Draw("adc[8]:adc[9]>>h3v(100, -50, 150, 100, -50, 100)",   gateGRLAS, "colz");
 		//tree->Draw("adc[10]:adc[11]>>h4v(100, -50, 150, 100, -50, 100)", gateGRLAS, "colz");
  
-		tree->Draw("sqrt((adc[0]+50)*(adc[1]+50)):sta1h*120>>h1(100, -50, 150, 100, 0, 150)", gateSta, "colz");
- 
- 
-		tree->Draw("sqrt((adc[0]+50)*(adc[1]+50))+sqrt((adc[2]+50)*(adc[3]+50))+sqrt((adc[4]+50)*(adc[5]+50))+sqrt((adc[6]+50)*(adc[7]+50))+sqrt((adc[8]+50)*(adc[9]+50))+sqrt((adc[10]+50)*(adc[11]+50)):sta_sum>>h2(100, -0, 20, 100, 300, 600)", gateSta, "colz");
- 
-		
-		tree->Draw("sqrt((adc[0]+50)*(adc[1]+50))+sqrt((adc[2]+50)*(adc[3]+50))+sqrt((adc[4]+50)*(adc[5]+50))+sqrt((adc[6]+50)*(adc[7]+50))+sqrt((adc[8]+50)*(adc[9]+50))+sqrt((adc[10]+50)*(adc[11]+50)):sta_ratio>>h3(100, -1, 1, 100, 300, 600)", gateSta, "colz");
-		tree->Draw("sta_sum:sta_ratio>>h4(100, -1, 1, 100, 0, 20)", gateSta, "colz");
- 
-		tree->Draw("sta_sum:sta_ratio>>h4a(100, -1, 1, 100, 0, 20)", gateSta + !gateStaPed, "colz");
+//		tree->Draw("sqrt((adc[0]+50)*(adc[1]+50)):sta1h*120>>h1(100, -50, 150, 100, 0, 150)", gateSta, "colz");
+//
+//
+//		tree->Draw("sqrt((adc[0]+50)*(adc[1]+50))+sqrt((adc[2]+50)*(adc[3]+50))+sqrt((adc[4]+50)*(adc[5]+50))+sqrt((adc[6]+50)*(adc[7]+50))+sqrt((adc[8]+50)*(adc[9]+50))+sqrt((adc[10]+50)*(adc[11]+50)):sta_sum>>h2(100, -0, 20, 100, 300, 600)", gateSta, "colz");
+//
+//		
+//		tree->Draw("sqrt((adc[0]+50)*(adc[1]+50))+sqrt((adc[2]+50)*(adc[3]+50))+sqrt((adc[4]+50)*(adc[5]+50))+sqrt((adc[6]+50)*(adc[7]+50))+sqrt((adc[8]+50)*(adc[9]+50))+sqrt((adc[10]+50)*(adc[11]+50)):sta_ratio>>h3(100, -1, 1, 100, 300, 600)", gateSta, "colz");
+//		tree->Draw("sta_sum:sta_ratio>>h4(100, -1, 1, 100, 0, 20)", gateSta, "colz");
+//
+		//tree->Draw("sta_sum:sta_ratio>>h4a(100, -1, 1, 100, 0, 20)", gateSta + !gateStaPed, "colz");
 
 
-//        tree->Draw("adc[0]:adc[1]:adc[2]:adc[3]:adc[4]:adc[5]:adc[6]:adc[7]:adc[8]:adc[9]:adc[10]:adc[11]:sta_sum:sta_ratio", gateSta, "para");
+        //        tree->Draw("adc[0]:adc[1]:adc[2]:adc[3]:adc[4]:adc[5]:adc[6]:adc[7]:adc[8]:adc[9]:adc[10]:adc[11]:sta_sum:sta_ratio", gateSta, "para");
 }
