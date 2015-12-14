@@ -67,7 +67,7 @@ void dst2root(TString openFileName, Int_t nEntries = 990000000){ //the file name
   Double_t liqlTOF,liqrTOF;
   Double_t sta_odd,sta_even,sta_ratio,sta_sum;
 
-  Double_t grXC;
+  Double_t grXC,grthC;
 
 
   //------------make tree branch
@@ -187,6 +187,7 @@ void dst2root(TString openFileName, Int_t nEntries = 990000000){ //the file name
    grTOF2 = TMath::QuietNaN();
 
    grXC = TMath::QuietNaN();
+   grthC = TMath::QuietNaN();
 
    //--------- BAND_TELE
    badEl = TMath::QuietNaN();
@@ -327,6 +328,7 @@ void dst2root(TString openFileName, Int_t nEntries = 990000000){ //the file name
     //===================================== 2ndary data processing
     //------------- Axuillary 
     grXC = grx - 380./2.3*grth*TMath::RadToDeg();
+    grthC = -0.4191*(grth-0.008770-3.591e-5*grx);
       
     //_______________________________ Gate
    
