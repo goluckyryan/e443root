@@ -3,10 +3,10 @@
         gROOT->ProcessLine(".!date");
         gROOT->ProcessLine(".L ~/ana/yulei/rootmacro/constant.h");
         gROOT->ProcessLine(".L ~/ana/yulei/rootmacro/nuclei_mass.h");
-        
+        gROOT->ProcessLine(".L ~/ana/yulei/rootmacro/Fit_2Gauss.c");
         //======================================================== InPut setting
-        char * rootfile = "run1035.root";
-        Int_t Div[2] = {3,1};  //x,y
+        char * rootfile = "X_run1035.root";
+        Int_t Div[2] = {1,1};  //x,y
         Int_t size[2] = {600,600}; //x,y
         
         Bool_t analysis = 1; // 0 = no analysis, only load root file and gate; 1 = analysis.
@@ -78,21 +78,29 @@
         TCut gateGRLAS = "coinReg == 16";
         TCut gateFinite = "TMath::Finite(grXC)";
 
+        //----------- Liquid discrimination
+        
+        TCut gateL1 =  "liqlf < 3.75 *liqld +  25.    && liqld <= 20";
+        TCut gateL2 =  "liqlf < 5./3.*liqld + 200./3. && liqld > 20";
+
+        TCut gateR1 =  "liqrf < 4.   *liqrd + 20.     && liqrd <= 20";
+        TCut gateR2 =  "liqrf < 5./3.*liqrd + 200./3. && liqrd > 20";
+
+        TCut gateL = gateL1 || gateL2;
+        TCut gateR = gateR1 || gateR2;
+
          //------- complex gate
         TCut gate3He = "cut3He_a || cut3He_b";
         TCut gateBloTri  = (gateBlo1  || gateBlo2  || gateBlo3  || gateBlo4);
         TCut gateStaTri  = (gateSta1h || gateSta2h || gateSta1v || gateSta1v || gateSta2v || gateSta3v || gateSta4v);
         TCut gateTem  = "vetogate == 1" && gateFinite + gateGRLAS + gate3He + gateStaTri;
-        
-
 
         printf("........ loaded gates\n"); 
-        
-
+   
         if( analysis == 0) {
           printf("............. end of Ana.C\n");
           return;
-        }
+        }   
 
         printf(".......... start analysis \n");
         //======================================================== Browser or Canvas
@@ -101,6 +109,36 @@
         cAna->cd(1);
 
         /////======================================================== analysis
+
+        tree->Draw("ratio1>>h1(200,0.9,1.2)", gate3He + gateL+ "liqld>20" , "colz");
+
+        Fit_2Gauss(h1, 250, 1.01, 0.02, 300, 1.05, 0.02);
+
+        TH1F* k1 = new TH1F("k1", "k1", 200, 0.9, 1.2);  
+        
+        for( Int_t i = 1; i <=200; i++){
+           double x = h1->GetBinCenter(i); 
+           k1->Fill(x, Gauss1->Eval(x));
+        }
+        
+        TH1F* k2 = new TH1F(*h1 - *k1);
+
+        k2->Draw();
+        
+
+        /*
+        tree->Draw("liqlf:liqld>>h1(500,0,140,500,0,200", gate3He, "colz");
+        //tree->Draw("liqrf:liqrd>>h2(500,0,140,500,0,200", gate3He, "colz");
+
+        cAna->cd(2);
+        tree->Draw("liqlf:liqld>>h1g(500,0,140,500,0,200", gate3He + gateL, "colz");
+        //tree->Draw("liqrf:liqrd>>h2g(500,0,140,500,0,200", gate3He, "colz");
+
+        
+        //TF1 * fL = new TF1("fL", 3.75*x + 25, 0, 20); 
+
+
+        
         /*  tree->Draw("grdE1:grTOF1>>h1(500, 100, 350, 500, 0, 500)", "", "colz");
         tree->Draw("grdE1:grTOF1>>h1g(500, 100, 350, 500, 0, 500)", "cut3He_a || cut3He_b", "colz");
         tree->Draw("grth*TMath::RadToDeg():grx>>h2(600,-1000,1000,600,-3,3)", "cut3He_a || cut3He_b", "colz");
@@ -129,13 +167,7 @@
 
 
 	/*
-        tree->Draw("Ex>>oAll( 50, -140, 180)", gate )  ; oAll->SetTitle(gateStr);
-        tree->Draw("Ex>>oAllc(50, -140, 180)", gatec ) ; oAllc->SetTitle(gatecStr); oAllc->SetLineColor(2);
-        
-        oAllc->Scale(BGscale); TH1F* mAll = new TH1F(*oAll - *oAllc); mAll->SetName("mAll");mAll->SetTitle("23F(p,2p)22O*"); mAll->SetLineColor(1); mAll->SetLineWidth(2);
-
-        m21->SetXTitle("Ex [MeV]"); m21->SetYTitle("count / 2 MeV");
-
+     
         THStack *mS = new THStack("mS", "Stack of Ex for 22O - 18O");
         mS->Add(m22);
         mS->Add(m21);
@@ -188,7 +220,40 @@
         TH1F* k2 = new TH1F(*h2px - *k1);
         k2->Draw();
         
-        *////============================================================
+/* =================================================== discrimination 
+    Double_t paraL1[7] = {-23.7487397849174,12.4173924736471,-0.828505201407496,3.21874524544915e-2,-6.68727859698445e-4,7.02202234122151e-6,-2.927396710109e-8};   
+   TF1* polL1 = new TF1 ("polL1", "pol6(0)", 0, 40);
+   polL1->SetParameters(paraL1);
+
+   Double_t paraL2[7] = {0.172266977459559,5.9637634482046,-0.304035887742127,1.07119395996909e-2,-2.06969268428427e-4,2.0368291152803e-6,-7.95796852547104e-9};
+   TF1* polL2 = new TF1 ("polL2", "pol6(0)", 0, 40);
+   polL2->SetParameters(paraL2);
+
+   Double_t X1 = 10.;
+   Double_t dpolL1 = polL1->Derivative(X1); 
+   Double_t dpolL2 = polL2->Derivative(X1);
+
+   TF1 * L1 = new TF1("L1", "pol1", -100, 40);
+   L1->SetParameter(0,polL1->Eval(X1)-dpolL1*X1);
+   L1->SetParameter(1,dpolL1);
+   
+   TF1 * L2 = new TF1("L2", "pol1", -100, 40);
+   L2->SetParameter(0,polL2->Eval(X1)-dpolL2*X1);
+   L2->SetParameter(1,dpolL2);
+
+   L1->SetLineColor(4);L1->Draw("");
+   L2->SetLineColor(6);L2->Draw("same");
+
+   polL1->Draw("same");
+   polL2->Draw("same");
+   
+   
+   Double_t xp = -(polL1->Eval(X1)-dpolL1*X1-polL2->Eval(X1)+dpolL2*X1)/(dpolL1-dpolL2);
+   Double_t yp = dpolL1*(xp-X1) + polL1->Eval(X1);
+
+   printf("xp, yp: %f, %f\n", xp, yp);
+
+        
 
 /*++++++++++++++++++++++++++++++++++++++++++++++ Momentum*/
 	/*	
@@ -333,9 +398,6 @@
                 
                 printf("x:%4.0f, yLu:%4.0f, yRu:%4.0f, yLd:%4.0f, yRd:%4.0f, AyP:%6.4f, dAyp:%10.6f, Ay:%10.6f, dAy:%10.6f, tAy:%10.6f\n", xBin[i], yLu[i], yRu[i], yLd[i], yRd[i], AyP[i], dAyP, Ay, dAy, tAy); 
         }
-        
-                
-        
 
         /* */
 

@@ -7,12 +7,11 @@
 #include <string>
 #include <stdio.h>
 #include <stdlib.h>  //atoi
+#include "constant.h"
+
 using namespace std;
 
 const string dataPath="/home/e443/ana/yulei/rootmacro/mass12.txt";
-const double amu = 931.494;
-const double mp = 938.272;
-const double mn = 939.565;
 
 // about the mass12.txt
 // Mass Excess = (ATOMIC MASS - A)*amu | e.g. n : (1.088664.91585E-6-1)*amu
