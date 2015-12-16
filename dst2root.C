@@ -68,6 +68,7 @@ void dst2root(TString openFileName, Int_t nEntries = 990000000){ //the file name
   Double_t sta_odd,sta_even,sta_ratio,sta_sum;
 
   Double_t grXC,grthC;
+  Double_t grXAux;
 
 
   //------------make tree branch
@@ -87,6 +88,8 @@ void dst2root(TString openFileName, Int_t nEntries = 990000000){ //the file name
    
   t1->Branch("grf", &grf, "grf/D");
   t1->Branch("grXC", &grXC, "grXC/D");
+  t1->Branch("grthC", &grthC, "grthC/D");
+  t1->Branch("grXAux", &grXAux, "grXAux/D");
 
   t1->Branch("badEl", &badEl, "badEl/D");
   t1->Branch("badEr", &badEr, "badEr/D");
@@ -155,6 +158,8 @@ void dst2root(TString openFileName, Int_t nEntries = 990000000){ //the file name
   //=================== read file
   ifstream fp;
   fp.open(openFileName);
+
+  if( !fp.is_open() ) printf("******* cannot open dst file\n");
   
   TBenchmark clock;
   Bool_t shown = 0;
@@ -188,6 +193,7 @@ void dst2root(TString openFileName, Int_t nEntries = 990000000){ //the file name
 
    grXC = TMath::QuietNaN();
    grthC = TMath::QuietNaN();
+   grXAux = TMath::QuietNaN();
 
    //--------- BAND_TELE
    badEl = TMath::QuietNaN();
@@ -329,7 +335,7 @@ void dst2root(TString openFileName, Int_t nEntries = 990000000){ //the file name
     //------------- Axuillary 
     grXC = grx - 380./2.3*grth*TMath::RadToDeg();
     grthC = -0.4191*(grth-0.008770-3.591e-5*grx);
-      
+    grXAux = grx - 140 * grth* TMath::RadToDeg() + 50 ;  
     //_______________________________ Gate
    
     vetogate = 0;
