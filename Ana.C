@@ -6,10 +6,10 @@
         
         //======================================================== InPut setting
         char * rootfile = "run1035.root";
-        Int_t Div[2] = {2,2};  //x,y
-        Int_t size[2] = {400,400}; //x,y
+        Int_t Div[2] = {3,1};  //x,y
+        Int_t size[2] = {600,600}; //x,y
         
-        Bool_t analysis = 0; // 0 = no analysis, only load root file and gate; 1 = analysis.
+        Bool_t analysis = 1; // 0 = no analysis, only load root file and gate; 1 = analysis.
         
         Double_t BGscale = 1.0;
         
@@ -59,7 +59,9 @@
 
         //-----------------stack neutron gate
         Double_t gnmin = -12.0, gnmax = -8.0; //ns
-        TCut gateStaNeu1h = "(gnmin < sta1hTOF && sta1hTOF < gnmax) || (gnmin + 98.5 < sta1hTOF && sta1hTOF < gnmax + 98.5)";
+
+        gateStr.Form("(%f < sta1hTOF && sta1hTOF < %f) || (%f + 98.5 < sta1hTOF && sta1hTOF < %f + 98.5)", gnmin, gnmax, gnmin, gnmax);
+        TCut gateStaNeu1h = gateStr;
         TCut gateStaNeu2h = "(gnmin < sta2hTOF && sta2hTOF < gnmax) || (gnmin + 98.5 < sta2hTOF && sta2hTOF < gnmax + 98.5)";
         TCut gateStaNeu1v = "(gnmin < sta1vTOF && sta1vTOF < gnmax) || (gnmin + 98.5 < sta1vTOF && sta1vTOF < gnmax + 98.5)";
         TCut gateStaNeu2v = "(gnmin < sta2vTOF && sta2vTOF < gnmax) || (gnmin + 98.5 < sta2vTOF && sta2vTOF < gnmax + 98.5)";
@@ -92,15 +94,27 @@
           return;
         }
 
+        printf(".......... start analysis \n");
         //======================================================== Browser or Canvas
         TCanvas * cAna = new TCanvas("cAna", "cAna", 200, 0 , size[0]*Div[0], size[1]*Div[1]);
         cAna->Divide(Div[0],Div[1]);
         cAna->cd(1);
 
         /////======================================================== analysis
-        tree->Draw("grdE1:grTOF1>>h1(500, 100, 350, 500, 0, 500)", "", "colz");
+        /*  tree->Draw("grdE1:grTOF1>>h1(500, 100, 350, 500, 0, 500)", "", "colz");
         tree->Draw("grdE1:grTOF1>>h1g(500, 100, 350, 500, 0, 500)", "cut3He_a || cut3He_b", "colz");
-        tree->Draw("grth*TMath::RadToDeg():grXC>>h2(600,-1000,1000,600,-1.5,1.5)", "cut3He_a || cut3He_b", "colz");
+        tree->Draw("grth*TMath::RadToDeg():grx>>h2(600,-1000,1000,600,-3,3)", "cut3He_a || cut3He_b", "colz");
+        
+        cAna->cd(2);
+        tree->Draw("grph*TMath::RadToDeg():gry>>h3(600,-100,100,600,-3,-3)", "cut3He_a || cut3He_b", "colz");
+
+        cAna->cd(3);
+        tree->Draw("grph*TMath::RadToDeg():grth*TMath::RadToDeg()>>h4(600,-5,5,600,-5,5)", "cut3He_a || cut3He_b", "colz");
+
+        cAna->cd(4);
+        tree->Draw("gry:grx>>h5(600,-1000,1000,600,-100,100)", "cut3He_a || cut3He_b", "colz");
+
+        //tree->Draw("grthC*TMath::RadToDeg():grXC>>h3(600,-1000,1000,600,-1.5,1.5)", "cut3He_a || cut3He_b", "colz");
 
         /*
         tree->Draw("sta_sum:sta_ratio>>s1(200,-1.1,1.1, 200,0.,50.)", gateStaAll + gateXC_cent, "colz");
@@ -141,7 +155,7 @@
     */
 //=================================================== Count 3He by 3 Gauss
 /*
-	    tree->Draw("grXC>>h2px(1200,-600,600)", "cut3He_a || cut3He_b", "colz");
+	    tree->Draw("grXAux>>h2px(1200,-600,600)", "cut3He_a || cut3He_b", "colz");
 
         //h2->ProjectionX("h2px")->Draw();
         

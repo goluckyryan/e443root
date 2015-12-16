@@ -330,10 +330,9 @@ void dst2root(Int_t RunName, Int_t nEntries = 990000000){ //the file name should
 
     //===================================== 2ndary data processing
     //------------- Axuillary
-    //grXC = grx - (20-3*grth*TMath::RadToDeg()) + 0.5e-2 * (gry; 
-    grXC   = grx -380./2.3*grth*TMath::RadToDeg();
-    grthC  = -0.4191*(grth-0.008770-0.52e-4*grx);
-    grXAux = grXC - 140 * grthC* TMath::RadToDeg() + 50 ;  
+    grXC = grx -20 ; //same as graf_conv 
+    grthC  = -0.4191*(grth-8.770e-3-3.591e-5*grx); //same as graf_conv, should be equal to incdient theta
+    grXAux = grXC -380./2.3*grthC*TMath::RadToDeg();
     //_______________________________ Gate
    
     vetogate = 0;
@@ -359,7 +358,6 @@ void dst2root(Int_t RunName, Int_t nEntries = 990000000){ //the file name should
     sta2v = TMath::Sqrt(adc[6]/113.*adc[7]/123.);
     sta3v = TMath::Sqrt(adc[8]/122.*adc[9]/131.);
     sta4v = TMath::Sqrt(adc[10]/127.*adc[11]/124.);
-
 
     staMult = 0;
     

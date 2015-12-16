@@ -45,6 +45,8 @@ const Double_t m12C = 11174.863;
 const Double_t m14N = 13040.203;
 const Double_t m14O = 13044.836;
 const Double_t m16O = 14895.08;
-const Double_t amu = 931.494;   
+const Double_t amu = 931.494;
+
+
 
 #endif

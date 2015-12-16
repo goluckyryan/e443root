@@ -2,19 +2,19 @@ TF1 * fit;
 int NPAR;
 
 void Count3He(Double_t dx = 159.74){
-  gROOT->Reset();
+  //gROOT->Reset();
   gROOT->ProcessLine(".!date");
 
   //======================================================== InPut setting
 
-  Int_t numGauss = 3;
-  NPAR = 3*numGauss;
+  Int_t numGauss = 3; //dummy
   
   char * rootfile = "run1035.root";
   Int_t Div[2] = {1,1};  //x,y
   Int_t size[2] = {600,400}; //x,y
 
   //====================================== Load root file
+  NPAR = 3*numGauss;
   TFile *f0 = new TFile (rootfile, "read"); 
   TTree *tree = (TTree*)f0->Get("tree");
   printf("=====> /// %15s //// is loaded. Total #Entry: %10d \n", rootfile,  tree->GetEntries());
@@ -46,13 +46,15 @@ void Count3He(Double_t dx = 159.74){
   gate3He_b->SetPoint(3, 225.9+99, 304.6);
   gate3He_b->SetPoint(4, 208.6+99, 343.0);
   gate3He_b->SetPoint(5, 183.7+99, 305.8);
+
+  TCut gate3He_Time = " grTOF1 ";
   
   //*///======================================================== analysis
 
   //tree->Draw("grdE1:grTOF1>>h1(500, 100, 350, 500, 0, 500)", "", "colz");
   //tree->Draw("grdE1:grTOF1>>h1g(500, 100, 350, 500, 0, 500)", "cut3He_a || cut3He_b", "colz");
-  //tree->Draw("grth*TMath::RadToDeg():grXC>>h2(600,-1000,1000,600,-1.5,1.5)", "cut3He_a || cut3He_b", "colz");
-  tree->Draw("grXC>>h2px(1200,-600,600)", "cut3He_a || cut3He_b", "colz");
+  tree->Draw("grth*TMath::RadToDeg():grXAux>>h2(600,-1000,1000,600,-1.5,1.5)", "cut3He_a || cut3He_b", "colz");
+  tree->Draw("grXAux>>h2px(1200,-600,600)", "cut3He_a || cut3He_b", "colz");
 
   Double_t para[9] = {1100, -20, 50, 150, 110, 120, 340, -2, 340};
   Int_t binWidth = h2px->GetBinWidth(1);
