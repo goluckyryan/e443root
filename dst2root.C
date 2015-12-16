@@ -16,17 +16,17 @@
 
 using namespace std;
 
-void dst2root(TString openFileName, Int_t nEntries = 990000000){ //the file name should be "../dstroot/runXXXX_asci.dst"
+void dst2root(Int_t RunName, Int_t nEntries = 990000000){ //the file name should be "XXXX"
   printf("=============================\n");
   gROOT->ProcessLine(".!date");
-   
-  TString saveFileName = openFileName;
-  printf("input .... %s \n", saveFileName.Data());
-  saveFileName.Remove(0,11); //remove head
-  Int_t len = saveFileName.Length();
-  saveFileName.Remove(len  - 9); // remove tail
-  saveFileName = saveFileName + ".root";
-  printf("output ... %s , nEntries:%d\n", saveFileName.Data(), nEntries);
+
+  TString openFileName;
+  openFileName.Form("../dstroot/run%04d_asci.dst", RunName);
+  printf("input <====== %s \n", openFileName.Data());
+  
+  TString saveFileName;
+  saveFileName.Form("run%04d.root", RunName);
+  printf("output =====> %s , nEntries:%d\n", saveFileName.Data(), nEntries);
    
   TFile *f1 = new TFile (saveFileName,"recreate");
   TTree * t1 = new TTree("tree","tree");
@@ -159,8 +159,10 @@ void dst2root(TString openFileName, Int_t nEntries = 990000000){ //the file name
   ifstream fp;
   fp.open(openFileName);
 
-  if( !fp.is_open() ) printf("******* cannot open dst file\n");
-  
+  if( !fp.is_open() ) {
+    printf("******* cannot open dst file\n");
+    return;
+  }
   TBenchmark clock;
   Bool_t shown = 0;
    
@@ -173,17 +175,12 @@ void dst2root(TString openFileName, Int_t nEntries = 990000000){ //the file name
     eventID ++;
     if( eventID > nEntries) break;
 
-    //================================initialization
-       //---------coinReg
+   //================================initialization custom variables
+   //---------coinReg
    coinReg = -1;
    //--------- gate
    vetogate = -1;
    //--------- GR
-   //GRX = TMath::QuietNaN();
-   //GRY = TMath::QuietNaN();
-   //GRTH = TMath::QuietNaN();
-   //GRPH = TMath::QuietNaN();
-
    grdE1 = TMath::QuietNaN();
    grdE2 = TMath::QuietNaN();
    grT1avg = TMath::QuietNaN();
@@ -332,10 +329,11 @@ void dst2root(TString openFileName, Int_t nEntries = 990000000){ //the file name
     fp>>dummy;
 
     //===================================== 2ndary data processing
-    //------------- Axuillary 
-    grXC = grx - 380./2.3*grth*TMath::RadToDeg();
-    grthC = -0.4191*(grth-0.008770-3.591e-5*grx);
-    grXAux = grx - 140 * grth* TMath::RadToDeg() + 50 ;  
+    //------------- Axuillary
+    //grXC = grx - (20-3*grth*TMath::RadToDeg()) + 0.5e-2 * (gry; 
+    grXC   = grx -380./2.3*grth*TMath::RadToDeg();
+    grthC  = -0.4191*(grth-0.008770-0.52e-4*grx);
+    grXAux = grXC - 140 * grthC* TMath::RadToDeg() + 50 ;  
     //_______________________________ Gate
    
     vetogate = 0;
