@@ -1,5 +1,5 @@
 TF1 * fit;
-int NPAR=9;
+int NPAR;
 
 void Count3He(Double_t dx = 159.74){
   gROOT->Reset();
@@ -53,10 +53,12 @@ void Count3He(Double_t dx = 159.74){
   //tree->Draw("grdE1:grTOF1>>h1g(500, 100, 350, 500, 0, 500)", "cut3He_a || cut3He_b", "colz");
   //tree->Draw("grth*TMath::RadToDeg():grXC>>h2(600,-1000,1000,600,-1.5,1.5)", "cut3He_a || cut3He_b", "colz");
   tree->Draw("grXC>>h2px(1200,-600,600)", "cut3He_a || cut3He_b", "colz");
-        
+
+  Double_t para[9] = {1100, -20, 50, 150, 110, 120, 340, -2, 340};
+  Int_t binWidth = h2px->GetBinWidth(1);
+  
   //fit = new TF1("fit", "gaus(0)+gaus(3)+gaus(6)", -600, 600);
   fit = new TF1("fit", CusFunc , -600, 600, 9);
-  Double_t para[9] = {1100, -20, 50, 150, 110, 120, 340, -2, 340};
   fit->SetParameters(para);
   //fit->FixParameter(1, 0);
   fit->SetLineColor(2);
@@ -64,6 +66,7 @@ void Count3He(Double_t dx = 159.74){
   fit->SetLineWidth(2);
   h2px->Fit("fit", "R");
   printf("reduced chi-squared = %f \n", fit->GetChisquare()/fit->GetNDF());
+  printf("bin Width = %d \n", binWidth);
 
   fit->GetParameters(para);
   TF1* g1 = new TF1("g1", CusFunc2, -600, 600, 3); g1->SetParameters(&para[0]); g1->SetLineColor(4); g1->Draw("same");
@@ -92,7 +95,7 @@ void Count3He(Double_t dx = 159.74){
   line.DrawLine(xmin-dx, 0, xmin-dx, (h2px->GetMaximum())/2);
   line.DrawLine(xmax+dx, 0, xmax+dx, (h2px->GetMaximum())/2);
 
-   
+  /*
 	TVirtualFitter * fitter = TVirtualFitter::GetFitter();
 	assert(fitter !=0); // if abort if fitter == 0
 	double * covMatrix = fitter->GetCovarianceMatrix();	
