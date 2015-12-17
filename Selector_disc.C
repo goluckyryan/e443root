@@ -133,6 +133,9 @@ Double_t Selector_disc::Findratio(Int_t id, Double_t Xpos, Double_t Ypos)
   if( id == 1){ // Left
 
     if( 6 < Xpos && Xpos <= 40){
+
+      if( Ypos > 3.75 * Xpos + 25) return ratio;
+
       Double_t m1 = polL1->Derivative(Xpos); 
       Double_t m2 = polL2->Derivative(Xpos);
 
@@ -149,6 +152,8 @@ Double_t Selector_disc::Findratio(Int_t id, Double_t Xpos, Double_t Ypos)
       
     }else if( Xpos > 40 ){
 
+      if( Ypos > 5./3. * Xpos + 200./3.) return ratio;
+
       ratio = (Ypos+213.16)/(Xpos+228.1)/1.11;
 
     }
@@ -156,6 +161,8 @@ Double_t Selector_disc::Findratio(Int_t id, Double_t Xpos, Double_t Ypos)
   }else{ // Right
 
     if( 6 < Xpos && Xpos <= 40){
+
+      if( Ypos > 4. * Xpos + 20) return ratio;
 
       Double_t m1 = polR1->Derivative(Xpos); 
       Double_t m2 = polR2->Derivative(Xpos);
@@ -172,6 +179,8 @@ Double_t Selector_disc::Findratio(Int_t id, Double_t Xpos, Double_t Ypos)
       ratio = (slop1/slop0 -1)/polRN(Xpos) +1;
       
     }else if( Xpos > 40 ){
+
+      if( Ypos > 5./3. * Xpos + 200./3.) return ratio;
 
       ratio = (Ypos+197.77)/(Xpos+216.14)*138./155.;
     }
