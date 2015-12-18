@@ -12,6 +12,7 @@ Makefile.in
 core.*
 
 ###Directory
+/dstroot
 
 #### General ####
 
@@ -65,4 +66,5 @@ Desktop.ini
 *.png
 *.ps
 *.pdf
+*.dst
 
