@@ -12,10 +12,9 @@
 
         //-------- Canvas control
         Bool_t analysis = 0;
-        Int_t Div[2] = {2,2};  //x,y
-        Int_t size[2] = {400,400}; //x,y
-        Int_t cPos[2] = {0,0}; //x,y 
-
+        Int_t Div[2] = {1,1};  //x,y
+        Int_t size[2] = {600,600}; //x,y
+        Int_t cPos[2] = {2000,0}; //x,y 
 
         //====================================== Load root file
         TFile *f0 = new TFile (rootfile, "read"); 
@@ -23,7 +22,7 @@
         printf("=====> /// %15s //// is loaded. Total #Entry: %10d \n", rootfile,  tree->GetEntries());
         gStyle->SetOptStat(1112211);
         gStyle->SetOptFit(1);
-        
+   
         //======================================================== Cut/Gate
         //------- Graphical Cut
         TCutG * gate3He_a = new TCutG("cut3He_a", 5);
@@ -46,6 +45,7 @@
         gate3He_b->SetPoint(4, 208.6+99, 343.0);
         gate3He_b->SetPoint(5, 183.7+99, 305.8);
 
+
         //--------------- Simple Cut
         TString gateStr; 
         
@@ -60,6 +60,20 @@
         gateStr.Form("0<sta2vTavg && sta2vTavg<400*%f",LAS_CH2NS[7]); TCut gateSta2v = gateStr;
         gateStr.Form("0<sta3vTavg && sta3vTavg<400*%f",LAS_CH2NS[8]); TCut gateSta3v = gateStr;
         gateStr.Form("0<sta4vTavg && sta4vTavg<400*%f",LAS_CH2NS[9]); TCut gateSta4v = gateStr;
+
+        //-----------------stack neutron gate
+        Double_t gnmin = -12.0, gnmax = -8.0; //ns
+
+        gateStr.Form("(%f < sta1hTOF && sta1hTOF < %f) || (%f + 98.5 < sta1hTOF && sta1hTOF < %f + 98.5)", gnmin, gnmax, gnmin, gnmax); TCut gateStaNeu1h = gateStr;
+        gateStr.Form("(%f < sta2hTOF && sta2hTOF < %f) || (%f + 98.5 < sta2hTOF && sta2hTOF < %f + 98.5)", gnmin, gnmax, gnmin, gnmax); TCut gateStaNeu2h = gateStr;
+        gateStr.Form("(%f < sta1vTOF && sta1vTOF < %f) || (%f + 98.5 < sta1vTOF && sta1vTOF < %f + 98.5)", gnmin, gnmax, gnmin, gnmax); TCut gateStaNeu1v = gateStr;
+        gateStr.Form("(%f < sta2vTOF && sta2vTOF < %f) || (%f + 98.5 < sta2vTOF && sta2vTOF < %f + 98.5)", gnmin, gnmax, gnmin, gnmax); TCut gateStaNeu2v = gateStr;
+        gateStr.Form("(%f < sta3vTOF && sta3vTOF < %f) || (%f + 98.5 < sta3vTOF && sta3vTOF < %f + 98.5)", gnmin, gnmax, gnmin, gnmax); TCut gateStaNeu3v = gateStr;
+        gateStr.Form("(%f < sta4vTOF && sta4vTOF < %f) || (%f + 98.5 < sta4vTOF && sta4vTOF < %f + 98.5)", gnmin, gnmax, gnmin, gnmax); TCut gateStaNeu4v = gateStr;
+
+        TCut gateStaNeu = (gateStaNeu1h || gateStaNeu2h || gateStaNeu1v || gateStaNeu2v || gateStaNeu3v || gateStaNeu4v); 
+       
+        //-------------- other
 
         TCut gateGRLAS = "coinReg == 16";
         TCut gateFinite = "TMath::Finite(grXC)";
@@ -101,69 +115,7 @@
         
         printf("........ loaded gates\n"); 
         //====================================================== Test code
-        printf(".......... start code testing \n");
-
-
-        const Int_t Norder= 3;
-
-        TString funcStr;
-        funcStr.Form("pol%d",Norder);
-
-        TF1 * f1 = new TF1("f1", funcStr, 0, 3);
-        Double_t para[Norder] = {-3., 1., 1.};
-        f1->SetParameters(para);
-
-        f1->Draw();
-
-        Double_t Xpos = 2, Ypos = 2;
-        
-        funcStr.Form("x-[0] - ([1] - pol%d(2))*pol%d(%d)", Norder, Norder-1, 2+Norder);
-        const Int_t NG = 2 + Norder + Norder-1; 
-        Double_t paraG[NG];
-        paraG[0] = Xpos;
-        paraG[1] = Ypos;
-        for ( int i = 2; i < 2 + Norder; i++){
-          paraG[i] = para[i-2];
-        }
-        for ( int i = 2 + Norder ; i < NG; i++){
-          paraG[i] = para2[i-2-Norder];
-        }
-        printf(" %s \n", funcStr.Data());
-        TF1* dg1 = new TF1("dg1", funcStr, 0, 3);
-        
-        dg1->SetParameters(paraG);
-
         /*
-        //cal derivative
-        Double_t para2[Norder-1];
-        for ( int i = 0; i < Norder-1; i++){
-          para2[i] = para[i+1]*(i+1);
-          //         printf("%i, %f\n", i, para2[i]);
-        }
-        funcStr.Form("pol%d",Norder-1);
-        TF1 * f2 = new TF1("f2", funcStr, 0, 3);
-        f2->SetParameters(para2);
-
-        f2->Draw("same");
-        
-        funcStr.Form("x-[0] - ([1] - pol%d(2))*pol%d(%d)", Norder, Norder-1, 2+Norder);
-        const Int_t NG = 2 + Norder + Norder-1; 
-        Double_t paraG[NG];
-        paraG[0] = Xpos;
-        paraG[1] = Ypos;
-        for ( int i = 2; i < 2 + Norder; i++){
-          paraG[i] = para[i-2];
-        }
-        for ( int i = 2 + Norder ; i < NG; i++){
-          paraG[i] = para2[i-2-Norder];
-        }
-        printf(" %s \n", funcStr.Data());
-        TF1* dg1 = new TF1("dg1", funcStr, 0, 3);
-        
-        dg1->SetParameters(paraG);
-        dg1->SetLineColor(4);
-        dg1->Draw("same");
-   
 
         /**/
         //======================================================== Browser or Canvas
@@ -179,9 +131,15 @@
         
         /////======================================================== analysis
 
+        TH2F * h1 = new TH2F("h1", "h1", 200, 0, 400, 200, 0, 700);
 
+        tree->Draw("liqlf:liqld>>h1", gateL, "colz");
 
+        TProfile * h1px = new TProfile("h1px", "h1px", 600, 0, 400);
 
+        h1->ProfileX("h1px")->Draw("same");
+
+       
         /* //------------------------------------------- Fitting of Liqid discrimination
         tree->Draw("ratio1>>h1(200,0.9,1.2)", gate3He + gateL+ "liqld>20" , "colz");
 

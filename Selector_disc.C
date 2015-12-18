@@ -68,7 +68,6 @@ Bool_t Selector_disc::Process(Long64_t entry)
    //
    // The return value is currently not used.
 
-
   //_____________________________
   b_coinReg->GetEntry(entry);
   b_vetogate->GetEntry(entry); 
@@ -94,6 +93,21 @@ Bool_t Selector_disc::Process(Long64_t entry)
   ratio1 = Findratio(1, liqld, liqlf);
   ratio2 = Findratio(2, liqrd, liqrf);
 
+  //printf("%d, Start Finding distance\n", entry);
+
+  FindDistance(1, liqld, liqlf);
+  
+  dist1X = result[0];
+  dist1Y = result[1];
+  dist1  = result[2];
+
+  //printf("%d, (%f,%f), dist1X : %f, dist : %f \n", entry, liqld, liqlf, dist1X, dist1);
+  
+  FindDistance(2, liqrd, liqrf); 
+ 
+  dist2X = result[0];
+  dist2Y = result[1];
+  dist2  = result[2];
       
    /**/
    count ++;
@@ -129,7 +143,23 @@ Bool_t Selector_disc::Process(Long64_t entry)
 Double_t Selector_disc::Findratio(Int_t id, Double_t Xpos, Double_t Ypos)
 {
   Double_t ratio = TMath::QuietNaN();
+
+  //TF1 * pol1;  for simpler code
+  //TF1 * pol1;
+  //TF1 * polN;
+  // 
+  ////printf("FR=========================== \n");
+  //if( id == 1){
+  //  pol1 = polL1;
+  //  pol2 = polL2;
+  //  polN = polLN;
+  //}else{
+  //  pol1 = polR1;
+  //  pol2 = polR2;
+  //  polN = polRN;
+  //}
   
+
   if( id == 1){ // Left
 
     if( 6 < Xpos && Xpos <= 40){
@@ -189,6 +219,71 @@ Double_t Selector_disc::Findratio(Int_t id, Double_t Xpos, Double_t Ypos)
   return ratio;
 }
 
+void Selector_disc::FindDistance(Int_t id, Double_t Xpos, Double_t Ypos){
+  Double_t dist = TMath::QuietNaN();
+  Int_t searchDir = 0;
+  TProfile * htemp;
+
+  //printf("FD=========================== \n");
+  if( id == 1){
+    htemp = h1px;
+  }else{
+    htemp = h2px;
+  }
+
+  Double_t htempY = htemp->Interpolate(Xpos); 
+  
+  Double_t htempDX = htemp->Interpolate(Xpos+1)- htempY;
+  
+  if( htempY == Ypos){
+    dist = 0.0;
+  }else{
+    if(htempDX == 0 ){
+
+      dist = TMath::Abs(Ypos - htempY);
+
+    }else if(htempDX > 0 ){
+
+      if( Ypos > htempY){
+        searchDir = 1; // forward
+      }else{
+        searchDir = -1;
+      }
+
+    }else{
+
+      if( Ypos > htempY){
+        searchDir = -1; // forward
+      }else{
+        searchDir = 1;
+      }
+
+    }
+  }
+
+  if( searchDir != 0){
+    Double_t step =0.01;
+    Double_t tempDist = 100000000.;
+    Int_t count = 0;
+    Double_t xScan = Xpos;
+    do{
+      dist = tempDist;
+      xScan += searchDir*step;
+      Double_t yScan = htemp->Interpolate(xScan);
+      tempDist = TMath::Sqrt(TMath::Power(Xpos-xScan,2)+TMath::Power(Ypos-yScan,2));
+      count ++;
+      //printf("%d, %4f, dTemp:%f, dist:%f \n",count,  xScan, tempDist, dist);
+    }while (dist > tempDist);
+    xScan -= searchDir*step;
+  }
+  //printf("============= xScan:%f, dist:%f \n", xScan, dist);
+
+  result[0] = xScan;
+  result[1] = htemp->Interpolate(xScan);
+  result[2] = TMath::Sign(dist, Ypos-htempY);
+
+}
+
 void Selector_disc::SlaveTerminate()
 {
    // The SlaveTerminate() function is called after all entries or objects
@@ -205,6 +300,7 @@ void Selector_disc::Terminate()
 
    saveFile->cd(); //set focus on this file
    newTree->Write(); 
+   
    saveFile->Close();
 
    printf("-------------- done. %s, %d\n", saveFileName.Data(), count);

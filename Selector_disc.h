@@ -34,6 +34,7 @@ public :
    
    Int_t totnumEntry;
 
+   //====================== gradient method
    TF1 * polL1;
    TF1 * polL2;
    TF1 * polLN;
@@ -42,13 +43,16 @@ public :
    TF1 * polR2;
    TF1 * polRN;
 
-   //======================== newTree variable
-   //   Double_t liqlf,liqld,liqrf,liqrd;
-   //   Double_t liqlTOF, liqrTOF;
+   //===================== distance method
+   TH2* h1;TProfile* h1px;
+   TH2* h2;TProfile* h2px;
+   Double_t result[3];
 
-   //Double_t xp,yp;
-   //Double_t slop1, slop0;
+   //======================== newTree variable
    Double_t ratio1, ratio2;
+
+   Double_t dist1X, dist1Y, dist1;
+   Double_t dist2X, dist2Y, dist2;
 
    // Declaration of leaf types
   // Int_t           eventID;
@@ -208,6 +212,8 @@ public :
    virtual void    SlaveTerminate();
    virtual void    Terminate();
    virtual Double_t  Findratio(Int_t id, Double_t Xpos, Double_t Ypos);
+   virtual void  FindDistance(Int_t id, Double_t Xpos, Double_t Ypos);//output by global constant
+
 
    ClassDef(Selector_disc,0);
 };
@@ -306,7 +312,7 @@ void Selector_disc::Init(TTree *tree)
    count = 0;
 
    saveFileName = fChain->GetDirectory()->GetName();
-   saveFileName = "X_"+saveFileName;
+   saveFileName = "Y_"+saveFileName;
    
    printf("Converting %s ------> %s , total Entry : %d \n", fChain->GetDirectory()->GetName(), saveFileName.Data(), totnumEntry);
    
@@ -348,9 +354,17 @@ void Selector_disc::Init(TTree *tree)
    newTree->Branch("liqrd", &liqrd, "liqrd/D");
    newTree->Branch("liqlTOF", &liqlTOF, "liqlTOF/D");
    newTree->Branch("liqrTOF", &liqrTOF, "liqrTOF/D");
-   ;
+   
    newTree->Branch("ratio1", &ratio1, "ratio1/D");
    newTree->Branch("ratio2", &ratio2, "ratio2/D");
+
+   newTree->Branch("dist1X", &dist1X, "dist1X/D");
+   newTree->Branch("dist1Y", &dist1Y, "dist1Y/D");
+   newTree->Branch("dist1",  &dist1,  "dist1/D");
+
+   newTree->Branch("dist2X", &dist2X, "dist2X/D");
+   newTree->Branch("dist2Y", &dist2Y, "dist2Y/D");
+   newTree->Branch("dist2",  &dist2,  "dist2/D");
 
    //============================= Discrimination function
 
@@ -378,7 +392,42 @@ void Selector_disc::Init(TTree *tree)
    Double_t paraRN[7] = {2.2288133607634,2.2787473254491,-0.16022350090044,-8.96922502345884e-3,1.02117809871895e-3,-2.83696246833626e-5,2.51396547312939e-7};
    polRN = new TF1 ("polRN", "pol6(0)", 0, 40);
    polRN->SetParameters(paraRN);
-   
+
+   //================= distance
+   TCut gateL1 =  "liqlf < 3.75 *liqld +  25.    && liqld <= 20";
+   TCut gateL2 =  "liqlf < 5./3.*liqld + 200./3. && liqld > 20";
+
+   TCut gateR1 =  "liqrf < 4.   *liqrd + 20.     && liqrd <= 20";
+   TCut gateR2 =  "liqrf < 5./3.*liqrd + 200./3. && liqrd > 20";
+
+   TCut gateL = gateL1 || gateL2;
+   TCut gateR = gateR1 || gateR2;
+
+   //printf("Plotting h1\n");
+   h1 = new TH2F("h1", "h1", 500, 0, 1000, 500, 0, 2000);
+   tree->Draw("liqlf:liqld>>h1", gateL, "colz");
+   h1px = new TProfile("h1px", "h1px", 500, 0, 1000);
+
+   //printf("Plotting h1px\n");
+   h1->ProfileX("h1px");
+
+   //printf("Plotting h2\n");
+   h2 = new TH2F("h2", "h2", 500, 0, 1000, 500, 0, 2000);
+   tree->Draw("liqrf:liqrd>>h2", gateR, "colz");
+   h2px = new TProfile("h2px", "h2px", 500, 0, 1000);
+
+   //printf("Plotting h2px\n");
+   h2->ProfileX("h2px");
+
+   //printf("initialize result ptr\n");
+   result[0] = TMath::QuietNaN();
+   result[1] = TMath::QuietNaN();
+   result[2] = TMath::QuietNaN();
+
+   h1->Write();
+   h1px->Write();
+   h2->Write();
+   h2px->Write();   
 }
 
 Bool_t Selector_disc::Notify()
