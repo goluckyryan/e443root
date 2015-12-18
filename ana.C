@@ -7,12 +7,11 @@
         gROOT->ProcessLine(".L Fit_2Gauss_sub.c");
         //======================================================== InPut setting
         char * rootfile = "X_run1035.root";
-
-        Bool_t analysis = 1;
         
         Double_t BGscale = 2.0;
 
         //-------- Canvas control
+        Bool_t analysis = 0;
         Int_t Div[2] = {2,2};  //x,y
         Int_t size[2] = {400,400}; //x,y
         Int_t cPos[2] = {0,0}; //x,y 
@@ -101,20 +100,89 @@
         TCut gateSta  = gateStaAll + "vetogate == 1 && (cut3He_a || cut3He_b)" + gateGRLAS;
         
         printf("........ loaded gates\n"); 
+        //====================================================== Test code
+        printf(".......... start code testing \n");
+
+
+        const Int_t Norder= 3;
+
+        TString funcStr;
+        funcStr.Form("pol%d",Norder);
+
+        TF1 * f1 = new TF1("f1", funcStr, 0, 3);
+        Double_t para[Norder] = {-3., 1., 1.};
+        f1->SetParameters(para);
+
+        f1->Draw();
+
+        Double_t Xpos = 2, Ypos = 2;
+        
+        funcStr.Form("x-[0] - ([1] - pol%d(2))*pol%d(%d)", Norder, Norder-1, 2+Norder);
+        const Int_t NG = 2 + Norder + Norder-1; 
+        Double_t paraG[NG];
+        paraG[0] = Xpos;
+        paraG[1] = Ypos;
+        for ( int i = 2; i < 2 + Norder; i++){
+          paraG[i] = para[i-2];
+        }
+        for ( int i = 2 + Norder ; i < NG; i++){
+          paraG[i] = para2[i-2-Norder];
+        }
+        printf(" %s \n", funcStr.Data());
+        TF1* dg1 = new TF1("dg1", funcStr, 0, 3);
+        
+        dg1->SetParameters(paraG);
+
+        /*
+        //cal derivative
+        Double_t para2[Norder-1];
+        for ( int i = 0; i < Norder-1; i++){
+          para2[i] = para[i+1]*(i+1);
+          //         printf("%i, %f\n", i, para2[i]);
+        }
+        funcStr.Form("pol%d",Norder-1);
+        TF1 * f2 = new TF1("f2", funcStr, 0, 3);
+        f2->SetParameters(para2);
+
+        f2->Draw("same");
+        
+        funcStr.Form("x-[0] - ([1] - pol%d(2))*pol%d(%d)", Norder, Norder-1, 2+Norder);
+        const Int_t NG = 2 + Norder + Norder-1; 
+        Double_t paraG[NG];
+        paraG[0] = Xpos;
+        paraG[1] = Ypos;
+        for ( int i = 2; i < 2 + Norder; i++){
+          paraG[i] = para[i-2];
+        }
+        for ( int i = 2 + Norder ; i < NG; i++){
+          paraG[i] = para2[i-2-Norder];
+        }
+        printf(" %s \n", funcStr.Data());
+        TF1* dg1 = new TF1("dg1", funcStr, 0, 3);
+        
+        dg1->SetParameters(paraG);
+        dg1->SetLineColor(4);
+        dg1->Draw("same");
    
+
+        /**/
+        //======================================================== Browser or Canvas
         if( analysis == 0) {
-          printf("............. end of Ana.C\n");
+          printf("............. end of ana.C\n");
           return;
         }   
-
         printf(".......... start analysis \n");
-        //======================================================== Browser or Canvas
+
         TCanvas * cAna = new TCanvas("cAna", "cAna", cPos[0], cPos[1] , size[0]*Div[0], size[1]*Div[1]);
         cAna->Divide(Div[0],Div[1]);
         cAna->cd(1);
         
         /////======================================================== analysis
 
+
+
+
+        /* //------------------------------------------- Fitting of Liqid discrimination
         tree->Draw("ratio1>>h1(200,0.9,1.2)", gate3He + gateL+ "liqld>20" , "colz");
 
         TH1F* k1;
@@ -131,7 +199,8 @@
         
         cAna->cd(4);
         k2->Draw();
-
+        //=================================================================/**/
+        
 		//tree->Draw("adc[0]:adc[1]>>h1h(100, -50, 150, 100, -50, 100)",	 gateGRLAS, "colz");
 		//tree->Draw("adc[2]:adc[2]>>h2h(100, -50, 150, 100, -50, 100)",   gateGRLAS, "colz");
 		//tree->Draw("adc[4]:adc[4]>>h1v(100, -50, 150, 100, -50, 100)",   gateGRLAS, "colz");
