@@ -1,7 +1,7 @@
 TF1 * fit;
 int NPAR;
 
-void Count3He(Double_t dx = 159.74){
+void Count3He(Double_t dx = 159.24){
   //gROOT->Reset();
   gROOT->ProcessLine(".!date");
 
@@ -47,22 +47,26 @@ void Count3He(Double_t dx = 159.74){
   gate3He_b->SetPoint(4, 208.6+99, 343.0);
   gate3He_b->SetPoint(5, 183.7+99, 305.8);
 
+  TCut gate3He = "cut3He_a || cut3He_b";
   TCut gate3He_Time = " grTOF1 ";
   
   //*///======================================================== analysis
 
   //tree->Draw("grdE1:grTOF1>>h1(500, 100, 350, 500, 0, 500)", "", "colz");
   //tree->Draw("grdE1:grTOF1>>h1g(500, 100, 350, 500, 0, 500)", "cut3He_a || cut3He_b", "colz");
-  tree->Draw("grth*TMath::RadToDeg():grXAux>>h2(600,-1000,1000,600,-1.5,1.5)", "cut3He_a || cut3He_b", "colz");
-  tree->Draw("grXAux>>h2px(1200,-600,600)", "cut3He_a || cut3He_b", "colz");
+  tree->Draw("grthC*TMath::RadToDeg():grXC>>h2(600,-1000,1000,600,-1.5,1.5)", "cut3He_a || cut3He_b", "colz");
+  tree->Draw("grXC>>h2px(1000,-400,600)", gate3He + "grthC*TMath::RadToDeg() > 0.5", "colz");
 
-  Double_t para[9] = {1100, -20, 50, 150, 110, 120, 340, -2, 340};
+  //Double_t para[9] = {1100, -20, 50, 80, 120, 110, 210, 8, 360}; //3He events
+  Double_t para[9] = {120, -20, 50, 30, -100, 120, 30, -10, 360}; //3He events thC gate
+  //Double_t para[9] = {1700, -20, 50, 5, 110, 1000, 5, -2, 1000}; //neutron events
   Int_t binWidth = h2px->GetBinWidth(1);
   
-  //fit = new TF1("fit", "gaus(0)+gaus(3)+gaus(6)", -600, 600);
-  fit = new TF1("fit", CusFunc , -600, 600, 9);
+  fit = new TF1("fit", "gaus(0)+gaus(3)+gaus(6)", -600, 600);
+  //fit = new TF1("fit", CusFunc , -600, 600, 9);
   fit->SetParameters(para);
   //fit->FixParameter(1, 0);
+  //fit->SetParLimits(7,-20,0);
   fit->SetLineColor(2);
   fit->SetLineStyle(1);
   fit->SetLineWidth(2);
@@ -71,8 +75,8 @@ void Count3He(Double_t dx = 159.74){
   printf("bin Width = %d \n", binWidth);
 
   fit->GetParameters(para);
-  TF1* g1 = new TF1("g1", CusFunc2, -600, 600, 3); g1->SetParameters(&para[0]); g1->SetLineColor(4); g1->Draw("same");
-  //TF1* g1 = new TF1("g1", "gaus(0)", -600, 600); g1->SetParameters(&para[0]); g1->SetLineColor(4); g1->Draw("same");
+  //TF1* g1 = new TF1("g1", CusFunc2, -600, 600, 3); g1->SetParameters(&para[0]); g1->SetLineColor(4); g1->Draw("same");
+  TF1* g1 = new TF1("g1", "gaus(0)", -600, 600); g1->SetParameters(&para[0]); g1->SetLineColor(4); g1->Draw("same");
   TF1* g2 = new TF1("g2", "gaus(0)", -600, 600); g2->SetParameters(&para[3]); g2->SetLineColor(3); g2->Draw("same");
   TF1* g3 = new TF1("g3", "gaus(0)", -600, 600); g3->SetParameters(&para[6]); g3->SetLineColor(2); g3->Draw("same");
 
@@ -90,12 +94,12 @@ void Count3He(Double_t dx = 159.74){
   printf("%9s	count (%8.2f,%8.2f): %8.2f \n","g3 Side2",xmax,	 xmax + dx, gSide2);
   printf("%9s  %8s%8s        count : %8.2f , diff : %8.2f \n","gSide",  "",           "", gSide1+gSide2, g3->Integral(xmin, xmax) - gSide1 - gSide2);
 
-  TLine line;
-  line.SetLineColor(9);
-  line.DrawLine(xmin, 0, xmin, h2px->GetMaximum());
-  line.DrawLine(xmax, 0, xmax, h2px->GetMaximum());
-  line.DrawLine(xmin-dx, 0, xmin-dx, (h2px->GetMaximum())/2);
-  line.DrawLine(xmax+dx, 0, xmax+dx, (h2px->GetMaximum())/2);
+  //TLine line;
+  //line.SetLineColor(9);
+  //line.DrawLine(xmin, 0, xmin, h2px->GetMaximum());
+  //line.DrawLine(xmax, 0, xmax, h2px->GetMaximum());
+  //line.DrawLine(xmin-dx, 0, xmin-dx, (h2px->GetMaximum())/2);
+  //line.DrawLine(xmax+dx, 0, xmax+dx, (h2px->GetMaximum())/2);
 
   /*
 	TVirtualFitter * fitter = TVirtualFitter::GetFitter();

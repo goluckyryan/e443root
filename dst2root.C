@@ -21,7 +21,7 @@ void dst2root(Int_t RunName, Int_t nEntries = 990000000){ //the file name should
   gROOT->ProcessLine(".!date");
 
   TString openFileName;
-  openFileName.Form("../dstroot/run%04d_asci.dst", RunName);
+  openFileName.Form("./dstroot/run%04d_asci.dst", RunName);
   printf("input <====== %s \n", openFileName.Data());
   
   TString saveFileName;
@@ -68,7 +68,7 @@ void dst2root(Int_t RunName, Int_t nEntries = 990000000){ //the file name should
   Double_t sta_odd,sta_even,sta_ratio,sta_sum;
 
   Double_t grXC,grthC;
-  Double_t grXAux;
+  //Double_t grXAux;
 
 
   //------------make tree branch
@@ -90,7 +90,7 @@ void dst2root(Int_t RunName, Int_t nEntries = 990000000){ //the file name should
 
   t1->Branch("grXC", &grXC, "grXC/D");
   t1->Branch("grthC", &grthC, "grthC/D");
-  t1->Branch("grXAux", &grXAux, "grXAux/D");
+  //t1->Branch("grXAux", &grXAux, "grXAux/D");
 
   t1->Branch("badEl", &badEl, "badEl/D");
   t1->Branch("badEr", &badEr, "badEr/D");
@@ -191,7 +191,7 @@ void dst2root(Int_t RunName, Int_t nEntries = 990000000){ //the file name should
 
    grXC = TMath::QuietNaN();
    grthC = TMath::QuietNaN();
-   grXAux = TMath::QuietNaN();
+   //grXAux = TMath::QuietNaN();
 
    //--------- BAND_TELE
    badEl = TMath::QuietNaN();
@@ -331,9 +331,11 @@ void dst2root(Int_t RunName, Int_t nEntries = 990000000){ //the file name should
 
     //===================================== 2ndary data processing
     //------------- Axuillary
-    grXC = grx -20 ; //same as graf_conv 
-    grthC  = -0.4191*(grth-8.770e-3-3.591e-5*grx); //same as graf_conv, should be equal to incdient theta
-    grXAux = grXC -380./2.3*grthC*TMath::RadToDeg();
+    //grXC = grx -20 ; //same as graf_conv 
+    //grthC  = -0.4191*(grth-8.770e-3-3.591e-5*grx); //same as graf_conv, should be equal to incident theta
+    grthC  = -0.4191*(grth-8.770e-3-0.52e-4*grx);
+    grXC = grx -380./2.3*grthC*TMath::RadToDeg();
+    //grXAux = grXC -380./2.3*grthC*TMath::RadToDeg();
     //_______________________________ Gate
    
     vetogate = 0;
@@ -447,7 +449,7 @@ void dst2root(Int_t RunName, Int_t nEntries = 990000000){ //the file name should
     TVector3 vInc, vGR, vn;
     TLorentzVector pInc, pGR, pn;
 
-    /**/
+    */
       
     //----------- Fill       
     f1->cd(); //set focus on this file
@@ -460,7 +462,7 @@ void dst2root(Int_t RunName, Int_t nEntries = 990000000){ //the file name should
 
     if ( !shown ) {
       if (fmod(time, 10) < 1 ){
-        printf( "%10d[%5.2f%%]|%6.1f|%3d min %5.2f sec\n", 
+        printf( "%10d[%5.2f%%]|%6.1f|%6.1f min %5.2f sec\n", 
                 eventID,
                 eventID*100./nEntries,
                 time,
