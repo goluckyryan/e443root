@@ -6,7 +6,7 @@
         gROOT->ProcessLine(".L Fit_2Gauss.c");
         gROOT->ProcessLine(".L Fit_2Gauss_sub.c");
         //======================================================== InPut setting
-        char * rootfile = "Y_run1035.root";
+        char * rootfile = "run1035.root";
         
         Double_t BGscale = 2.0;
 
