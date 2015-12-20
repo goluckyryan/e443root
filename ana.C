@@ -6,7 +6,7 @@
         gROOT->ProcessLine(".L Fit_2Gauss.c");
         gROOT->ProcessLine(".L Fit_2Gauss_sub.c");
         //======================================================== InPut setting
-        char * rootfile = "X_run1035.root";
+        char * rootfile = "Y_run1035.root";
         
         Double_t BGscale = 2.0;
 
@@ -115,8 +115,13 @@
         
         printf("........ loaded gates\n"); 
         //====================================================== Test code
-        /*
 
+        //tree->Process("Selector_disc.C");
+
+        //h1px->Draw();
+
+        
+        
         /**/
         //======================================================== Browser or Canvas
         if( analysis == 0) {

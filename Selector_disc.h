@@ -12,6 +12,14 @@
 #include <TChain.h>
 #include <TFile.h>
 #include <TSelector.h>
+#include <TProfile.h>
+#include <TH2.h>
+#include <TH1.h>
+#include <TF1.h>
+#include <TBenchmark.h>
+#include <TMath.h>
+#include <TString.h>
+#include <TCut.h>
 
 // Header file for the classes stored in the TTree if any.
 
@@ -24,7 +32,7 @@ public :
    TBenchmark clock;
    Bool_t shown;
 
-   Int_t count;
+   int count;
 
    //=============================== Store in new ROOT file
    TFile * saveFile;
@@ -44,9 +52,19 @@ public :
    TF1 * polRN;
 
    //===================== distance method
-   TH2* h1;TProfile* h1px;
-   TH2* h2;TProfile* h2px;
+   TH2* h1;TProfile* h1px; TF1* f1; TF1* g1; 
+   TH2* h2;TProfile* h2px; TF1* f2; TF1* g2; 
+   Double_t xCut;
    Double_t result[3];
+
+   TCut gateL1 ;
+   TCut gateL2 ;
+               
+   TCut gateR1 ;
+   TCut gateR2 ;
+               
+   TCut gateL ;
+   TCut gateR ;
 
    //======================== newTree variable
    Double_t ratio1, ratio2;
@@ -394,30 +412,43 @@ void Selector_disc::Init(TTree *tree)
    polRN->SetParameters(paraRN);
 
    //================= distance
-   TCut gateL1 =  "liqlf < 3.75 *liqld +  25.    && liqld <= 20";
-   TCut gateL2 =  "liqlf < 5./3.*liqld + 200./3. && liqld > 20";
+   gateL1 =  "liqlf < 3.75 *liqld +  25.    && liqld <= 20";
+   gateL2 =  "liqlf < 5./3.*liqld + 200./3. && liqld > 20";
+   gateR1 =  "liqrf < 4.   *liqrd + 20.     && liqrd <= 20";
+   gateR2 =  "liqrf < 5./3.*liqrd + 200./3. && liqrd > 20";
+   gateL = gateL1 || gateL2;
+   gateR = gateR1 || gateR2;
 
-   TCut gateR1 =  "liqrf < 4.   *liqrd + 20.     && liqrd <= 20";
-   TCut gateR2 =  "liqrf < 5./3.*liqrd + 200./3. && liqrd > 20";
-
-   TCut gateL = gateL1 || gateL2;
-   TCut gateR = gateR1 || gateR2;
+   xCut = 100;
 
    //printf("Plotting h1\n");
    h1 = new TH2F("h1", "h1", 500, 0, 1000, 500, 0, 2000);
-   tree->Draw("liqlf:liqld>>h1", gateL, "colz");
+   tree->Draw("liqlf:liqld>>h1", gateL + "-85<liqlTOF && liqlTOF<-78", "colz");
    h1px = new TProfile("h1px", "h1px", 500, 0, 1000);
 
    //printf("Plotting h1px\n");
    h1->ProfileX("h1px");
 
+   f1 = new TF1("f1", "pol1", xCut, 1000);
+   h1px->Fit("f1", "RQ", "", xCut, 300);
+
+   g1 = new TF1("g1", "pol6", 0,  xCut);
+   h1px->Fit("g1", "RQ");
+
    //printf("Plotting h2\n");
    h2 = new TH2F("h2", "h2", 500, 0, 1000, 500, 0, 2000);
-   tree->Draw("liqrf:liqrd>>h2", gateR, "colz");
+   tree->Draw("liqrf:liqrd>>h2", gateR + "-85<liqrTOF && liqrTOF<-78", "colz");
    h2px = new TProfile("h2px", "h2px", 500, 0, 1000);
 
    //printf("Plotting h2px\n");
    h2->ProfileX("h2px");
+
+   f2 = new TF1("f2", "pol1", xCut, 1000);
+   h2px->Fit("f2", "RQ", "", xCut, 300);
+
+   g2 = new TF1("g2", "pol6", 0,  xCut);
+   h2px->Fit("g2", "RQ");
+
 
    //printf("initialize result ptr\n");
    result[0] = TMath::QuietNaN();
@@ -426,8 +457,12 @@ void Selector_disc::Init(TTree *tree)
 
    h1->Write();
    h1px->Write();
+   f1->Write();
+   g1->Write();
    h2->Write();
    h2px->Write();   
+   f2->Write();
+   g2->Write();
 }
 
 Bool_t Selector_disc::Notify()

@@ -124,10 +124,10 @@ Bool_t Selector_disc::Process(Long64_t entry)
       if (fmod(time, 10) < 1 ){
          printf( "%10d[%2d%%]|%3d min %5.2f sec | expect:%5.1fmin %10d\n", 
                entry, 
-               TMath::Nint((entry+1)*100./totnumEntry),
-               TMath::Floor(time/60), time - TMath::Floor(time/60)*60,
+               (Int_t) TMath::Nint((entry+1)*100./totnumEntry),
+               (Int_t) TMath::Floor(time/60), time - TMath::Floor(time/60)*60,
                totnumEntry*time/(entry+1)/60.,
-               count);
+               (int)count);
                shown = 1;
       }
    }else{
@@ -178,7 +178,7 @@ Double_t Selector_disc::Findratio(Int_t id, Double_t Xpos, Double_t Ypos)
       Double_t slop1 = (Ypos-yp)/(Xpos-xp);
       Double_t slop0 = (polL2->Eval(Xpos)-yp)/(Xpos-xp);
 
-      ratio = (slop1/slop0 -1)/polLN(Xpos) +1;
+      ratio = (slop1/slop0 -1)/polLN->Eval(Xpos) +1;
       
     }else if( Xpos > 40 ){
 
@@ -206,7 +206,7 @@ Double_t Selector_disc::Findratio(Int_t id, Double_t Xpos, Double_t Ypos)
       Double_t slop1 = (liqlf-yp)/(Xpos-xp);
       Double_t slop0 = (polR2->Eval(Xpos)-yp)/(Xpos-xp);
 
-      ratio = (slop1/slop0 -1)/polRN(Xpos) +1;
+      ratio = (slop1/slop0 -1)/polRN->Eval(Xpos) +1;
       
     }else if( Xpos > 40 ){
 
@@ -222,29 +222,48 @@ Double_t Selector_disc::Findratio(Int_t id, Double_t Xpos, Double_t Ypos)
 void Selector_disc::FindDistance(Int_t id, Double_t Xpos, Double_t Ypos){
   Double_t dist = TMath::QuietNaN();
   Int_t searchDir = 0;
-  TProfile * htemp;
+  //TProfile * htemp;
+  TF1 * gtemp;
+  TF1 * ftemp;
 
   //printf("FD=========================== \n");
   if( id == 1){
-    htemp = h1px;
+    gtemp = g1;
+    ftemp = f1;
   }else{
-    htemp = h2px;
+    gtemp = g2;
+    ftemp = f2;
   }
 
-  Double_t htempY = htemp->Interpolate(Xpos); 
+  Double_t tempY  ;
+  Double_t tempDX ;
+
+  if( Xpos <= xCut){
+
+    //tempY  = htemp->Interpolate(Xpos); 
+    //tempDX = htemp->Interpolate(Xpos+1)- htempY;
+
+    tempY  = gtemp->Eval(Xpos); 
+    tempDX = gtemp->Derivative(Xpos);
+
+
+  }else{
+
+    tempY  = ftemp->Eval(Xpos); 
+    tempDX = ftemp->Derivative(Xpos);
+
+  }
   
-  Double_t htempDX = htemp->Interpolate(Xpos+1)- htempY;
-  
-  if( htempY == Ypos){
+  if( tempY == Ypos){
     dist = 0.0;
   }else{
-    if(htempDX == 0 ){
+    if(tempDX == 0 ){
 
-      dist = TMath::Abs(Ypos - htempY);
+      dist = TMath::Abs(Ypos - tempY);
 
-    }else if(htempDX > 0 ){
+    }else if(tempDX > 0 ){
 
-      if( Ypos > htempY){
+      if( Ypos > tempY){
         searchDir = 1; // forward
       }else{
         searchDir = -1;
@@ -252,7 +271,7 @@ void Selector_disc::FindDistance(Int_t id, Double_t Xpos, Double_t Ypos){
 
     }else{
 
-      if( Ypos > htempY){
+      if( Ypos > tempY){
         searchDir = -1; // forward
       }else{
         searchDir = 1;
@@ -261,26 +280,40 @@ void Selector_disc::FindDistance(Int_t id, Double_t Xpos, Double_t Ypos){
     }
   }
 
+  Double_t xScan = Xpos;
+  Double_t yScan = TMath::QuietNaN();
+
   if( searchDir != 0){
     Double_t step =0.01;
     Double_t tempDist = 100000000.;
-    Int_t count = 0;
-    Double_t xScan = Xpos;
+    Int_t counti = 0;
     do{
       dist = tempDist;
       xScan += searchDir*step;
-      Double_t yScan = htemp->Interpolate(xScan);
+      if( xScan <= xCut){
+        //yScan = htemp->Interpolate(xScan);
+        yScan = gtemp->Eval(xScan);
+      }else{
+        yScan = ftemp->Eval(xScan);
+      }
+
       tempDist = TMath::Sqrt(TMath::Power(Xpos-xScan,2)+TMath::Power(Ypos-yScan,2));
-      count ++;
-      //printf("%d, %4f, dTemp:%f, dist:%f \n",count,  xScan, tempDist, dist);
+      counti ++;
+      //printf("%d, %4f, dTemp:%f, dist:%f \n",counti,  xScan, tempDist, dist);
     }while (dist > tempDist);
     xScan -= searchDir*step;
   }
   //printf("============= xScan:%f, dist:%f \n", xScan, dist);
 
   result[0] = xScan;
-  result[1] = htemp->Interpolate(xScan);
-  result[2] = TMath::Sign(dist, Ypos-htempY);
+  //result[1] = yScan;
+  if( xScan <= xCut){
+    //result[1] = htemp->Interpolate(xScan);
+    result[1] = gtemp->Eval(xScan);
+  }else{
+    result[1] = ftemp->Eval(xScan);
+  }
+  result[2] = TMath::Sign(dist, Ypos-tempY);
 
 }
 
