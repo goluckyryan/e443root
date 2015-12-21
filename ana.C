@@ -102,6 +102,9 @@
         TCut gateL = gateL1 || gateL2;
         TCut gateR = gateR1 || gateR2;
 
+        TCut gateGammaL = "-85<liqlTOF && liqlTOF<-78";
+        TCut gateGammaR = "-85<liqrTOF && liqrTOF<-78";
+
         
         //------- complex gate
         TCut gate3He = "cut3He_a || cut3He_b";
@@ -116,7 +119,9 @@
         printf("........ loaded gates\n"); 
         //====================================================== Test code
 
-        //tree->Process("Selector_disc.C");
+        //--------- Compiling Selector
+        //gROOT->ProcessLine(".L Selector_disc.C+");
+        //tree->Process("Selector_disc");
 
         //h1px->Draw();
 

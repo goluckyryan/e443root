@@ -51,9 +51,18 @@ public :
    TF1 * polR2;
    TF1 * polRN;
 
+   Double_t coef1[7], coef2[7];
+
+   TF1 * pol1;  //for simpler code
+   TF1 * pol2;
+   TF1 * polN;
+
+   Double_t *coef;
+   
+   
    //===================== distance method
-   TH2* h1;TProfile* h1px; TF1* f1; TF1* g1; 
-   TH2* h2;TProfile* h2px; TF1* f2; TF1* g2; 
+   TH2* hist_L;TProfile* hist_Lpx; TF1* funcL1; TF1* funcL2; 
+   TH2* hist_R;TProfile* hist_Rpx; TF1* funcR1; TF1* funcR2; 
    Double_t xCut;
    Double_t result[3];
 
@@ -66,6 +75,12 @@ public :
    TCut gateL ;
    TCut gateR ;
 
+   TCut gateGammaL;
+   TCut gateGammaR;
+
+   TF1 * gtemp;
+   TF1 * ftemp;
+
    //======================== newTree variable
    Double_t ratio1, ratio2;
 
@@ -73,7 +88,7 @@ public :
    Double_t dist2X, dist2Y, dist2;
 
    // Declaration of leaf types
-  // Int_t           eventID;
+   // Int_t           eventID;
    Int_t           coinReg;
    Int_t           vetogate;
    Double_t        grx;
@@ -84,156 +99,156 @@ public :
    // Double_t        grdE2;
    Double_t        grTOF1;
    // Double_t        grTOF2;
-  // Double_t        grf;
+   // Double_t        grf;
    Double_t        grXC;
    Double_t        grthC;
    Double_t        grXAux;
-  // Double_t        badEl;
-  // Double_t        badEr;
-  // Double_t        blo1;
-  // Double_t        blo2;
-  // Double_t        blo3;
-  // Double_t        blo4;
-  // Double_t        badElTOF;
-  // Double_t        badErTOF;
-  // Double_t        blo1Tavg;
-  // Double_t        blo2Tavg;
-  // Double_t        blo3Tavg;
-  // Double_t        blo4Tavg;
-  // Double_t        blo1TOF;
-  // Double_t        blo2TOF;
-  // Double_t        blo3TOF;
-  // Double_t        blo4TOF;
-  // Double_t        adc[12];
-  // Double_t        tdc[12];
-  // Int_t           staMult;
-  // Double_t        sta1h;
-  // Double_t        sta2h;
-  // Double_t        sta1v;
-  // Double_t        sta2v;
-  // Double_t        sta3v;
-  // Double_t        sta4v;
-  // Double_t        sta_odd;
-  // Double_t        sta_even;
-  // Double_t        sta_sum;
-  // Double_t        sta_ratio;
-  // Double_t        sta1hTavg;
-  // Double_t        sta2hTavg;
-  // Double_t        sta1vTavg;
-  // Double_t        sta2vTavg;
-  // Double_t        sta3vTavg;
-  // Double_t        sta4vTavg;
-  // Double_t        sta1hTdif;
-  // Double_t        sta2hTdif;
-  // Double_t        sta1vTdif;
-  // Double_t        sta2vTdif;
-  // Double_t        sta3vTdif;
-  // Double_t        sta4vTdif;
-  // Double_t        sta1hTOF;
-  // Double_t        sta2hTOF;
-  // Double_t        sta1vTOF;
-  // Double_t        sta2vTOF;
-  // Double_t        sta3vTOF;
-  // Double_t        sta4vTOF;
+   // Double_t        badEl;
+   // Double_t        badEr;
+   // Double_t        blo1;
+   // Double_t        blo2;
+   // Double_t        blo3;
+   // Double_t        blo4;
+   // Double_t        badElTOF;
+   // Double_t        badErTOF;
+   // Double_t        blo1Tavg;
+   // Double_t        blo2Tavg;
+   // Double_t        blo3Tavg;
+   // Double_t        blo4Tavg;
+   // Double_t        blo1TOF;
+   // Double_t        blo2TOF;
+   // Double_t        blo3TOF;
+   // Double_t        blo4TOF;
+   // Double_t        adc[12];
+   // Double_t        tdc[12];
+   // Int_t           staMult;
+   // Double_t        sta1h;
+   // Double_t        sta2h;
+   // Double_t        sta1v;
+   // Double_t        sta2v;
+   // Double_t        sta3v;
+   // Double_t        sta4v;
+   // Double_t        sta_odd;
+   // Double_t        sta_even;
+   // Double_t        sta_sum;
+   // Double_t        sta_ratio;
+   // Double_t        sta1hTavg;
+   // Double_t        sta2hTavg;
+   // Double_t        sta1vTavg;
+   // Double_t        sta2vTavg;
+   // Double_t        sta3vTavg;
+   // Double_t        sta4vTavg;
+   // Double_t        sta1hTdif;
+   // Double_t        sta2hTdif;
+   // Double_t        sta1vTdif;
+   // Double_t        sta2vTdif;
+   // Double_t        sta3vTdif;
+   // Double_t        sta4vTdif;
+   // Double_t        sta1hTOF;
+   // Double_t        sta2hTOF;
+   // Double_t        sta1vTOF;
+   // Double_t        sta2vTOF;
+   // Double_t        sta3vTOF;
+   // Double_t        sta4vTOF;
    Double_t        liqlf;
    Double_t        liqld;
    Double_t        liqrf;
    Double_t        liqrd;
    Double_t        liqlTOF;
    Double_t        liqrTOF;
-  // Double_t        brf;
+   // Double_t        brf;
 
    // List of branches
    // TBranch        *b_eventID;   //!
-    TBranch        *b_coinReg;   //!
-    TBranch        *b_vetogate;   //!
-    TBranch        *b_grx;   //!
-    TBranch        *b_gry;   //!
-    TBranch        *b_grth;   //!
-    TBranch        *b_grph;   //!
+   TBranch        *b_coinReg;   //!
+   TBranch        *b_vetogate;   //!
+   TBranch        *b_grx;   //!
+   TBranch        *b_gry;   //!
+   TBranch        *b_grth;   //!
+   TBranch        *b_grph;   //!
     TBranch        *b_grdE1;   //!
-   // TBranch        *b_grdE2;   //!
+    // TBranch        *b_grdE2;   //!
     TBranch        *b_grTOF1;   //!
-   // TBranch        *b_grTOF2;   //!
-   // TBranch        *b_grf;   //!
+    // TBranch        *b_grTOF2;   //!
+    // TBranch        *b_grf;   //!
     TBranch        *b_grXC;   //!
     TBranch        *b_grthC;   //!
     TBranch        *b_grXAux;   //!
-   // TBranch        *b_badEl;   //!
-   // TBranch        *b_badEr;   //!
-   // TBranch        *b_blo1;   //!
-   // TBranch        *b_blo2;   //!
-   // TBranch        *b_blo3;   //!
-   // TBranch        *b_blo4;   //!
-   // TBranch        *b_badElTOF;   //!
-   // TBranch        *b_badErTOF;   //!
-   // TBranch        *b_blo1Tavg;   //!
-   // TBranch        *b_blo2Tavg;   //!
-   // TBranch        *b_blo3Tavg;   //!
-   // TBranch        *b_blo4Tavg;   //!
-   // TBranch        *b_blo1TOF;   //!
-   // TBranch        *b_blo2TOF;   //!
-   // TBranch        *b_blo3TOF;   //!
-   // TBranch        *b_blo4TOF;   //!
-   // TBranch        *b_adc;   //!
-   // TBranch        *b_tdc;   //!
-   // TBranch        *b_staMult;   //!
-   // TBranch        *b_sta1h;   //!
-   // TBranch        *b_sta2h;   //!
-   // TBranch        *b_sta1v;   //!
-   // TBranch        *b_sta2v;   //!
-   // TBranch        *b_sta3v;   //!
-   // TBranch        *b_sta4v;   //!
-   // TBranch        *b_sta_odd;   //!
-   // TBranch        *b_sta_even;   //!
-   // TBranch        *b_sta_sum;   //!
-   // TBranch        *b_sta_ratio;   //!
-   // TBranch        *b_sta1hTavg;   //!
-   // TBranch        *b_sta2hTavg;   //!
-   // TBranch        *b_sta1vTavg;   //!
-   // TBranch        *b_sta2vTavg;   //!
-   // TBranch        *b_sta3vTavg;   //!
-   // TBranch        *b_sta4vTavg;   //!
-   // TBranch        *b_sta1hTdif;   //!
-   // TBranch        *b_sta2hTdif;   //!
-   // TBranch        *b_sta1vTdif;   //!
-   // TBranch        *b_sta2vTdif;   //!
-   // TBranch        *b_sta3vTdif;   //!
-   // TBranch        *b_sta4vTdif;   //!
-   // TBranch        *b_sta1hTOF;   //!
-   // TBranch        *b_sta2hTOF;   //!
-   // TBranch        *b_sta1vTOF;   //!
-   // TBranch        *b_sta2vTOF;   //!
-   // TBranch        *b_sta3vTOF;   //!
-   // TBranch        *b_sta4vTOF;   //!
-   TBranch        *b_liqlf;   //!
-   TBranch        *b_liqld;   //!
-   TBranch        *b_liqrf;   //!
-   TBranch        *b_liqrd;   //!
-   TBranch        *b_liqlTOF;   //!
-   TBranch        *b_liqrTOF;   //!
-   //TBranch        *b_brf;   //!
+    // TBranch        *b_badEl;   //!
+    // TBranch        *b_badEr;   //!
+    // TBranch        *b_blo1;   //!
+    // TBranch        *b_blo2;   //!
+    // TBranch        *b_blo3;   //!
+    // TBranch        *b_blo4;   //!
+    // TBranch        *b_badElTOF;   //!
+    // TBranch        *b_badErTOF;   //!
+    // TBranch        *b_blo1Tavg;   //!
+    // TBranch        *b_blo2Tavg;   //!
+    // TBranch        *b_blo3Tavg;   //!
+    // TBranch        *b_blo4Tavg;   //!
+    // TBranch        *b_blo1TOF;   //!
+    // TBranch        *b_blo2TOF;   //!
+    // TBranch        *b_blo3TOF;   //!
+    // TBranch        *b_blo4TOF;   //!
+    // TBranch        *b_adc;   //!
+    // TBranch        *b_tdc;   //!
+    // TBranch        *b_staMult;   //!
+    // TBranch        *b_sta1h;   //!
+    // TBranch        *b_sta2h;   //!
+    // TBranch        *b_sta1v;   //!
+    // TBranch        *b_sta2v;   //!
+    // TBranch        *b_sta3v;   //!
+    // TBranch        *b_sta4v;   //!
+    // TBranch        *b_sta_odd;   //!
+    // TBranch        *b_sta_even;   //!
+    // TBranch        *b_sta_sum;   //!
+    // TBranch        *b_sta_ratio;   //!
+    // TBranch        *b_sta1hTavg;   //!
+    // TBranch        *b_sta2hTavg;   //!
+    // TBranch        *b_sta1vTavg;   //!
+    // TBranch        *b_sta2vTavg;   //!
+    // TBranch        *b_sta3vTavg;   //!
+    // TBranch        *b_sta4vTavg;   //!
+    // TBranch        *b_sta1hTdif;   //!
+    // TBranch        *b_sta2hTdif;   //!
+    // TBranch        *b_sta1vTdif;   //!
+    // TBranch        *b_sta2vTdif;   //!
+    // TBranch        *b_sta3vTdif;   //!
+    // TBranch        *b_sta4vTdif;   //!
+    // TBranch        *b_sta1hTOF;   //!
+    // TBranch        *b_sta2hTOF;   //!
+    // TBranch        *b_sta1vTOF;   //!
+    // TBranch        *b_sta2vTOF;   //!
+    // TBranch        *b_sta3vTOF;   //!
+    // TBranch        *b_sta4vTOF;   //!
+    TBranch        *b_liqlf;   //!
+    TBranch        *b_liqld;   //!
+    TBranch        *b_liqrf;   //!
+    TBranch        *b_liqrd;   //!
+    TBranch        *b_liqlTOF;   //!
+    TBranch        *b_liqrTOF;   //!
+    //TBranch        *b_brf;   //!
 
-   Selector_disc(TTree * /*tree*/ =0) : fChain(0) { }
-   virtual ~Selector_disc() { }
-   virtual Int_t   Version() const { return 2; }
-   virtual void    Begin(TTree *tree);
-   virtual void    SlaveBegin(TTree *tree);
-   virtual void    Init(TTree *tree);
-   virtual Bool_t  Notify();
-   virtual Bool_t  Process(Long64_t entry);
-   virtual Int_t   GetEntry(Long64_t entry, Int_t getall = 0) { return fChain ? fChain->GetTree()->GetEntry(entry, getall) : 0; }
-   virtual void    SetOption(const char *option) { fOption = option; }
-   virtual void    SetObject(TObject *obj) { fObject = obj; }
-   virtual void    SetInputList(TList *input) { fInput = input; }
-   virtual TList  *GetOutputList() const { return fOutput; }
-   virtual void    SlaveTerminate();
-   virtual void    Terminate();
-   virtual Double_t  Findratio(Int_t id, Double_t Xpos, Double_t Ypos);
-   virtual void  FindDistance(Int_t id, Double_t Xpos, Double_t Ypos);//output by global constant
-
-
-   ClassDef(Selector_disc,0);
+ Selector_disc(TTree * /*tree*/ =0) : fChain(0) { }
+    virtual ~Selector_disc() { }
+    virtual Int_t   Version() const { return 2; }
+    virtual void    Begin(TTree *tree);
+    virtual void    SlaveBegin(TTree *tree);
+    virtual void    Init(TTree *tree);
+    virtual Bool_t  Notify();
+    virtual Bool_t  Process(Long64_t entry);
+    virtual Int_t   GetEntry(Long64_t entry, Int_t getall = 0) { return fChain ? fChain->GetTree()->GetEntry(entry, getall) : 0; }
+    virtual void    SetOption(const char *option) { fOption = option; }
+    virtual void    SetObject(TObject *obj) { fObject = obj; }
+    virtual void    SetInputList(TList *input) { fInput = input; }
+    virtual TList  *GetOutputList() const { return fOutput; }
+    virtual void    SlaveTerminate();
+    virtual void    Terminate();
+    virtual Double_t  Findratio(Int_t id, Double_t Xpos, Double_t Ypos);
+    virtual void  FindDistance(Int_t id, Double_t Xpos, Double_t Ypos); //output by global constant
+    virtual Bool_t IsValid(Int_t id, Double_t Xpos, Double_t Ypos);
+   
+    ClassDef(Selector_disc,0);
 };
 
 #endif
@@ -254,7 +269,7 @@ void Selector_disc::Init(TTree *tree)
    fChain = tree;
    fChain->SetMakeClass(1);
 
-  // fChain->SetBranchAddress("eventID", &eventID, &b_eventID);
+   // fChain->SetBranchAddress("eventID", &eventID, &b_eventID);
    fChain->SetBranchAddress("coinReg", &coinReg, &b_coinReg);
    fChain->SetBranchAddress("vetogate", &vetogate, &b_vetogate);
    fChain->SetBranchAddress("grx", &grx, &b_grx);
@@ -269,53 +284,53 @@ void Selector_disc::Init(TTree *tree)
    fChain->SetBranchAddress("grXC", &grXC, &b_grXC);
    fChain->SetBranchAddress("grthC", &grthC, &b_grthC);
    fChain->SetBranchAddress("grXAux", &grXAux, &b_grXAux);
-  // fChain->SetBranchAddress("badEl", &badEl, &b_badEl);
-  // fChain->SetBranchAddress("badEr", &badEr, &b_badEr);
-  // fChain->SetBranchAddress("blo1", &blo1, &b_blo1);
-  // fChain->SetBranchAddress("blo2", &blo2, &b_blo2);
-  // fChain->SetBranchAddress("blo3", &blo3, &b_blo3);
-  // fChain->SetBranchAddress("blo4", &blo4, &b_blo4);
-  // fChain->SetBranchAddress("badElTOF", &badElTOF, &b_badElTOF);
-  // fChain->SetBranchAddress("badErTOF", &badErTOF, &b_badErTOF);
-  // fChain->SetBranchAddress("blo1Tavg", &blo1Tavg, &b_blo1Tavg);
-  // fChain->SetBranchAddress("blo2Tavg", &blo2Tavg, &b_blo2Tavg);
-  // fChain->SetBranchAddress("blo3Tavg", &blo3Tavg, &b_blo3Tavg);
-  // fChain->SetBranchAddress("blo4Tavg", &blo4Tavg, &b_blo4Tavg);
-  // fChain->SetBranchAddress("blo1TOF", &blo1TOF, &b_blo1TOF);
-  // fChain->SetBranchAddress("blo2TOF", &blo2TOF, &b_blo2TOF);
-  // fChain->SetBranchAddress("blo3TOF", &blo3TOF, &b_blo3TOF);
-  // fChain->SetBranchAddress("blo4TOF", &blo4TOF, &b_blo4TOF);
-  // fChain->SetBranchAddress("adc", adc, &b_adc);
-  // fChain->SetBranchAddress("tdc", tdc, &b_tdc);
-  // fChain->SetBranchAddress("staMult", &staMult, &b_staMult);
-  // fChain->SetBranchAddress("sta1h", &sta1h, &b_sta1h);
-  // fChain->SetBranchAddress("sta2h", &sta2h, &b_sta2h);
-  // fChain->SetBranchAddress("sta1v", &sta1v, &b_sta1v);
-  // fChain->SetBranchAddress("sta2v", &sta2v, &b_sta2v);
-  // fChain->SetBranchAddress("sta3v", &sta3v, &b_sta3v);
-  // fChain->SetBranchAddress("sta4v", &sta4v, &b_sta4v);
-  // fChain->SetBranchAddress("sta_odd", &sta_odd, &b_sta_odd);
-  // fChain->SetBranchAddress("sta_even", &sta_even, &b_sta_even);
-  // fChain->SetBranchAddress("sta_sum", &sta_sum, &b_sta_sum);
-  // fChain->SetBranchAddress("sta_ratio", &sta_ratio, &b_sta_ratio);
-  // fChain->SetBranchAddress("sta1hTavg", &sta1hTavg, &b_sta1hTavg);
-  // fChain->SetBranchAddress("sta2hTavg", &sta2hTavg, &b_sta2hTavg);
-  // fChain->SetBranchAddress("sta1vTavg", &sta1vTavg, &b_sta1vTavg);
-  // fChain->SetBranchAddress("sta2vTavg", &sta2vTavg, &b_sta2vTavg);
-  // fChain->SetBranchAddress("sta3vTavg", &sta3vTavg, &b_sta3vTavg);
-  // fChain->SetBranchAddress("sta4vTavg", &sta4vTavg, &b_sta4vTavg);
-  // fChain->SetBranchAddress("sta1hTdif", &sta1hTdif, &b_sta1hTdif);
-  // fChain->SetBranchAddress("sta2hTdif", &sta2hTdif, &b_sta2hTdif);
-  // fChain->SetBranchAddress("sta1vTdif", &sta1vTdif, &b_sta1vTdif);
-  // fChain->SetBranchAddress("sta2vTdif", &sta2vTdif, &b_sta2vTdif);
-  // fChain->SetBranchAddress("sta3vTdif", &sta3vTdif, &b_sta3vTdif);
-  // fChain->SetBranchAddress("sta4vTdif", &sta4vTdif, &b_sta4vTdif);
-  // fChain->SetBranchAddress("sta1hTOF", &sta1hTOF, &b_sta1hTOF);
-  // fChain->SetBranchAddress("sta2hTOF", &sta2hTOF, &b_sta2hTOF);
-  // fChain->SetBranchAddress("sta1vTOF", &sta1vTOF, &b_sta1vTOF);
-  // fChain->SetBranchAddress("sta2vTOF", &sta2vTOF, &b_sta2vTOF);
-  // fChain->SetBranchAddress("sta3vTOF", &sta3vTOF, &b_sta3vTOF);
-  // fChain->SetBranchAddress("sta4vTOF", &sta4vTOF, &b_sta4vTOF);
+   // fChain->SetBranchAddress("badEl", &badEl, &b_badEl);
+   // fChain->SetBranchAddress("badEr", &badEr, &b_badEr);
+   // fChain->SetBranchAddress("blo1", &blo1, &b_blo1);
+   // fChain->SetBranchAddress("blo2", &blo2, &b_blo2);
+   // fChain->SetBranchAddress("blo3", &blo3, &b_blo3);
+   // fChain->SetBranchAddress("blo4", &blo4, &b_blo4);
+   // fChain->SetBranchAddress("badElTOF", &badElTOF, &b_badElTOF);
+   // fChain->SetBranchAddress("badErTOF", &badErTOF, &b_badErTOF);
+   // fChain->SetBranchAddress("blo1Tavg", &blo1Tavg, &b_blo1Tavg);
+   // fChain->SetBranchAddress("blo2Tavg", &blo2Tavg, &b_blo2Tavg);
+   // fChain->SetBranchAddress("blo3Tavg", &blo3Tavg, &b_blo3Tavg);
+   // fChain->SetBranchAddress("blo4Tavg", &blo4Tavg, &b_blo4Tavg);
+   // fChain->SetBranchAddress("blo1TOF", &blo1TOF, &b_blo1TOF);
+   // fChain->SetBranchAddress("blo2TOF", &blo2TOF, &b_blo2TOF);
+   // fChain->SetBranchAddress("blo3TOF", &blo3TOF, &b_blo3TOF);
+   // fChain->SetBranchAddress("blo4TOF", &blo4TOF, &b_blo4TOF);
+   // fChain->SetBranchAddress("adc", adc, &b_adc);
+   // fChain->SetBranchAddress("tdc", tdc, &b_tdc);
+   // fChain->SetBranchAddress("staMult", &staMult, &b_staMult);
+   // fChain->SetBranchAddress("sta1h", &sta1h, &b_sta1h);
+   // fChain->SetBranchAddress("sta2h", &sta2h, &b_sta2h);
+   // fChain->SetBranchAddress("sta1v", &sta1v, &b_sta1v);
+   // fChain->SetBranchAddress("sta2v", &sta2v, &b_sta2v);
+   // fChain->SetBranchAddress("sta3v", &sta3v, &b_sta3v);
+   // fChain->SetBranchAddress("sta4v", &sta4v, &b_sta4v);
+   // fChain->SetBranchAddress("sta_odd", &sta_odd, &b_sta_odd);
+   // fChain->SetBranchAddress("sta_even", &sta_even, &b_sta_even);
+   // fChain->SetBranchAddress("sta_sum", &sta_sum, &b_sta_sum);
+   // fChain->SetBranchAddress("sta_ratio", &sta_ratio, &b_sta_ratio);
+   // fChain->SetBranchAddress("sta1hTavg", &sta1hTavg, &b_sta1hTavg);
+   // fChain->SetBranchAddress("sta2hTavg", &sta2hTavg, &b_sta2hTavg);
+   // fChain->SetBranchAddress("sta1vTavg", &sta1vTavg, &b_sta1vTavg);
+   // fChain->SetBranchAddress("sta2vTavg", &sta2vTavg, &b_sta2vTavg);
+   // fChain->SetBranchAddress("sta3vTavg", &sta3vTavg, &b_sta3vTavg);
+   // fChain->SetBranchAddress("sta4vTavg", &sta4vTavg, &b_sta4vTavg);
+   // fChain->SetBranchAddress("sta1hTdif", &sta1hTdif, &b_sta1hTdif);
+   // fChain->SetBranchAddress("sta2hTdif", &sta2hTdif, &b_sta2hTdif);
+   // fChain->SetBranchAddress("sta1vTdif", &sta1vTdif, &b_sta1vTdif);
+   // fChain->SetBranchAddress("sta2vTdif", &sta2vTdif, &b_sta2vTdif);
+   // fChain->SetBranchAddress("sta3vTdif", &sta3vTdif, &b_sta3vTdif);
+   // fChain->SetBranchAddress("sta4vTdif", &sta4vTdif, &b_sta4vTdif);
+   // fChain->SetBranchAddress("sta1hTOF", &sta1hTOF, &b_sta1hTOF);
+   // fChain->SetBranchAddress("sta2hTOF", &sta2hTOF, &b_sta2hTOF);
+   // fChain->SetBranchAddress("sta1vTOF", &sta1vTOF, &b_sta1vTOF);
+   // fChain->SetBranchAddress("sta2vTOF", &sta2vTOF, &b_sta2vTOF);
+   // fChain->SetBranchAddress("sta3vTOF", &sta3vTOF, &b_sta3vTOF);
+   // fChain->SetBranchAddress("sta4vTOF", &sta4vTOF, &b_sta4vTOF);
    fChain->SetBranchAddress("liqlf", &liqlf, &b_liqlf);
    fChain->SetBranchAddress("liqld", &liqld, &b_liqld);
    fChain->SetBranchAddress("liqrf", &liqrf, &b_liqrf);
@@ -342,10 +357,6 @@ void Selector_disc::Init(TTree *tree)
    shown = 0;
 
    //================================= Initialize Tree variable
-  // xp   =TMath::QuietNaN();
-  // yp   =TMath::QuietNaN();
-  // slop1=TMath::QuietNaN();
-  // slop0=TMath::QuietNaN();
    ratio1=TMath::QuietNaN();
    ratio2=TMath::QuietNaN();
 
@@ -364,7 +375,6 @@ void Selector_disc::Init(TTree *tree)
    newTree->Branch("grXC", &grXC, "grXC/D");
    newTree->Branch("grthC", &grthC, "grthC/D");
    newTree->Branch("grXAux", &grXAux, "grXAux/D");
-
    
    newTree->Branch("liqlf", &liqlf, "liqlf/D");
    newTree->Branch("liqld", &liqld, "liqld/D");
@@ -386,30 +396,50 @@ void Selector_disc::Init(TTree *tree)
 
    //============================= Discrimination function
 
-   Double_t paraL1[7] = {-23.7487397849174,12.4173924736471,-0.828505201407496,3.21874524544915e-2,-6.68727859698445e-4,7.02202234122151e-6,-2.927396710109e-8};   
+   coef1[0] = 3.75;
+   coef1[1] = 25.;
+   coef1[2] = 5./3.;
+   coef1[3] = 200./3;
+   coef1[4] = 213.16;
+   coef1[5] = 228.10;
+   coef1[6] = 1.11;
+
+   coef2[0] = 4.00;
+   coef2[1] = 20.0;
+   coef2[2] = 5./3.;
+   coef2[3] = 200./3;
+   coef2[4] = 197.77;
+   coef2[5] = 216.14;
+   coef2[6] = 155./138.;
+
+   const Double_t paraL1[7] = {-23.7487397849174,12.4173924736471,-0.828505201407496,3.21874524544915e-2,-6.68727859698445e-4,7.02202234122151e-6,-2.927396710109e-8};   
    polL1 = new TF1 ("polL1", "pol6(0)", 0, 40);
    polL1->SetParameters(paraL1);
 
-   Double_t paraL2[7] = {0.172266977459559,5.9637634482046,-0.304035887742127,1.07119395996909e-2,-2.06969268428427e-4,2.0368291152803e-6,-7.95796852547104e-9};
+   const Double_t paraL2[7] = {0.172266977459559,5.9637634482046,-0.304035887742127,1.07119395996909e-2,-2.06969268428427e-4,2.0368291152803e-6,-7.95796852547104e-9};
    polL2 = new TF1 ("polL2", "pol6(0)", 0, 40);
    polL2->SetParameters(paraL2);
 
-   Double_t paraLN[7] = {17.1403933439602,2.82668091227555,-0.783608859798423,5.7686415838032e-2,-1.90037901151952e-3,2.95287817182544e-5,-1.77117413818978e-7};
+   const Double_t paraLN[7] = {17.1403933439602,2.82668091227555,-0.783608859798423,5.7686415838032e-2,-1.90037901151952e-3,2.95287817182544e-5,-1.77117413818978e-7};
    polLN = new TF1 ("polLN", "pol6(0)", 0, 40);
    polLN->SetParameters(paraLN);
-
    
-   Double_t paraR1[7] = {-60.9368197474984,17.2229169053041,-0.963291218034542,2.83802883192005e-2,-3.65675700383337e-4,7.63218683391687e-7,1.44952843894597e-8};   
+   const Double_t paraR1[7] = {-60.9368197474984,17.2229169053041,-0.963291218034542,2.83802883192005e-2,-3.65675700383337e-4,7.63218683391687e-7,1.44952843894597e-8};   
    polR1 = new TF1 ("polR1", "pol6(0)", 0, 40);
    polR1->SetParameters(paraR1);
 
-   Double_t paraR2[7] = {-32.5487396988204,11.9170780214638,-0.773943598797264,0.0332804686513151,-8.4061488205942e-4,1.1347308205463e-5,-6.26354798929918e-8};
+   const Double_t paraR2[7] = {-32.5487396988204,11.9170780214638,-0.773943598797264,0.0332804686513151,-8.4061488205942e-4,1.1347308205463e-5,-6.26354798929918e-8};
    polR2 = new TF1 ("polR2", "pol6(0)", 0, 40);
    polR2->SetParameters(paraR2);
 
-   Double_t paraRN[7] = {2.2288133607634,2.2787473254491,-0.16022350090044,-8.96922502345884e-3,1.02117809871895e-3,-2.83696246833626e-5,2.51396547312939e-7};
+   const Double_t paraRN[7] = {2.2288133607634,2.2787473254491,-0.16022350090044,-8.96922502345884e-3,1.02117809871895e-3,-2.83696246833626e-5,2.51396547312939e-7};
    polRN = new TF1 ("polRN", "pol6(0)", 0, 40);
    polRN->SetParameters(paraRN);
+
+   pol1 = 0;  //for simpler code
+   pol2 = 0;
+   polN = 0;
+   coef = 0;
 
    //================= distance
    gateL1 =  "liqlf < 3.75 *liqld +  25.    && liqld <= 20";
@@ -418,51 +448,62 @@ void Selector_disc::Init(TTree *tree)
    gateR2 =  "liqrf < 5./3.*liqrd + 200./3. && liqrd > 20";
    gateL = gateL1 || gateL2;
    gateR = gateR1 || gateR2;
+   gateGammaL = "-85<liqlTOF && liqlTOF<-78";
+   gateGammaR = "-85<liqrTOF && liqrTOF<-78";
 
    xCut = 100;
 
-   //printf("Plotting h1\n");
-   h1 = new TH2F("h1", "h1", 500, 0, 1000, 500, 0, 2000);
-   tree->Draw("liqlf:liqld>>h1", gateL + "-85<liqlTOF && liqlTOF<-78", "colz");
-   h1px = new TProfile("h1px", "h1px", 500, 0, 1000);
+   //-------- Get histogram of pure gamma
+   hist_L = new TH2F("hist_L", "hist_L", 500, 0, 1000, 500, 0, 2000);
+   tree->Draw("liqlf:liqld>>hist_L", gateL + gateGammaL, "colz");
 
-   //printf("Plotting h1px\n");
-   h1->ProfileX("h1px");
+   //-------- Get profile
+   hist_Lpx = new TProfile("hist_Lpx", "hist_Lpx", 500, 0, 1000);
+   hist_L->ProfileX("hist_Lpx");
 
-   f1 = new TF1("f1", "pol1", xCut, 1000);
-   h1px->Fit("f1", "RQ", "", xCut, 300);
+   //-------- Fit for liqld > xCut
+   funcL1 = new TF1("funcL1", "pol1", xCut, 1000);
+   hist_Lpx->Fit("funcL1", "RQ", "", xCut, 300);
 
-   g1 = new TF1("g1", "pol6", 0,  xCut);
-   h1px->Fit("g1", "RQ");
+   //-------- Fit for liqld < xCut with fix point and slope at xCut
+   funcL2 = new TF1("funcL2", "[1] + [2]*(x-[0]) + [3]*TMath::Power(x-[0],2) + [4]*TMath::Power(x-[0],3) + [5]*TMath::Power(x-[0],4) + [6]*TMath::Power(x-[0],5) + [7]*TMath::Power(x-[0],6)", 0,  xCut);
+   funcL2->FixParameter(0,xCut);
+   funcL2->FixParameter(1,funcL1->Eval(xCut));
+   funcL2->FixParameter(2,funcL1->Derivative(xCut));
+   hist_Lpx->Fit("funcL2", "RQ");
 
-   //printf("Plotting h2\n");
-   h2 = new TH2F("h2", "h2", 500, 0, 1000, 500, 0, 2000);
-   tree->Draw("liqrf:liqrd>>h2", gateR + "-85<liqrTOF && liqrTOF<-78", "colz");
-   h2px = new TProfile("h2px", "h2px", 500, 0, 1000);
+   //------------- same for R
+   hist_R = new TH2F("hist_R", "hist_R", 500, 0, 1000, 500, 0, 2000);
+   tree->Draw("liqrf:liqrd>>hist_R", gateR + gateGammaR, "colz");
 
-   //printf("Plotting h2px\n");
-   h2->ProfileX("h2px");
+   hist_Rpx = new TProfile("hist_Rpx", "hist_Rpx", 500, 0, 1000);
+   hist_R->ProfileX("hist_Rpx");
 
-   f2 = new TF1("f2", "pol1", xCut, 1000);
-   h2px->Fit("f2", "RQ", "", xCut, 300);
+   funcR1 = new TF1("funcR1", "pol1", xCut, 1000);
+   hist_Rpx->Fit("funcR1", "RQ", "", xCut, 300);
 
-   g2 = new TF1("g2", "pol6", 0,  xCut);
-   h2px->Fit("g2", "RQ");
+   funcR2 = new TF1("funcR2", "[1] + [2]*(x-[0]) + [3]*TMath::Power(x-[0],2) + [4]*TMath::Power(x-[0],3) + [5]*TMath::Power(x-[0],4) + [6]*TMath::Power(x-[0],5) + [7]*TMath::Power(x-[0],6)", 0,  xCut);
+   funcR2->FixParameter(0,xCut);
+   funcR2->FixParameter(1,funcR1->Eval(xCut));
+   funcR2->FixParameter(2,funcR1->Derivative(xCut));
+   hist_Rpx->Fit("funcR2", "RQ");
 
-
-   //printf("initialize result ptr\n");
+   //------------- 
    result[0] = TMath::QuietNaN();
    result[1] = TMath::QuietNaN();
    result[2] = TMath::QuietNaN();
 
-   h1->Write();
-   h1px->Write();
-   f1->Write();
-   g1->Write();
-   h2->Write();
-   h2px->Write();   
-   f2->Write();
-   g2->Write();
+   gtemp = 0;
+   ftemp = 0;
+
+   hist_L->Write();
+   hist_Lpx->Write();
+   funcL1->Write();
+   funcL2->Write();
+   hist_R->Write();
+   hist_Rpx->Write();   
+   funcR1->Write();
+   funcR2->Write();
 }
 
 Bool_t Selector_disc::Notify()
