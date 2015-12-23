@@ -5,11 +5,11 @@
         gROOT->ProcessLine(".L ~/e443root/nuclei_mass.h");
         gROOT->ProcessLine(".L ~/e443root/Fit_2Gauss.c");
         //======================================================== InPut setting
-        char * rootfile = "run1035.root";
+        char * rootfile = "run10351.root";
         Int_t Div[2] = {2,2};  //x,y
         Int_t size[2] = {400,400}; //x,y
         
-        Bool_t analysis = 1; // 0 = no analysis, only load root file and gate; 1 = analysis.
+        Bool_t analysis = 0; // 0 = no analysis, only load root file and gate; 1 = analysis.
         
         Double_t BGscale = 1.0;
         
@@ -41,6 +41,19 @@
         gate3He_b->SetPoint(3, 225.9+99, 304.6);
         gate3He_b->SetPoint(4, 208.6+99, 343.0);
         gate3He_b->SetPoint(5, 183.7+99, 305.8);
+
+        TCutG * gateStaGam = new TCutG("cutsta_g",9);
+        gateStaGam->SetVarX("sta_ratio");
+        gateStaGam->SetVarY("sta_sum");
+        gateStaGam->SetPoint(0,-0.667692,1.29108);
+        gateStaGam->SetPoint(1,-0.52544,5.80139);
+        gateStaGam->SetPoint(2,-0.265832,7.68068);
+        gateStaGam->SetPoint(3,0.00088907,8.52636);
+        gateStaGam->SetPoint(4,0.271166,7.68068);
+        gateStaGam->SetPoint(5,0.427643,5.80139);
+        gateStaGam->SetPoint(6,0.530775,2.13676);
+        gateStaGam->SetPoint(7,0.548556,0.633322);
+        gateStaGam->SetPoint(8,-0.667692,1.29108);
 
         //--------- Simple cut
         TString gateStr; 
@@ -105,9 +118,13 @@
         */
          //------- complex gate
         TCut gate3He = "cut3He_a || cut3He_b";
+        TCut gateVeto =  "vetogate == 1";
         TCut gateBloTri  = (gateBlo1  || gateBlo2  || gateBlo3  || gateBlo4);
         TCut gateStaTri  = (gateSta1h || gateSta2h || gateSta1v || gateSta1v || gateSta2v || gateSta3v || gateSta4v);
-        TCut gateTem  = "vetogate == 1" && gateFinite + gateGRLAS + gate3He + gateStaTri;
+        TCut gateTem  = gateVeto +  gateFinite + gateGRLAS + gate3He + gateStaTri;
+        TCut gateAcc = "lastgr > 1000";
+        TCut gateTrue1 = "720 < lastgr && lastgr < 820";
+        TCut gateTrue2 = "890 < lastgr && lastgr < 940";
 
         printf("........ loaded gates\n"); 
    
@@ -169,24 +186,26 @@
         //tree->Draw("grthC*TMath::RadToDeg():grXC>>h3(1200,-600,600,600,-1.5,1.5)", gate3He, "colz");
         //tree->Draw("grXC>>h1(1200,-600,600)",gate3He + gatethC);
 
-        tree->Draw("grXC>>h1(1200,-600,600)",gate3He + "grthC*TMath::RadToDeg()<-0.5");
-        //tree->Draw("sta_sum:sta_ratio>>s1(200,-1.1,1.1, 200,0.,35.)", gateTem, "colz");
+        //tree->Draw("grXC>>h1(1200,-600,600)",gate3He + "grthC*TMath::RadToDeg()<-0.5");
+        tree->Draw("sta_sum:sta_ratio>>s1(200,-1.1,1.1, 200,0.,35.)", "cutsta_g" + gateTem, "colz");
         cAna->cd(2);
-        //tree->Draw("sta_sum:sta_ratio>>s2(200,-1.1,1.1, 200,0.,35.)", gateTem + gateXC_cent + gateStaNeu, "colz");
-        tree->Draw("grXC>>h2(1200,-600,600)",gate3He + "-0.5 < grthC*TMath::RadToDeg() && grthC*TMath::RadToDeg() < 0");
+        tree->Draw("sta_sum:sta_ratio>>s2(200,-1.1,1.1, 200,0.,35.)", "!cutsta_g" + gateTem + gateXC_cent + gateStaNeu, "colz");
+        //tree->Draw("grXC>>h2(1200,-600,600)",gate3He + "-0.5 < grthC*TMath::RadToDeg() && grthC*TMath::RadToDeg() < 0");
         //tree->Draw("grXC>>h1(1200,-600,600)",gateTem);
-        //tree->Draw("sta1hTOF>>s2(200,-50,150)", gateTem);
+        //tree->Draw("sta2hTOF>>s2(200,-50,150)", "cutsta_g" + gateTem);
         cAna->cd(3);
         //tree->Draw("grthC*TMath::RadToDeg():grXC>>h4(1200,-600,600,600,-1.5,1.5)", gateTem + gateStaNeu,"colz");
-        //tree->Draw("sta_sum:sta_ratio>>s3(200,-1.1,1.1, 200,0.,35.)", gateTem + (gateXC_side1 || gateXC_side2) + gateStaNeu, "colz");
-        //tree->Draw("sta1hTOF>>s3(200,-50,150)", gateTem + gateXC_cent);
-        tree->Draw("grXC>>h3(1200,-600,600)",gate3He + "0 < grthC*TMath::RadToDeg() && grthC*TMath::RadToDeg() < 0.5");
+        tree->Draw("sta_sum:sta_ratio>>s3(200,-1.1,1.1, 200,0.,35.)","!cutsta_g"+ gateTem + (gateXC_side1 || gateXC_side2) + gateStaNeu, "colz");
+        //tree->Draw("sta_sum:sta_ratio>>s3(200,-1.1,1.1, 200,0.,35.)", "!cutsta_g" + gateTem + gateStaNeu, "colz");
+       
+        //tree->Draw("grXC>>h3(1200,-600,600)",gate3He + "0 < grthC*TMath::RadToDeg() && grthC*TMath::RadToDeg() < 0.5");
         cAna->cd(4);
         //tree->Draw("sta_sum:sta_ratio>>s4(200,-1.1,1.1, 200,0.,30.)", gateTem +gateStaNeu, "colz");
         //tree->Draw("grXC>>h1(1200,-600,600)",gate3He + gateXC_cent);
         //tree->Draw("sta1hTOF>>s4(200,-50,150)", gateTem + gateXC_cent + gateStaNeu);
-        //tree->Draw("grthC*TMath::RadToDeg():grXC>>h4(1200,-600,600,600,-1.5,1.5)",gate3He + "grthC*TMath::RadToDeg() > 0.5","colz");
-        tree->Draw("grthC*TMath::RadToDeg()>>h4a(600,-1.5,1.5)","grthC*TMath::RadToDeg() > 0.5","colz");
+        //tree->Draw("grthC*TMath::RadToDeg():grXC>>h4(1200,-600,600,600,-1.5,1.5)",gate3He + gateXC_cent,"colz");
+        //tree->Draw("grthC*TMath::RadToDeg()>>h4a(600,-1.5,1.5)","grthC*TMath::RadToDeg() > 0.5","colz");
+        tree->Draw("sta2hTOF>>s4(200,-50,150)", "!cutsta_g" + gateTem + gateStaNeu);
 
 	
         /*

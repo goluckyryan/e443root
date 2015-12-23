@@ -66,7 +66,9 @@ void Count3He(Double_t dx = 159.24){
   //fit = new TF1("fit", CusFunc , -600, 600, 9);
   fit->SetParameters(para);
   //fit->FixParameter(1, 0);
-  //fit->SetParLimits(7,-20,0);
+  //fit->SetParLimits(4,-200,-100);
+  //fit->SetParLimits(5,100,200);
+  //fit->SetParLimits(7,0,20);
   fit->SetLineColor(2);
   fit->SetLineStyle(1);
   fit->SetLineWidth(2);
