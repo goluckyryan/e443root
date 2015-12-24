@@ -16,20 +16,20 @@
 
 using namespace std;
 
-void dst2root(Int_t RunName1, Int_t RunName2, Int_t nEntries = 990000000){ //the file name should be "XXXX"
+void dst2root(Int_t RunName, Int_t nEntries = 990000000){ //the file name should be "XXXX"
   printf("=============================\n");
   gROOT->ProcessLine(".!date");
 
   TString openFileName1;
-  openFileName1.Form("./dstroot/run%04d_asci.dst", RunName1);
+  openFileName1.Form("./dstroot/run%04d_asci.dst", RunName);
   printf("input <====== %s \n", openFileName1.Data());
   
   TString openFileName2;
-  openFileName2.Form("./dstroot/run%05d_asci.dst", RunName2);
+  openFileName2.Form("./dstroot/run%04d1_asci.dst", RunName); // 2nd file must be named runXXXX1_asci.dst
   printf("input <====== %s \n", openFileName2.Data());
   
   TString saveFileName;
-  saveFileName.Form("run%05d.root", RunName2);
+  saveFileName.Form("run%04d.root", RunName);
   printf("output =====> %s , nEntries:%d\n", saveFileName.Data(), nEntries);
    
   TFile *f1 = new TFile (saveFileName,"recreate");
@@ -171,7 +171,7 @@ void dst2root(Int_t RunName1, Int_t RunName2, Int_t nEntries = 990000000){ //the
   fp1.open(openFileName1);
 
   if( !fp1.is_open() ) {
-    printf("******* cannot open dst file\n");
+    printf("******* cannot open dst file : %s\n", openFileName1);
     return;
   }
 
@@ -179,7 +179,7 @@ void dst2root(Int_t RunName1, Int_t RunName2, Int_t nEntries = 990000000){ //the
   fp2.open(openFileName2);
 
   if( !fp2.is_open() ) {
-    printf("******* cannot open dst file\n");
+    printf("******* cannot open dst file : %s\n", openFileName2);
     return;
   }
   TBenchmark clock;
@@ -356,6 +356,15 @@ void dst2root(Int_t RunName1, Int_t RunName2, Int_t nEntries = 990000000){ //the
     fp2>>grx1;
     fp2>>lastgr;
     fp2>>dummy2;
+
+    //===================== Check matching
+
+    if( grx1 != grx) {
+      //printf(" grx not matching at eventID:%d, abort. \n", eventID);
+      //return 0;
+      printf(" grx not matching at eventID:%d, fill with NAN\n", eventID);
+      lastgr = TMath::QuietNaN();
+    }
 
     //===================================== 2ndary data processing
     //------------- Axuillary
