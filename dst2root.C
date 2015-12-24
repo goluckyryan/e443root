@@ -13,10 +13,9 @@
 #include "TRandom.h"
 #include "constant.h"
 
-
 using namespace std;
 
-int main(int argc, char * argv[]){
+int main(int argc,char *argv[]){ //the file name should be "XXXX"
 
   Int_t RunName = 0;
   Int_t nEntries = 0;
@@ -32,20 +31,16 @@ int main(int argc, char * argv[]){
     nEntries = atoi(argv[2]);
     RunName = atoi(argv[1]);
   }else if(argc == 2){
-    nEntries = 9999999;
+    nEntries = 99000000000000;
     RunName = atoi(argv[1]);
   }
   
   printf("=============================\n");
   gROOT->ProcessLine(".!date");
 
-  TString openFileName1;
-  openFileName1.Form("./dstroot/run%04d_asci.dst", RunName);
-  printf("input <====== %s \n", openFileName1.Data());
-  
-  TString openFileName2;
-  openFileName2.Form("./dstroot/run%04d1_asci.dst", RunName); // 2nd file must be named runXXXX1_asci.dst
-  printf("input <====== %s \n", openFileName2.Data());
+  TString openFileName;
+  openFileName.Form("../dstroot/run%04d_asci.dst", RunName);
+  printf("input <====== %s \n", openFileName.Data());
   
   TString saveFileName;
   saveFileName.Form("run%04d.root", RunName);
@@ -56,7 +51,7 @@ int main(int argc, char * argv[]){
   TRandom * rand = new TRandom();
 
   //================ Primary data
-  Double_t gradc[4],grtdc[4],grrf,adc[12],adc2[14],tdc[12],tdc2[12],lrf[3],dummy1,dummy2;
+  Double_t gradc[4],grtdc[4],grrf,adc[12],adc2[14],tdc[12],tdc2[12],lrf[3],dummy;
   
 
   //================ Tree branch
@@ -84,7 +79,7 @@ int main(int argc, char * argv[]){
   //--------- GRRF & BANDRF
   Double_t grf,brf;
   Double_t lastgr;
-  //-------------------------------------------------Physics
+  //-------------------------------------------------Phsyics
   Double_t grTOF1, grTOF2;
   Double_t badElTOF,badErTOF,blo1TOF,blo2TOF,blo3TOF,blo4TOF;
   Double_t sta1hTOF,sta2hTOF,sta1vTOF,sta2vTOF,sta3vTOF,sta4vTOF;
@@ -93,8 +88,6 @@ int main(int argc, char * argv[]){
 
   Double_t grXC,grthC;
   //Double_t grXAux;
-  Int_t event = -1;
-  Double_t grx1;
 
 
   //------------make tree branch
@@ -117,6 +110,7 @@ int main(int argc, char * argv[]){
   t1->Branch("grXC", &grXC, "grXC/D");
   t1->Branch("grthC", &grthC, "grthC/D");
   //t1->Branch("grXAux", &grXAux, "grXAux/D");
+  t1->Branch("lastgr", &lastgr, "lastgr/D");
 
   t1->Branch("badEl", &badEl, "badEl/D");
   t1->Branch("badEr", &badEr, "badEr/D");
@@ -179,26 +173,14 @@ int main(int argc, char * argv[]){
   t1->Branch("liqlTOF", &liqlTOF, "liqlTOF/D");
   t1->Branch("liqrTOF", &liqrTOF, "liqrTOF/D");
 
-  t1->Branch("brf", &brf, "brf/D");
-  //t1->Branch("event", &event, "event/I");
-  //t1->Branch("grx1", &grx1, "grx1/D");
-  t1->Branch("lastgr", &lastgr, "lastgr/D");
-   
+  t1->Branch("brf", &brf, "brf/D");   
    
   //=================== read file
-  ifstream fp1;
-  fp1.open(openFileName1);
+  ifstream fp;
+  fp.open(openFileName);
 
-  if( !fp1.is_open() ) {
-    printf("******* cannot open dst file : %s\n", openFileName1.Data());
-    exit(-1);
-  }
-
-  ifstream fp2;
-  fp2.open(openFileName2);
-
-  if( !fp2.is_open() ) {
-    printf("******* cannot open dst file : %s\n", openFileName2.Data());
+  if( !fp.is_open() ) {
+    printf("******* cannot open dst file\n");
     exit(-2);
   }
   TBenchmark clock;
@@ -229,6 +211,7 @@ int main(int argc, char * argv[]){
    grXC = TMath::QuietNaN();
    grthC = TMath::QuietNaN();
    //grXAux = TMath::QuietNaN();
+   lastgr = TMath::QuietNaN();
 
    //--------- BAND_TELE
    badEl = TMath::QuietNaN();
@@ -286,104 +269,86 @@ int main(int argc, char * argv[]){
    //--------- RF
    grf = TMath::QuietNaN();
    brf = TMath::QuietNaN();
-   //---------check
-   event = -1;
-   grx1 = TMath::QuietNaN();
-   lastgr = TMath::QuietNaN();
 
    //============================================= read from file
     //------------ CoinReg
-    fp1>>coinReg;
+    fp>>coinReg;
     //----------- GR
-    fp1>>grx;   if(grx == -1)  grx  = TMath::QuietNaN();
-    fp1>>grth;  if(grth == -1) grth = TMath::QuietNaN();
-    fp1>>gry;   if(gry == -1)  gry  = TMath::QuietNaN();
-    fp1>>grph;  if(grph == -1) grph = TMath::QuietNaN();    
+    fp>>grx;   if(grx == -1)  grx  = TMath::QuietNaN();
+    fp>>grth;  if(grth == -1) grth = TMath::QuietNaN();
+    fp>>gry;   if(gry == -1)  gry  = TMath::QuietNaN();
+    fp>>grph;  if(grph == -1) grph = TMath::QuietNaN();    
     //----------- GR ADC, TDC
-    fp1>>gradc[0]; 
-    fp1>>gradc[1];
-    fp1>>gradc[2];
-    fp1>>gradc[3];
-    fp1>>grtdc[0]; if(grtdc[0] == -1) grtdc[0] = TMath::QuietNaN();
-    fp1>>grtdc[1]; if(grtdc[1] == -1) grtdc[1] = TMath::QuietNaN();  
-    fp1>>grtdc[2]; if(grtdc[2] == -1) grtdc[2] = TMath::QuietNaN();  
-    fp1>>grtdc[3]; if(grtdc[3] == -1) grtdc[3] = TMath::QuietNaN();  
+    fp>>gradc[0]; 
+    fp>>gradc[1];
+    fp>>gradc[2];
+    fp>>gradc[3];
+    fp>>grtdc[0]; if(grtdc[0] == -1) grtdc[0] = TMath::QuietNaN();
+    fp>>grtdc[1]; if(grtdc[1] == -1) grtdc[1] = TMath::QuietNaN();  
+    fp>>grtdc[2]; if(grtdc[2] == -1) grtdc[2] = TMath::QuietNaN();  
+    fp>>grtdc[3]; if(grtdc[3] == -1) grtdc[3] = TMath::QuietNaN();  
     //------------ GR rf
-    fp1>>grrf;
+    fp>>grrf;
     //------------ Stack ADC
-    fp1>>adc[0];  //if(adc[0]  < 5) adc[0] = TMath::QuietNaN();
-    fp1>>adc[1];  //if(adc[1]  < 5) adc[1] = TMath::QuietNaN();
-    fp1>>adc[2];  //if(adc[2]  < 5) adc[2] = TMath::QuietNaN();
-    fp1>>adc[3];  //if(adc[3]  < 5) adc[3] = TMath::QuietNaN();
-    fp1>>adc[4];  //if(adc[4]  < 5) adc[4] = TMath::QuietNaN();
-    fp1>>adc[5];  //if(adc[5]  < 5) adc[5] = TMath::QuietNaN();
-    fp1>>adc[6];  //if(adc[6]  < 5) adc[6] = TMath::QuietNaN();
-    fp1>>adc[7];  //if(adc[7]  < 5) adc[7] = TMath::QuietNaN();
-    fp1>>adc[8];  //if(adc[8]  < 5) adc[8] = TMath::QuietNaN();
-    fp1>>adc[9];  //if(adc[9]  < 5) adc[9] = TMath::QuietNaN();
-    fp1>>adc[10]; //if(adc[10] < 5) adc[10] = TMath::QuietNaN();
-    fp1>>adc[11]; //if(adc[11] < 5) adc[11] = TMath::QuietNaN();
+    fp>>adc[0];  //if(adc[0]  < 5) adc[0] = TMath::QuietNaN();
+    fp>>adc[1];  //if(adc[1]  < 5) adc[1] = TMath::QuietNaN();
+    fp>>adc[2];  //if(adc[2]  < 5) adc[2] = TMath::QuietNaN();
+    fp>>adc[3];  //if(adc[3]  < 5) adc[3] = TMath::QuietNaN();
+    fp>>adc[4];  //if(adc[4]  < 5) adc[4] = TMath::QuietNaN();
+    fp>>adc[5];  //if(adc[5]  < 5) adc[5] = TMath::QuietNaN();
+    fp>>adc[6];  //if(adc[6]  < 5) adc[6] = TMath::QuietNaN();
+    fp>>adc[7];  //if(adc[7]  < 5) adc[7] = TMath::QuietNaN();
+    fp>>adc[8];  //if(adc[8]  < 5) adc[8] = TMath::QuietNaN();
+    fp>>adc[9];  //if(adc[9]  < 5) adc[9] = TMath::QuietNaN();
+    fp>>adc[10]; //if(adc[10] < 5) adc[10] = TMath::QuietNaN();
+    fp>>adc[11]; //if(adc[11] < 5) adc[11] = TMath::QuietNaN();
     //------------ BAND telesope ADC, Liquid ADC
-    fp1>>adc2[0];
-    fp1>>adc2[1];
-    fp1>>adc2[2];
-    fp1>>adc2[3];
-    fp1>>adc2[4];
-    fp1>>adc2[5];
-    fp1>>adc2[6];
-    fp1>>adc2[7];
-    fp1>>adc2[8];
-    fp1>>adc2[9];
-    fp1>>adc2[10];
-    fp1>>adc2[11];
-    fp1>>adc2[12];
-    fp1>>adc2[13];
+    fp>>adc2[0];
+    fp>>adc2[1];
+    fp>>adc2[2];
+    fp>>adc2[3];
+    fp>>adc2[4];
+    fp>>adc2[5];
+    fp>>adc2[6];
+    fp>>adc2[7];
+    fp>>adc2[8];
+    fp>>adc2[9];
+    fp>>adc2[10];
+    fp>>adc2[11];
+    fp>>adc2[12];
+    fp>>adc2[13];
     //------------ STACK TDC
-    fp1>>tdc[0];  if(tdc[0]  == -1) tdc[0] = TMath::QuietNaN();
-    fp1>>tdc[1];  if(tdc[1]  == -1) tdc[1] = TMath::QuietNaN();
-    fp1>>tdc[2];  if(tdc[2]  == -1) tdc[2] = TMath::QuietNaN();
-    fp1>>tdc[3];  if(tdc[3]  == -1) tdc[3] = TMath::QuietNaN();
-    fp1>>tdc[4];  if(tdc[4]  == -1) tdc[4] = TMath::QuietNaN();
-    fp1>>tdc[5];  if(tdc[5]  == -1) tdc[5] = TMath::QuietNaN();
-    fp1>>tdc[6];  if(tdc[6]  == -1) tdc[6] = TMath::QuietNaN();
-    fp1>>tdc[7];  if(tdc[7]  == -1) tdc[7] = TMath::QuietNaN();
-    fp1>>tdc[8];  if(tdc[8]  == -1) tdc[8] = TMath::QuietNaN();
-    fp1>>tdc[9];  if(tdc[9]  == -1) tdc[9] = TMath::QuietNaN();
-    fp1>>tdc[10]; if(tdc[10] == -1) tdc[10] = TMath::QuietNaN();
-    fp1>>tdc[11]; if(tdc[11] == -1) tdc[11] = TMath::QuietNaN();
+    fp>>tdc[0];  if(tdc[0]  == -1) tdc[0] = TMath::QuietNaN();
+    fp>>tdc[1];  if(tdc[1]  == -1) tdc[1] = TMath::QuietNaN();
+    fp>>tdc[2];  if(tdc[2]  == -1) tdc[2] = TMath::QuietNaN();
+    fp>>tdc[3];  if(tdc[3]  == -1) tdc[3] = TMath::QuietNaN();
+    fp>>tdc[4];  if(tdc[4]  == -1) tdc[4] = TMath::QuietNaN();
+    fp>>tdc[5];  if(tdc[5]  == -1) tdc[5] = TMath::QuietNaN();
+    fp>>tdc[6];  if(tdc[6]  == -1) tdc[6] = TMath::QuietNaN();
+    fp>>tdc[7];  if(tdc[7]  == -1) tdc[7] = TMath::QuietNaN();
+    fp>>tdc[8];  if(tdc[8]  == -1) tdc[8] = TMath::QuietNaN();
+    fp>>tdc[9];  if(tdc[9]  == -1) tdc[9] = TMath::QuietNaN();
+    fp>>tdc[10]; if(tdc[10] == -1) tdc[10] = TMath::QuietNaN();
+    fp>>tdc[11]; if(tdc[11] == -1) tdc[11] = TMath::QuietNaN();
     //------------- BAND telesope, Liquid TDC
-    fp1>>tdc2[0]; if(tdc2[0]  == -1) tdc2[0] = TMath::QuietNaN(); 
-    fp1>>tdc2[1]; if(tdc2[1]  == -1) tdc2[1] = TMath::QuietNaN(); 
-    fp1>>tdc2[2]; if(tdc2[2]  == -1) tdc2[2] = TMath::QuietNaN(); 
-    fp1>>tdc2[3]; if(tdc2[3]  == -1) tdc2[3] = TMath::QuietNaN(); 
-    fp1>>tdc2[4]; if(tdc2[4]  == -1) tdc2[4] = TMath::QuietNaN(); 
-    fp1>>tdc2[5]; if(tdc2[5]  == -1) tdc2[5] = TMath::QuietNaN(); 
-    fp1>>tdc2[6]; if(tdc2[6]  == -1) tdc2[6] = TMath::QuietNaN(); 
-    fp1>>tdc2[7]; if(tdc2[7]  == -1) tdc2[7] = TMath::QuietNaN(); 
-    fp1>>tdc2[8]; if(tdc2[8]  == -1) tdc2[8] = TMath::QuietNaN(); 
-    fp1>>tdc2[9]; if(tdc2[9]  == -1) tdc2[9] = TMath::QuietNaN(); 
-    fp1>>tdc2[10];if(tdc2[10] == -1) tdc2[10] = TMath::QuietNaN();
-    fp1>>tdc2[11];if(tdc2[11] == -1) tdc2[11] = TMath::QuietNaN();
+    fp>>tdc2[0]; if(tdc2[0]  == -1) tdc2[0] = TMath::QuietNaN(); 
+    fp>>tdc2[1]; if(tdc2[1]  == -1) tdc2[1] = TMath::QuietNaN(); 
+    fp>>tdc2[2]; if(tdc2[2]  == -1) tdc2[2] = TMath::QuietNaN(); 
+    fp>>tdc2[3]; if(tdc2[3]  == -1) tdc2[3] = TMath::QuietNaN(); 
+    fp>>tdc2[4]; if(tdc2[4]  == -1) tdc2[4] = TMath::QuietNaN(); 
+    fp>>tdc2[5]; if(tdc2[5]  == -1) tdc2[5] = TMath::QuietNaN(); 
+    fp>>tdc2[6]; if(tdc2[6]  == -1) tdc2[6] = TMath::QuietNaN(); 
+    fp>>tdc2[7]; if(tdc2[7]  == -1) tdc2[7] = TMath::QuietNaN(); 
+    fp>>tdc2[8]; if(tdc2[8]  == -1) tdc2[8] = TMath::QuietNaN(); 
+    fp>>tdc2[9]; if(tdc2[9]  == -1) tdc2[9] = TMath::QuietNaN(); 
+    fp>>tdc2[10];if(tdc2[10] == -1) tdc2[10] = TMath::QuietNaN();
+    fp>>tdc2[11];if(tdc2[11] == -1) tdc2[11] = TMath::QuietNaN();
     //------------- Liquid 
-    fp1>>lrf[0];
-    fp1>>lrf[1];
-    fp1>>lrf[2];
-    fp1>>dummy1;
-
-
-    fp2>>event;
-    fp2>>grx1;
-    fp2>>lastgr;
-    fp2>>dummy2;
-
-    //===================== Check matching
-
-    if( grx1 != grx) {
-      //printf(" grx not matching at eventID:%d, abort. \n", eventID);
-      //exit(-3);
-      printf(" grx not matching at eventID:%d, fill with NAN\n", eventID);
-      lastgr = TMath::QuietNaN();
-    }
+    fp>>lrf[0];
+    fp>>lrf[1];
+    fp>>lrf[2];
+    fp>>lastgr;
+    fp>>dummy;
 
     //===================================== 2ndary data processing
     //------------- Axuillary
@@ -531,7 +496,7 @@ int main(int argc, char * argv[]){
       }
     }
 
-  }while(! fp1.eof());
+  }while(! fp.eof());
 
   f1->cd(); //set focus on this file
   f1->Write(); 
@@ -540,4 +505,5 @@ int main(int argc, char * argv[]){
   printf("=======================================\n");
   printf("total number of event: %d \n", eventID);
   printf("............ done!\n");
+
 }
