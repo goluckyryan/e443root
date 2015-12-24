@@ -16,12 +16,32 @@
 
 using namespace std;
 
-void dst2root(Int_t RunName, Int_t nEntries = 990000000){ //the file name should be "XXXX"
+//void dst2root(Int_t RunName, Int_t nEntries = 990000000){ //the file name should be "XXXX"
+int main(int argc,char *argv[]){ //the file name should be "XXXX"
+
+  Int_t RunName;
+  Int_t nEntries;
+
+  printf("===========\n");
+
+  if( argc > 3 || argc == 1){
+    printf("Usage: ./dst2root RunName [opt:#event]\n");
+    exit(-1);
+  }
+  
+  if( argc == 3 ){
+    nEntries = atoi(argv[2]);
+    RunName = atoi(argv[1]);
+  }else if(argc == 2){
+    nEntries = 99000000000000;
+    RunName = atoi(argv[1]);
+  }
+  
   printf("=============================\n");
   gROOT->ProcessLine(".!date");
 
   TString openFileName;
-  openFileName.Form("./dstroot/run%04d_asci.dst", RunName);
+  openFileName.Form("../dstroot/run%04d_asci.dst", RunName);
   printf("input <====== %s \n", openFileName.Data());
   
   TString saveFileName;
@@ -163,7 +183,7 @@ void dst2root(Int_t RunName, Int_t nEntries = 990000000){ //the file name should
 
   if( !fp.is_open() ) {
     printf("******* cannot open dst file\n");
-    return;
+    exit(-2);
   }
   TBenchmark clock;
   Bool_t shown = 0;
@@ -487,4 +507,5 @@ void dst2root(Int_t RunName, Int_t nEntries = 990000000){ //the file name should
   printf("=======================================\n");
   printf("total number of event: %d \n", eventID);
   printf("............ done!\n");
+
 }
