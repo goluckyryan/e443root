@@ -20,31 +20,30 @@ int main(int argc,char *argv[]){ //the file name should be "XXXX"
   Int_t RunName = 0;
   Int_t nEntries = 0;
 
-  printf("===========\n");
-
   if( argc > 3 || argc == 1){
     printf("Usage: ./dst2root RunName [opt:#event]\n");
     exit(-1);
   }
-  
-  if( argc == 3 ){
-    nEntries = atoi(argv[2]);
-    RunName = atoi(argv[1]);
-  }else if(argc == 2){
-    nEntries = 99000000000000;
-    RunName = atoi(argv[1]);
-  }
-  
+
   printf("=============================\n");
   gROOT->ProcessLine(".!date");
+  
+  if( argc == 3 ){
+    nEntries = (int) atoi(argv[2]);
+    RunName = atoi(argv[1]);
+    //printf("====== number of event run: %d\n", nEntries); 
+  }else if(argc == 2){
+    nEntries = 999999999;
+    RunName = atoi(argv[1]);
+  }
 
   TString openFileName;
   openFileName.Form("../dstroot/run%04d_asci.dst", RunName);
-  printf("input <====== %s \n", openFileName.Data());
+  printf("input <<<<<<< %s \n", openFileName.Data());
   
   TString saveFileName;
   saveFileName.Form("run%04d.root", RunName);
-  printf("output =====> %s , nEntries:%d\n", saveFileName.Data(), nEntries);
+  printf("output >>>>>> %s \n", saveFileName.Data());
    
   TFile *f1 = new TFile (saveFileName,"recreate");
   TTree * t1 = new TTree("tree","tree");
@@ -183,6 +182,23 @@ int main(int argc,char *argv[]){ //the file name should be "XXXX"
     printf("******* cannot open dst file\n");
     exit(-2);
   }
+
+  printf("====== counting number of event.... \n");
+  int lineNum = 0;
+  string dummyLine;
+  while(! fp.eof()){
+    lineNum ++;
+    getline(fp, dummyLine, '\r');     
+  };
+  lineNum --;
+
+  if (argc == 2) nEntries = lineNum;
+  
+  printf("====== total number of event: %d [%6.2f%%] \n", lineNum, nEntries*100./lineNum);
+  
+  fp.clear();
+  fp.seekg(0, ios::beg); //reset position to 0
+
   TBenchmark clock;
   Bool_t shown = 0;
    
@@ -483,11 +499,11 @@ int main(int argc,char *argv[]){ //the file name should be "XXXX"
 
     if ( !shown ) {
       if (fmod(time, 10) < 1 ){
-        printf( "%10d[%5.2f%%]|%6.1f|%6.1f min %5.2f sec\n", 
+        printf( "%10d[%5.2f%%]|%6.0f min %2.0f sec | expect: %5.1f min\n", 
                 eventID,
                 eventID*100./nEntries,
-                time,
-                TMath::Floor(time/60.), time - TMath::Floor(time/60.)*60.);
+                TMath::Floor(time/60.), time - TMath::Floor(time/60.)*60.,
+                nEntries*time/eventID/60.);
         shown = 1;
       }
     }else{
@@ -498,12 +514,14 @@ int main(int argc,char *argv[]){ //the file name should be "XXXX"
 
   }while(! fp.eof());
 
+  fp.close();
+
   f1->cd(); //set focus on this file
   f1->Write(); 
   f1->Close();
   
   printf("=======================================\n");
-  printf("total number of event: %d \n", eventID);
+  printf("total number of event filled: %d \n", eventID-1);
   printf("............ done!\n");
 
 }
