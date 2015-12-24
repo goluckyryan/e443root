@@ -1,15 +1,15 @@
 {
         gROOT->Reset();
         gROOT->ProcessLine(".!date");
-        gROOT->ProcessLine(".L ~/ana/yulei/rootmacro/constant.h");
-        gROOT->ProcessLine(".L ~/ana/yulei/rootmacro/nuclei_mass.h");
-        gROOT->ProcessLine(".L ~/ana/yulei/rootmacro/Fit_2Gauss.c");
+        gROOT->ProcessLine(".L ~/e443root/constant.h");
+        gROOT->ProcessLine(".L ~/e443root/nuclei_mass.h");
+        gROOT->ProcessLine(".L ~/e443root/Fit_2Gauss.c");
         //======================================================== InPut setting
-        char * rootfile = "X_run1035.root";
-        Int_t Div[2] = {1,1};  //x,y
-        Int_t size[2] = {600,600}; //x,y
+        char * rootfile = "run10351.root";
+        Int_t Div[2] = {2,2};  //x,y
+        Int_t size[2] = {400,400}; //x,y
         
-        Bool_t analysis = 1; // 0 = no analysis, only load root file and gate; 1 = analysis.
+        Bool_t analysis = 0; // 0 = no analysis, only load root file and gate; 1 = analysis.
         
         Double_t BGscale = 1.0;
         
@@ -42,6 +42,19 @@
         gate3He_b->SetPoint(4, 208.6+99, 343.0);
         gate3He_b->SetPoint(5, 183.7+99, 305.8);
 
+        TCutG * gateStaGam = new TCutG("cutsta_g",9);
+        gateStaGam->SetVarX("sta_ratio");
+        gateStaGam->SetVarY("sta_sum");
+        gateStaGam->SetPoint(0,-0.667692,1.29108);
+        gateStaGam->SetPoint(1,-0.52544,5.80139);
+        gateStaGam->SetPoint(2,-0.265832,7.68068);
+        gateStaGam->SetPoint(3,0.00088907,8.52636);
+        gateStaGam->SetPoint(4,0.271166,7.68068);
+        gateStaGam->SetPoint(5,0.427643,5.80139);
+        gateStaGam->SetPoint(6,0.530775,2.13676);
+        gateStaGam->SetPoint(7,0.548556,0.633322);
+        gateStaGam->SetPoint(8,-0.667692,1.29108);
+
         //--------- Simple cut
         TString gateStr; 
         
@@ -62,23 +75,37 @@
 
         gateStr.Form("(%f < sta1hTOF && sta1hTOF < %f) || (%f + 98.5 < sta1hTOF && sta1hTOF < %f + 98.5)", gnmin, gnmax, gnmin, gnmax);
         TCut gateStaNeu1h = gateStr;
-        TCut gateStaNeu2h = "(gnmin < sta2hTOF && sta2hTOF < gnmax) || (gnmin + 98.5 < sta2hTOF && sta2hTOF < gnmax + 98.5)";
-        TCut gateStaNeu1v = "(gnmin < sta1vTOF && sta1vTOF < gnmax) || (gnmin + 98.5 < sta1vTOF && sta1vTOF < gnmax + 98.5)";
-        TCut gateStaNeu2v = "(gnmin < sta2vTOF && sta2vTOF < gnmax) || (gnmin + 98.5 < sta2vTOF && sta2vTOF < gnmax + 98.5)";
-        TCut gateStaNeu3v = "(gnmin < sta3vTOF && sta3vTOF < gnmax) || (gnmin + 98.5 < sta3vTOF && sta3vTOF < gnmax + 98.5)";
-        TCut gateStaNeu4v = "(gnmin < sta4vTOF && sta4vTOF < gnmax) || (gnmin + 98.5 < sta4vTOF && sta4vTOF < gnmax + 98.5)";
+        gateStr.Form("(%f < sta2hTOF && sta2hTOF < %f) || (%f + 98.5 < sta2hTOF && sta2hTOF < %f + 98.5)", gnmin, gnmax, gnmin, gnmax);
+        TCut gateStaNeu2h = gateStr;
+        gateStr.Form("(%f < sta1vTOF && sta1vTOF < %f) || (%f + 98.5 < sta1vTOF && sta1vTOF < %f + 98.5)", gnmin, gnmax, gnmin, gnmax);
+        TCut gateStaNeu1v = gateStr;
+        gateStr.Form("(%f < sta2vTOF && sta2vTOF < %f) || (%f + 98.5 < sta2vTOF && sta2vTOF < %f + 98.5)", gnmin, gnmax, gnmin, gnmax);
+        TCut gateStaNeu2v = gateStr;
+        gateStr.Form("(%f < sta3vTOF && sta3vTOF < %f) || (%f + 98.5 < sta3vTOF && sta3vTOF < %f + 98.5)", gnmin, gnmax, gnmin, gnmax);
+        TCut gateStaNeu3v = gateStr;
+        gateStr.Form("(%f < sta4vTOF && sta4vTOF < %f) || (%f + 98.5 < sta4vTOF && sta4vTOF < %f + 98.5)", gnmin, gnmax, gnmin, gnmax);
+        TCut gateStaNeu4v = gateStr;
+        //TCut gateStaNeu2h = "(gnmin < sta2hTOF && sta2hTOF < gnmax) || (gnmin + 98.5 < sta2hTOF && sta2hTOF < gnmax + 98.5)";
+        //TCut gateStaNeu1v = "(gnmin < sta1vTOF && sta1vTOF < gnmax) || (gnmin + 98.5 < sta1vTOF && sta1vTOF < gnmax + 98.5)";
+        //TCut gateStaNeu2v = "(gnmin < sta2vTOF && sta2vTOF < gnmax) || (gnmin + 98.5 < sta2vTOF && sta2vTOF < gnmax + 98.5)";
+        //TCut gateStaNeu3v = "(gnmin < sta3vTOF && sta3vTOF < gnmax) || (gnmin + 98.5 < sta3vTOF && sta3vTOF < gnmax + 98.5)";
+        //TCut gateStaNeu4v = "(gnmin < sta4vTOF && sta4vTOF < gnmax) || (gnmin + 98.5 < sta4vTOF && sta4vTOF < gnmax + 98.5)";
 
         TCut gateStaNeu = (gateStaNeu1h || gateStaNeu2h || gateStaNeu1v || gateStaNeu2v || gateStaNeu3v || gateStaNeu4v); 
        
 
-        TCut gateXC_cent = "-171.79 < grXC && grXC < 107.67";
-        TCut gateXC_side1 = "-331.53 < grXC && grXC < -171.79";
-        TCut gateXC_side2 = "107.67 < grXC && grXC < 267.41";
+        //TCut gateXC_cent = "-171.79 < grXC && grXC < 107.67";
+        TCut gateXC_cent = "-160.59 < grXC && grXC < 111.03";
+        //TCut gateXC_side1 = "-331.53 < grXC && grXC < -171.79";
+        TCut gateXC_side1 = "-319.83 < grXC && grXC < = -160.59";
+        //TCut gateXC_side2 = "107.67 < grXC && grXC < 267.41";
+        TCut gateXC_side2 = "111.03 < grXC && grXC < 270.27";
+       
 
         TCut gateGRLAS = "coinReg == 16";
-        TCut gateFinite = "TMath::Finite(grXC)";
+        TCut gateFinite = "TMath::Finite(grXC) && TMath::Finite(grthC) && TMath::Finite(sta_sum) && TMath::Finite(sta_ratio)";
 
-        //----------- Liquid discrimination
+        /* //----------- Liquid discrimination
         
         TCut gateL1 =  "liqlf < 3.75 *liqld +  25.    && liqld <= 20";
         TCut gateL2 =  "liqlf < 5./3.*liqld + 200./3. && liqld > 20";
@@ -88,12 +115,16 @@
 
         TCut gateL = gateL1 || gateL2;
         TCut gateR = gateR1 || gateR2;
-
+        */
          //------- complex gate
         TCut gate3He = "cut3He_a || cut3He_b";
+        TCut gateVeto =  "vetogate == 1";
         TCut gateBloTri  = (gateBlo1  || gateBlo2  || gateBlo3  || gateBlo4);
         TCut gateStaTri  = (gateSta1h || gateSta2h || gateSta1v || gateSta1v || gateSta2v || gateSta3v || gateSta4v);
-        TCut gateTem  = "vetogate == 1" && gateFinite + gateGRLAS + gate3He + gateStaTri;
+        TCut gateTem  = gateVeto +  gateFinite + gateGRLAS + gate3He + gateStaTri;
+        TCut gateAcc = "lastgr > 1000";
+        TCut gateTrue1 = "720 < lastgr && lastgr < 820";
+        TCut gateTrue2 = "890 < lastgr && lastgr < 940";
 
         printf("........ loaded gates\n"); 
    
@@ -109,7 +140,7 @@
         cAna->cd(1);
 
         /////======================================================== analysis
-
+        /*
         tree->Draw("ratio1>>h1(200,0.9,1.2)", gate3He + gateL+ "liqld>20" , "colz");
 
         Fit_2Gauss(h1, 250, 1.01, 0.02, 300, 1.05, 0.02);
@@ -126,7 +157,7 @@
         k2->Draw();
         
 
-        /*
+        
         tree->Draw("liqlf:liqld>>h1(500,0,140,500,0,200", gate3He, "colz");
         //tree->Draw("liqrf:liqrd>>h2(500,0,140,500,0,200", gate3He, "colz");
 
@@ -137,11 +168,11 @@
         
         //TF1 * fL = new TF1("fL", 3.75*x + 25, 0, 20); 
 
-
+        */
         
-        /*  tree->Draw("grdE1:grTOF1>>h1(500, 100, 350, 500, 0, 500)", "", "colz");
-        tree->Draw("grdE1:grTOF1>>h1g(500, 100, 350, 500, 0, 500)", "cut3He_a || cut3He_b", "colz");
-        tree->Draw("grth*TMath::RadToDeg():grx>>h2(600,-1000,1000,600,-3,3)", "cut3He_a || cut3He_b", "colz");
+        //tree->Draw("grdE1:grTOF1>>h1(500, 100, 350, 500, 0, 500)", "", "colz");
+        //tree->Draw("grdE1:grTOF1>>h1g(500, 100, 350, 500, 0, 500)", gate3He, "colz");
+        /* tree->Draw("grthC*TMath::RadToDeg():grXC>>h2(1200,-600,600,600,-3,3)", gate3He, "colz");
         
         cAna->cd(2);
         tree->Draw("grph*TMath::RadToDeg():gry>>h3(600,-100,100,600,-3,-3)", "cut3He_a || cut3He_b", "colz");
@@ -151,23 +182,33 @@
 
         cAna->cd(4);
         tree->Draw("gry:grx>>h5(600,-1000,1000,600,-100,100)", "cut3He_a || cut3He_b", "colz");
+        */
+        //tree->Draw("grthC*TMath::RadToDeg():grXC>>h3(1200,-600,600,600,-1.5,1.5)", gate3He, "colz");
+        //tree->Draw("grXC>>h1(1200,-600,600)",gate3He + gatethC);
 
-        //tree->Draw("grthC*TMath::RadToDeg():grXC>>h3(600,-1000,1000,600,-1.5,1.5)", "cut3He_a || cut3He_b", "colz");
-
-        /*
-        tree->Draw("sta_sum:sta_ratio>>s1(200,-1.1,1.1, 200,0.,50.)", gateStaAll + gateXC_cent, "colz");
+        //tree->Draw("grXC>>h1(1200,-600,600)",gate3He + "grthC*TMath::RadToDeg()<-0.5");
+        tree->Draw("sta_sum:sta_ratio>>s1(200,-1.1,1.1, 200,0.,35.)", "cutsta_g" + gateTem, "colz");
         cAna->cd(2);
-        tree->Draw("sta_sum:sta_ratio>>s2(200,-1.1,1.1, 200,0.,50.)", gateStaAll + ( gateXC_side1 || gateXC_side2), "colz");
+        tree->Draw("sta_sum:sta_ratio>>s2(200,-1.1,1.1, 200,0.,35.)", "!cutsta_g" + gateTem + gateXC_cent + gateStaNeu, "colz");
+        //tree->Draw("grXC>>h2(1200,-600,600)",gate3He + "-0.5 < grthC*TMath::RadToDeg() && grthC*TMath::RadToDeg() < 0");
+        //tree->Draw("grXC>>h1(1200,-600,600)",gateTem);
+        //tree->Draw("sta2hTOF>>s2(200,-50,150)", "cutsta_g" + gateTem);
         cAna->cd(3);
-        tree->Draw("grXC>>s3(200,-600,600)", gateStaAll + gateXC_cent);
-        
-        //tree->Draw("sta1hTOF>>s3(200,-50,150)", gateStaAll + gateXC_cent);
+        //tree->Draw("grthC*TMath::RadToDeg():grXC>>h4(1200,-600,600,600,-1.5,1.5)", gateTem + gateStaNeu,"colz");
+        tree->Draw("sta_sum:sta_ratio>>s3(200,-1.1,1.1, 200,0.,35.)","!cutsta_g"+ gateTem + (gateXC_side1 || gateXC_side2) + gateStaNeu, "colz");
+        //tree->Draw("sta_sum:sta_ratio>>s3(200,-1.1,1.1, 200,0.,35.)", "!cutsta_g" + gateTem + gateStaNeu, "colz");
+       
+        //tree->Draw("grXC>>h3(1200,-600,600)",gate3He + "0 < grthC*TMath::RadToDeg() && grthC*TMath::RadToDeg() < 0.5");
         cAna->cd(4);
-        tree->Draw("grXC>>s4(200,-600,600)", gateStaAll + ( gateXC_side1 || gateXC_side2));
+        //tree->Draw("sta_sum:sta_ratio>>s4(200,-1.1,1.1, 200,0.,30.)", gateTem +gateStaNeu, "colz");
+        //tree->Draw("grXC>>h1(1200,-600,600)",gate3He + gateXC_cent);
+        //tree->Draw("sta1hTOF>>s4(200,-50,150)", gateTem + gateXC_cent + gateStaNeu);
+        //tree->Draw("grthC*TMath::RadToDeg():grXC>>h4(1200,-600,600,600,-1.5,1.5)",gate3He + gateXC_cent,"colz");
+        //tree->Draw("grthC*TMath::RadToDeg()>>h4a(600,-1.5,1.5)","grthC*TMath::RadToDeg() > 0.5","colz");
+        tree->Draw("sta2hTOF>>s4(200,-50,150)", "!cutsta_g" + gateTem + gateStaNeu);
 
-
-	/*
-     
+	
+        /*
         THStack *mS = new THStack("mS", "Stack of Ex for 22O - 18O");
         mS->Add(m22);
         mS->Add(m21);
@@ -219,7 +260,7 @@
         cAna->cd(3);
         TH1F* k2 = new TH1F(*h2px - *k1);
         k2->Draw();
-        
+*/      
 /* =================================================== discrimination 
     Double_t paraL1[7] = {-23.7487397849174,12.4173924736471,-0.828505201407496,3.21874524544915e-2,-6.68727859698445e-4,7.02202234122151e-6,-2.927396710109e-8};   
    TF1* polL1 = new TF1 ("polL1", "pol6(0)", 0, 40);
@@ -253,7 +294,7 @@
 
    printf("xp, yp: %f, %f\n", xp, yp);
 
-        
+*/      
 
 /*++++++++++++++++++++++++++++++++++++++++++++++ Momentum*/
 	/*	
@@ -399,7 +440,7 @@
                 printf("x:%4.0f, yLu:%4.0f, yRu:%4.0f, yLd:%4.0f, yRd:%4.0f, AyP:%6.4f, dAyp:%10.6f, Ay:%10.6f, dAy:%10.6f, tAy:%10.6f\n", xBin[i], yLu[i], yRu[i], yLd[i], yRd[i], AyP[i], dAyP, Ay, dAy, tAy); 
         }
 
-        /* */
+        */
 
         printf("............. end of Ana.C\n");
 }

@@ -16,16 +16,20 @@
 
 using namespace std;
 
-void dst2root(Int_t RunName, Int_t nEntries = 990000000){ //the file name should be "XXXX"
+void dst2root(Int_t RunName1, Int_t RunName2, Int_t nEntries = 990000000){ //the file name should be "XXXX"
   printf("=============================\n");
   gROOT->ProcessLine(".!date");
 
-  TString openFileName;
-  openFileName.Form("../dstroot/run%04d_asci.dst", RunName);
-  printf("input <====== %s \n", openFileName.Data());
+  TString openFileName1;
+  openFileName1.Form("./dstroot/run%04d_asci.dst", RunName1);
+  printf("input <====== %s \n", openFileName1.Data());
+  
+  TString openFileName2;
+  openFileName2.Form("./dstroot/run%05d_asci.dst", RunName2);
+  printf("input <====== %s \n", openFileName2.Data());
   
   TString saveFileName;
-  saveFileName.Form("run%04d.root", RunName);
+  saveFileName.Form("run%05d.root", RunName2);
   printf("output =====> %s , nEntries:%d\n", saveFileName.Data(), nEntries);
    
   TFile *f1 = new TFile (saveFileName,"recreate");
@@ -33,7 +37,7 @@ void dst2root(Int_t RunName, Int_t nEntries = 990000000){ //the file name should
   TRandom * rand = new TRandom();
 
   //================ Primary data
-  Double_t gradc[4],grtdc[4],grrf,adc[12],adc2[14],tdc[12],tdc2[12],lrf[3],dummy;
+  Double_t gradc[4],grtdc[4],grrf,adc[12],adc2[14],tdc[12],tdc2[12],lrf[3],dummy1,dummy2;
   
 
   //================ Tree branch
@@ -60,7 +64,8 @@ void dst2root(Int_t RunName, Int_t nEntries = 990000000){ //the file name should
   Double_t liqlf,liqld,liqrf,liqrd;
   //--------- GRRF & BANDRF
   Double_t grf,brf;
-  //-------------------------------------------------Phsyics
+  Double_t lastgr;
+  //-------------------------------------------------Physics
   Double_t grTOF1, grTOF2;
   Double_t badElTOF,badErTOF,blo1TOF,blo2TOF,blo3TOF,blo4TOF;
   Double_t sta1hTOF,sta2hTOF,sta1vTOF,sta2vTOF,sta3vTOF,sta4vTOF;
@@ -68,7 +73,9 @@ void dst2root(Int_t RunName, Int_t nEntries = 990000000){ //the file name should
   Double_t sta_odd,sta_even,sta_ratio,sta_sum;
 
   Double_t grXC,grthC;
-  Double_t grXAux;
+  //Double_t grXAux;
+  Int_t event = -1;
+  Double_t grx1;
 
 
   //------------make tree branch
@@ -90,7 +97,7 @@ void dst2root(Int_t RunName, Int_t nEntries = 990000000){ //the file name should
 
   t1->Branch("grXC", &grXC, "grXC/D");
   t1->Branch("grthC", &grthC, "grthC/D");
-  t1->Branch("grXAux", &grXAux, "grXAux/D");
+  //t1->Branch("grXAux", &grXAux, "grXAux/D");
 
   t1->Branch("badEl", &badEl, "badEl/D");
   t1->Branch("badEr", &badEr, "badEr/D");
@@ -154,13 +161,24 @@ void dst2root(Int_t RunName, Int_t nEntries = 990000000){ //the file name should
   t1->Branch("liqrTOF", &liqrTOF, "liqrTOF/D");
 
   t1->Branch("brf", &brf, "brf/D");
+  //t1->Branch("event", &event, "event/I");
+  //t1->Branch("grx1", &grx1, "grx1/D");
+  t1->Branch("lastgr", &lastgr, "lastgr/D");
    
    
   //=================== read file
-  ifstream fp;
-  fp.open(openFileName);
+  ifstream fp1;
+  fp1.open(openFileName1);
 
-  if( !fp.is_open() ) {
+  if( !fp1.is_open() ) {
+    printf("******* cannot open dst file\n");
+    return;
+  }
+
+  ifstream fp2;
+  fp2.open(openFileName2);
+
+  if( !fp2.is_open() ) {
     printf("******* cannot open dst file\n");
     return;
   }
@@ -191,7 +209,7 @@ void dst2root(Int_t RunName, Int_t nEntries = 990000000){ //the file name should
 
    grXC = TMath::QuietNaN();
    grthC = TMath::QuietNaN();
-   grXAux = TMath::QuietNaN();
+   //grXAux = TMath::QuietNaN();
 
    //--------- BAND_TELE
    badEl = TMath::QuietNaN();
@@ -249,91 +267,103 @@ void dst2root(Int_t RunName, Int_t nEntries = 990000000){ //the file name should
    //--------- RF
    grf = TMath::QuietNaN();
    brf = TMath::QuietNaN();
+   //---------check
+   event = -1;
+   grx1 = TMath::QuietNaN();
+   lastgr = TMath::QuietNaN();
 
    //============================================= read from file
     //------------ CoinReg
-    fp>>coinReg;
+    fp1>>coinReg;
     //----------- GR
-    fp>>grx;   if(grx == -1)  grx  = TMath::QuietNaN();
-    fp>>grth;  if(grth == -1) grth = TMath::QuietNaN();
-    fp>>gry;   if(gry == -1)  gry  = TMath::QuietNaN();
-    fp>>grph;  if(grph == -1) grph = TMath::QuietNaN();    
+    fp1>>grx;   if(grx == -1)  grx  = TMath::QuietNaN();
+    fp1>>grth;  if(grth == -1) grth = TMath::QuietNaN();
+    fp1>>gry;   if(gry == -1)  gry  = TMath::QuietNaN();
+    fp1>>grph;  if(grph == -1) grph = TMath::QuietNaN();    
     //----------- GR ADC, TDC
-    fp>>gradc[0]; 
-    fp>>gradc[1];
-    fp>>gradc[2];
-    fp>>gradc[3];
-    fp>>grtdc[0]; if(grtdc[0] == -1) grtdc[0] = TMath::QuietNaN();
-    fp>>grtdc[1]; if(grtdc[1] == -1) grtdc[1] = TMath::QuietNaN();  
-    fp>>grtdc[2]; if(grtdc[2] == -1) grtdc[2] = TMath::QuietNaN();  
-    fp>>grtdc[3]; if(grtdc[3] == -1) grtdc[3] = TMath::QuietNaN();  
+    fp1>>gradc[0]; 
+    fp1>>gradc[1];
+    fp1>>gradc[2];
+    fp1>>gradc[3];
+    fp1>>grtdc[0]; if(grtdc[0] == -1) grtdc[0] = TMath::QuietNaN();
+    fp1>>grtdc[1]; if(grtdc[1] == -1) grtdc[1] = TMath::QuietNaN();  
+    fp1>>grtdc[2]; if(grtdc[2] == -1) grtdc[2] = TMath::QuietNaN();  
+    fp1>>grtdc[3]; if(grtdc[3] == -1) grtdc[3] = TMath::QuietNaN();  
     //------------ GR rf
-    fp>>grrf;
+    fp1>>grrf;
     //------------ Stack ADC
-    fp>>adc[0];  //if(adc[0]  < 5) adc[0] = TMath::QuietNaN();
-    fp>>adc[1];  //if(adc[1]  < 5) adc[1] = TMath::QuietNaN();
-    fp>>adc[2];  //if(adc[2]  < 5) adc[2] = TMath::QuietNaN();
-    fp>>adc[3];  //if(adc[3]  < 5) adc[3] = TMath::QuietNaN();
-    fp>>adc[4];  //if(adc[4]  < 5) adc[4] = TMath::QuietNaN();
-    fp>>adc[5];  //if(adc[5]  < 5) adc[5] = TMath::QuietNaN();
-    fp>>adc[6];  //if(adc[6]  < 5) adc[6] = TMath::QuietNaN();
-    fp>>adc[7];  //if(adc[7]  < 5) adc[7] = TMath::QuietNaN();
-    fp>>adc[8];  //if(adc[8]  < 5) adc[8] = TMath::QuietNaN();
-    fp>>adc[9];  //if(adc[9]  < 5) adc[9] = TMath::QuietNaN();
-    fp>>adc[10]; //if(adc[10] < 5) adc[10] = TMath::QuietNaN();
-    fp>>adc[11]; //if(adc[11] < 5) adc[11] = TMath::QuietNaN();
+    fp1>>adc[0];  //if(adc[0]  < 5) adc[0] = TMath::QuietNaN();
+    fp1>>adc[1];  //if(adc[1]  < 5) adc[1] = TMath::QuietNaN();
+    fp1>>adc[2];  //if(adc[2]  < 5) adc[2] = TMath::QuietNaN();
+    fp1>>adc[3];  //if(adc[3]  < 5) adc[3] = TMath::QuietNaN();
+    fp1>>adc[4];  //if(adc[4]  < 5) adc[4] = TMath::QuietNaN();
+    fp1>>adc[5];  //if(adc[5]  < 5) adc[5] = TMath::QuietNaN();
+    fp1>>adc[6];  //if(adc[6]  < 5) adc[6] = TMath::QuietNaN();
+    fp1>>adc[7];  //if(adc[7]  < 5) adc[7] = TMath::QuietNaN();
+    fp1>>adc[8];  //if(adc[8]  < 5) adc[8] = TMath::QuietNaN();
+    fp1>>adc[9];  //if(adc[9]  < 5) adc[9] = TMath::QuietNaN();
+    fp1>>adc[10]; //if(adc[10] < 5) adc[10] = TMath::QuietNaN();
+    fp1>>adc[11]; //if(adc[11] < 5) adc[11] = TMath::QuietNaN();
     //------------ BAND telesope ADC, Liquid ADC
-    fp>>adc2[0];
-    fp>>adc2[1];
-    fp>>adc2[2];
-    fp>>adc2[3];
-    fp>>adc2[4];
-    fp>>adc2[5];
-    fp>>adc2[6];
-    fp>>adc2[7];
-    fp>>adc2[8];
-    fp>>adc2[9];
-    fp>>adc2[10];
-    fp>>adc2[11];
-    fp>>adc2[12];
-    fp>>adc2[13];
+    fp1>>adc2[0];
+    fp1>>adc2[1];
+    fp1>>adc2[2];
+    fp1>>adc2[3];
+    fp1>>adc2[4];
+    fp1>>adc2[5];
+    fp1>>adc2[6];
+    fp1>>adc2[7];
+    fp1>>adc2[8];
+    fp1>>adc2[9];
+    fp1>>adc2[10];
+    fp1>>adc2[11];
+    fp1>>adc2[12];
+    fp1>>adc2[13];
     //------------ STACK TDC
-    fp>>tdc[0];  if(tdc[0]  == -1) tdc[0] = TMath::QuietNaN();
-    fp>>tdc[1];  if(tdc[1]  == -1) tdc[1] = TMath::QuietNaN();
-    fp>>tdc[2];  if(tdc[2]  == -1) tdc[2] = TMath::QuietNaN();
-    fp>>tdc[3];  if(tdc[3]  == -1) tdc[3] = TMath::QuietNaN();
-    fp>>tdc[4];  if(tdc[4]  == -1) tdc[4] = TMath::QuietNaN();
-    fp>>tdc[5];  if(tdc[5]  == -1) tdc[5] = TMath::QuietNaN();
-    fp>>tdc[6];  if(tdc[6]  == -1) tdc[6] = TMath::QuietNaN();
-    fp>>tdc[7];  if(tdc[7]  == -1) tdc[7] = TMath::QuietNaN();
-    fp>>tdc[8];  if(tdc[8]  == -1) tdc[8] = TMath::QuietNaN();
-    fp>>tdc[9];  if(tdc[9]  == -1) tdc[9] = TMath::QuietNaN();
-    fp>>tdc[10]; if(tdc[10] == -1) tdc[10] = TMath::QuietNaN();
-    fp>>tdc[11]; if(tdc[11] == -1) tdc[11] = TMath::QuietNaN();
+    fp1>>tdc[0];  if(tdc[0]  == -1) tdc[0] = TMath::QuietNaN();
+    fp1>>tdc[1];  if(tdc[1]  == -1) tdc[1] = TMath::QuietNaN();
+    fp1>>tdc[2];  if(tdc[2]  == -1) tdc[2] = TMath::QuietNaN();
+    fp1>>tdc[3];  if(tdc[3]  == -1) tdc[3] = TMath::QuietNaN();
+    fp1>>tdc[4];  if(tdc[4]  == -1) tdc[4] = TMath::QuietNaN();
+    fp1>>tdc[5];  if(tdc[5]  == -1) tdc[5] = TMath::QuietNaN();
+    fp1>>tdc[6];  if(tdc[6]  == -1) tdc[6] = TMath::QuietNaN();
+    fp1>>tdc[7];  if(tdc[7]  == -1) tdc[7] = TMath::QuietNaN();
+    fp1>>tdc[8];  if(tdc[8]  == -1) tdc[8] = TMath::QuietNaN();
+    fp1>>tdc[9];  if(tdc[9]  == -1) tdc[9] = TMath::QuietNaN();
+    fp1>>tdc[10]; if(tdc[10] == -1) tdc[10] = TMath::QuietNaN();
+    fp1>>tdc[11]; if(tdc[11] == -1) tdc[11] = TMath::QuietNaN();
     //------------- BAND telesope, Liquid TDC
-    fp>>tdc2[0]; if(tdc2[0]  == -1) tdc2[0] = TMath::QuietNaN(); 
-    fp>>tdc2[1]; if(tdc2[1]  == -1) tdc2[1] = TMath::QuietNaN(); 
-    fp>>tdc2[2]; if(tdc2[2]  == -1) tdc2[2] = TMath::QuietNaN(); 
-    fp>>tdc2[3]; if(tdc2[3]  == -1) tdc2[3] = TMath::QuietNaN(); 
-    fp>>tdc2[4]; if(tdc2[4]  == -1) tdc2[4] = TMath::QuietNaN(); 
-    fp>>tdc2[5]; if(tdc2[5]  == -1) tdc2[5] = TMath::QuietNaN(); 
-    fp>>tdc2[6]; if(tdc2[6]  == -1) tdc2[6] = TMath::QuietNaN(); 
-    fp>>tdc2[7]; if(tdc2[7]  == -1) tdc2[7] = TMath::QuietNaN(); 
-    fp>>tdc2[8]; if(tdc2[8]  == -1) tdc2[8] = TMath::QuietNaN(); 
-    fp>>tdc2[9]; if(tdc2[9]  == -1) tdc2[9] = TMath::QuietNaN(); 
-    fp>>tdc2[10];if(tdc2[10] == -1) tdc2[10] = TMath::QuietNaN();
-    fp>>tdc2[11];if(tdc2[11] == -1) tdc2[11] = TMath::QuietNaN();
+    fp1>>tdc2[0]; if(tdc2[0]  == -1) tdc2[0] = TMath::QuietNaN(); 
+    fp1>>tdc2[1]; if(tdc2[1]  == -1) tdc2[1] = TMath::QuietNaN(); 
+    fp1>>tdc2[2]; if(tdc2[2]  == -1) tdc2[2] = TMath::QuietNaN(); 
+    fp1>>tdc2[3]; if(tdc2[3]  == -1) tdc2[3] = TMath::QuietNaN(); 
+    fp1>>tdc2[4]; if(tdc2[4]  == -1) tdc2[4] = TMath::QuietNaN(); 
+    fp1>>tdc2[5]; if(tdc2[5]  == -1) tdc2[5] = TMath::QuietNaN(); 
+    fp1>>tdc2[6]; if(tdc2[6]  == -1) tdc2[6] = TMath::QuietNaN(); 
+    fp1>>tdc2[7]; if(tdc2[7]  == -1) tdc2[7] = TMath::QuietNaN(); 
+    fp1>>tdc2[8]; if(tdc2[8]  == -1) tdc2[8] = TMath::QuietNaN(); 
+    fp1>>tdc2[9]; if(tdc2[9]  == -1) tdc2[9] = TMath::QuietNaN(); 
+    fp1>>tdc2[10];if(tdc2[10] == -1) tdc2[10] = TMath::QuietNaN();
+    fp1>>tdc2[11];if(tdc2[11] == -1) tdc2[11] = TMath::QuietNaN();
     //------------- Liquid 
-    fp>>lrf[0];
-    fp>>lrf[1];
-    fp>>lrf[2];
-    fp>>dummy;
+    fp1>>lrf[0];
+    fp1>>lrf[1];
+    fp1>>lrf[2];
+    fp1>>dummy1;
+
+
+    fp2>>event;
+    fp2>>grx1;
+    fp2>>lastgr;
+    fp2>>dummy2;
 
     //===================================== 2ndary data processing
     //------------- Axuillary
-    grXC = grx -20 ; //same as graf_conv 
-    grthC  = -0.4191*(grth-8.770e-3-3.591e-5*grx); //same as graf_conv, should be equal to incdient theta
-    grXAux = grXC -380./2.3*grthC*TMath::RadToDeg();
+    //grXC = grx -20 ; //same as graf_conv 
+    //grthC  = -0.4191*(grth-8.770e-3-3.591e-5*grx); //same as graf_conv, should be equal to incident theta
+    grthC  = -0.4191*(grth-8.770e-3-0.52e-4*grx);
+    grXC = grx -380./2.3*grthC*TMath::RadToDeg();
+    //grXAux = grXC -380./2.3*grthC*TMath::RadToDeg();
     //_______________________________ Gate
    
     vetogate = 0;
@@ -447,7 +477,7 @@ void dst2root(Int_t RunName, Int_t nEntries = 990000000){ //the file name should
     TVector3 vInc, vGR, vn;
     TLorentzVector pInc, pGR, pn;
 
-    /**/
+    */
       
     //----------- Fill       
     f1->cd(); //set focus on this file
@@ -460,7 +490,7 @@ void dst2root(Int_t RunName, Int_t nEntries = 990000000){ //the file name should
 
     if ( !shown ) {
       if (fmod(time, 10) < 1 ){
-        printf( "%10d[%5.2f%%]|%6.1f|%3d min %5.2f sec\n", 
+        printf( "%10d[%5.2f%%]|%6.1f|%6.1f min %5.2f sec\n", 
                 eventID,
                 eventID*100./nEntries,
                 time,
@@ -473,7 +503,7 @@ void dst2root(Int_t RunName, Int_t nEntries = 990000000){ //the file name should
       }
     }
 
-  }while(! fp.eof());
+  }while(! fp1.eof());
 
   f1->cd(); //set focus on this file
   f1->Write(); 
