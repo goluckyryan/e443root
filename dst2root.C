@@ -21,8 +21,6 @@ int main(int argc, char * argv[]){
   Int_t RunName = 0;
   Int_t nEntries = 0;
 
-  printf("===========\n");
-
   if( argc > 3 || argc == 1){
     printf("Usage: ./dst2root RunName [opt:#event]\n");
     exit(-1);
@@ -372,16 +370,16 @@ int main(int argc, char * argv[]){
 
     //------------- additional variables in 2nd dst file
     fp2>>event;
-    fp2>>grx1;
+    fp2>>grx1;  if (grx1 == -1) grx1 = TMath::QuietNaN();
     fp2>>lastgr;
     fp2>>dummy2;
 
     //===================== Check matching
 
-    if( grx1 != grx) {
+    if( TMath::Finite(grx) &&  grx1 != grx) {
       //printf(" grx not matching at eventID:%d, abort. \n", eventID);
       //exit(-3);
-      printf(" grx not matching at eventID:%d, fill with NAN\n", eventID);
+      printf(" grx not matching (%f:%f) at eventID:%d, fill with NAN\n", grx, grx1, eventID);
       lastgr = TMath::QuietNaN();
     }
 
@@ -518,7 +516,7 @@ int main(int argc, char * argv[]){
 
     if ( !shown ) {
       if (fmod(time, 10) < 1 ){
-        printf( "%10d[%5.2f%%]|%6.1f|%6.1f min %5.2f sec\n", 
+        printf( "%10d[%5.2f%%]|%6.1f| %3.0f min %2.0f sec\n", 
                 eventID,
                 eventID*100./nEntries,
                 time,
