@@ -345,13 +345,13 @@ void dst2root(Int_t RunName, Int_t nEntries = 990000000){ //the file name should
     fp1>>tdc2[9]; if(tdc2[9]  == -1) tdc2[9] = TMath::QuietNaN(); 
     fp1>>tdc2[10];if(tdc2[10] == -1) tdc2[10] = TMath::QuietNaN();
     fp1>>tdc2[11];if(tdc2[11] == -1) tdc2[11] = TMath::QuietNaN();
-    //------------- Liquid 
+    //------------- LAS RF 
     fp1>>lrf[0];
     fp1>>lrf[1];
     fp1>>lrf[2];
     fp1>>dummy1;
 
-
+    //------------- additional variables in 2nd dst file
     fp2>>event;
     fp2>>grx1;
     fp2>>lastgr;
