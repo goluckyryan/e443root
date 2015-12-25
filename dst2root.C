@@ -16,7 +16,26 @@
 
 using namespace std;
 
-void dst2root(Int_t RunName, Int_t nEntries = 990000000){ //the file name should be "XXXX"
+int main(int argc, char * argv[]){
+
+  Int_t RunName = 0;
+  Int_t nEntries = 0;
+
+  printf("===========\n");
+
+  if( argc > 3 || argc == 1){
+    printf("Usage: ./dst2root RunName [opt:#event]\n");
+    exit(-1);
+  }
+  
+  if( argc == 3 ){
+    nEntries = atoi(argv[2]);
+    RunName = atoi(argv[1]);
+  }else if(argc == 2){
+    nEntries = 9999999;
+    RunName = atoi(argv[1]);
+  }
+  
   printf("=============================\n");
   gROOT->ProcessLine(".!date");
 
@@ -171,16 +190,16 @@ void dst2root(Int_t RunName, Int_t nEntries = 990000000){ //the file name should
   fp1.open(openFileName1);
 
   if( !fp1.is_open() ) {
-    printf("******* cannot open dst file : %s\n", openFileName1);
-    return;
+    printf("******* cannot open dst file : %s\n", openFileName1.Data());
+    exit(-1);
   }
 
   ifstream fp2;
   fp2.open(openFileName2);
 
   if( !fp2.is_open() ) {
-    printf("******* cannot open dst file : %s\n", openFileName2);
-    return;
+    printf("******* cannot open dst file : %s\n", openFileName2.Data());
+    exit(-2);
   }
   TBenchmark clock;
   Bool_t shown = 0;
@@ -361,7 +380,7 @@ void dst2root(Int_t RunName, Int_t nEntries = 990000000){ //the file name should
 
     if( grx1 != grx) {
       //printf(" grx not matching at eventID:%d, abort. \n", eventID);
-      //return 0;
+      //exit(-3);
       printf(" grx not matching at eventID:%d, fill with NAN\n", eventID);
       lastgr = TMath::QuietNaN();
     }

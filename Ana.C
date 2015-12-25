@@ -1,9 +1,9 @@
 {
         gROOT->Reset();
         gROOT->ProcessLine(".!date");
-        gROOT->ProcessLine(".L ~/e443root/constant.h");
-        gROOT->ProcessLine(".L ~/e443root/nuclei_mass.h");
-        gROOT->ProcessLine(".L ~/e443root/Fit_2Gauss.c");
+        gROOT->ProcessLine(".L constant.h");
+        gROOT->ProcessLine(".L nuclei_mass.h");
+        gROOT->ProcessLine(".L Fit_2Gauss.c");
         //======================================================== InPut setting
         char * rootfile = "run10351.root";
         Int_t Div[2] = {2,2};  //x,y
