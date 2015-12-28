@@ -7,12 +7,10 @@
         gROOT->ProcessLine(".L Fit_2Gauss_sub.c");
         //======================================================== InPut setting
         char * rootfile = "run1035.root";
-        
-        Double_t BGscale = 2.0;
 
         //-------- Canvas control
-        Bool_t analysis = 0;
-        Int_t Div[2] = {1,1};  //x,y
+        Bool_t analysis = 1;
+        Int_t Div[2] = {2,1};  //x,y
         Int_t size[2] = {600,600}; //x,y
         Int_t cPos[2] = {2000,0}; //x,y 
 
@@ -136,16 +134,66 @@
         
         /////======================================================== analysis
 
-        TH2F * h1 = new TH2F("h1", "h1", 200, 0, 400, 200, 0, 700);
+        /* //================================================================= Slew Correction
 
-        tree->Draw("liqlf:liqld>>h1", gateL, "colz");
+        tree->Draw("sta1hTOF:sta1h>>h1(20, 0, 1, 17,-19,-16)", "", "colz");
+        Int_t nBin = h1->GetXaxis()->GetNbins();
+        TH1F * g1 = new TH1F("g1", "g1", h1->GetXaxis()->GetNbins() , h1->GetXaxis()->GetXmin(), h1->GetXaxis()->GetXmax());
 
-        TProfile * h1px = new TProfile("h1px", "h1px", 600, 0, 400);
+        for(Int_t xBin = 1; xBin < nBin; xBin ++){
 
-        h1->ProfileX("h1px")->Draw("same");
+          h1->ProjectionY("temp", xBin, xBin);
+          Double_t xMax = h1->GetXaxis()->GetBinCenter(xBin);
+          Int_t yBin = temp->GetMaximumBin();
+          Double_t yMax = temp->GetBinCenter(yBin);
+          Double_t yErr = temp->GetStdDev();
 
+          printf(" (x:y) = (%f,%f)\n", xMax, yMax);
+        
+          g1->Fill(xMax, yMax);
+          g1->SetBinError(xBin, yErr);
+        }
+
+        TF1* fit = new TF1("fit", "[0]/TMath::Power(x-[1],0.5) +[2]", 0.2, 1);
+        //Double_t par[3] = {1, -20, 0};
+        Double_t par[3] = {0.5, 0.1, -20};
+              
+        fit->SetParameters(par);
+        g1->Fit("fit","R");
+
+        h1->Draw("colz");
+        g1->Draw("same");
+
+        cAna->cd(2);
+
+        Double_t yShift = -2;
+
+        TH2F * k1 = new TH2F("k1", "k1", nBin , h1->GetXaxis()->GetXmin(), h1->GetXaxis()->GetXmax(),  2*h1->GetYaxis()->GetNbins() , h1->GetYaxis()->GetXmin() + yShift, h1->GetYaxis()->GetXmax() + yShift);
+        
+        Double_t sta    = TMath::QuietNaN(); 
+        Double_t staTOF = TMath::QuietNaN(); 
+        tree->SetBranchStatus("*",0);
+        tree->SetBranchStatus("sta1h",1);
+        tree->SetBranchStatus("sta1hTOF",1);
+
+        tree->SetBranchAddress("sta1h", &sta);
+        tree->SetBranchAddress("sta1hTOF", &staTOF);
+
+        for( Int_t event = 0; event < tree->GetEntries(); event ++){
+          tree->GetEntry(event,0);
+
+          if ( staTOF < h1->GetYaxis()->GetXmin() || staTOF > h1->GetYaxis()->GetXmax()) continue;
+          if ( TMath::IsNaN(staTOF)) continue;
+          
+          //printf("%f; sta %f; staTOF %f, %f\n", event, sta, staTOF, staTOF - fit->Eval(sta) + par[2]); 
+
+          k1->Fill(sta, staTOF - fit->Eval(sta) +par[2]);
+
+        }
+
+        k1->Draw("colz");
        
-        /* //------------------------------------------- Fitting of Liqid discrimination
+        /* //================================================================= Fitting of Liqid discrimination
         tree->Draw("ratio1>>h1(200,0.9,1.2)", gate3He + gateL+ "liqld>20" , "colz");
 
         TH1F* k1;
@@ -163,27 +211,4 @@
         cAna->cd(4);
         k2->Draw();
         //=================================================================/**/
-        
-		//tree->Draw("adc[0]:adc[1]>>h1h(100, -50, 150, 100, -50, 100)",	 gateGRLAS, "colz");
-		//tree->Draw("adc[2]:adc[2]>>h2h(100, -50, 150, 100, -50, 100)",   gateGRLAS, "colz");
-		//tree->Draw("adc[4]:adc[4]>>h1v(100, -50, 150, 100, -50, 100)",   gateGRLAS, "colz");
-		//tree->Draw("adc[6]:adc[6]>>h2v(100, -50, 150, 100, -50, 100)",   gateGRLAS, "colz");
-		//tree->Draw("adc[8]:adc[9]>>h3v(100, -50, 150, 100, -50, 100)",   gateGRLAS, "colz");
-		//tree->Draw("adc[10]:adc[11]>>h4v(100, -50, 150, 100, -50, 100)", gateGRLAS, "colz");
- 
-//		tree->Draw("sqrt((adc[0]+50)*(adc[1]+50)):sta1h*120>>h1(100, -50, 150, 100, 0, 150)", gateSta, "colz");
-//
-//
-//		tree->Draw("sqrt((adc[0]+50)*(adc[1]+50))+sqrt((adc[2]+50)*(adc[3]+50))+sqrt((adc[4]+50)*(adc[5]+50))+sqrt((adc[6]+50)*(adc[7]+50))+sqrt((adc[8]+50)*(adc[9]+50))+sqrt((adc[10]+50)*(adc[11]+50)):sta_sum>>h2(100, -0, 20, 100, 300, 600)", gateSta, "colz");
-//
-//		
-//		tree->Draw("sqrt((adc[0]+50)*(adc[1]+50))+sqrt((adc[2]+50)*(adc[3]+50))+sqrt((adc[4]+50)*(adc[5]+50))+sqrt((adc[6]+50)*(adc[7]+50))+sqrt((adc[8]+50)*(adc[9]+50))+sqrt((adc[10]+50)*(adc[11]+50)):sta_ratio>>h3(100, -1, 1, 100, 300, 600)", gateSta, "colz");
-//		tree->Draw("sta_sum:sta_ratio>>h4(100, -1, 1, 100, 0, 20)", gateSta, "colz");
-//
-		//tree->Draw("sta_sum:sta_ratio>>h4a(100, -1, 1, 100, 0, 20)", gateSta + !gateStaPed, "colz");
-
-
-        //        tree->Draw("adc[0]:adc[1]:adc[2]:adc[3]:adc[4]:adc[5]:adc[6]:adc[7]:adc[8]:adc[9]:adc[10]:adc[11]:sta_sum:sta_ratio", gateSta, "para");
-
-        /**/
 }
