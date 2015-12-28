@@ -4,7 +4,7 @@
 *_dict.*
 
 # automake
-Makefile
+#Makefile
 Makefile.in
 
 */header
@@ -13,8 +13,12 @@ core.*
 
 ###Directory
 /dstroot
+/raw2root
 
 #### General ####
+
+#### Special ####
+dst2root
 
 ### Linux ###
 .*
