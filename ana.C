@@ -100,6 +100,12 @@
         TCut gateL = gateL1 || gateL2;
         TCut gateR = gateR1 || gateR2;
 
+        TCut gateNeuL = "(-170<liqlTOF && liqlTOF<-164) || (-72<liqlTOF && liqlTOF<-64)";
+        TCut gateNeuR = "-85<liqrTOF && liqrTOF<-78";
+        
+        TCut gateGaL = "(-185<liqlTOF && liqlTOF<-178) || (-85<liqlTOF && liqlTOF<-78)";
+        TCut gateGaR = "-85<liqrTOF && liqrTOF<-78";
+
         
         //------- complex gate
         TCut gate3He = "cut3He_a || cut3He_b";
@@ -114,11 +120,10 @@
         printf("........ loaded gates\n"); 
         //====================================================== Test code
 
-        //tree->Process("Selector_disc.C");
-
-        //h1px->Draw();
-
         
+        //--------- Compiling Selector
+        //gROOT->ProcessLine(".L Selector_disc.C+");
+        //tree->Process("Selector_disc");
         
         /**/
         //======================================================== Browser or Canvas
@@ -195,20 +200,40 @@
        
         /* //================================================================= Fitting of Liqid discrimination
         tree->Draw("ratio1>>h1(200,0.9,1.2)", gate3He + gateL+ "liqld>20" , "colz");
+        TCut gateDist1X = "TMath::Abs(dist1X-20)<5" + gate3He;
 
-        TH1F* k1;
-        k1 = Fit_2Gauss_sub(h1, 250, 1.01, 0.02, 300, 1.05, 0.02); 
+        tree->Draw("dist1:dist1X>>p1(200,0,60, 200, -7, 15)", gateL, "colz");
+
         cAna->cd(2);
-        
-        k1->Draw();
-        
-        cAna->cd(3);
+        tree->Draw("liqlf:liqld>>q1(200,10,60, 200, 25, 120)", gateL, "colz"); funcL2->Draw("same");
 
-        tree->Draw("ratio2>>h2(200,0.9,1.2)", gate3He + gateR+ "liqrd>20" , "colz");
-        TH1F* k2;
-        k2 = Fit_2Gauss_sub(h2, 40, 1.02, 0.02, 80, 1.07, 0.02); 
-        
+        cAna->cd(3);
+        tree->Draw("liqlf:liqld>>r1(200,10,60, 200, 25, 120)", gateDist1X + gateL, "colz"); funcL2->Draw("same");
+
         cAna->cd(4);
         k2->Draw();
-        //=================================================================/**/
+        
+        /* //=================================================================
+        
+        tree->Draw("dist1>>s1(50, -7, 15)", gateDist1X +  gateL, "colz");
+        tree->Draw("dist1>>s2(50, -7, 15)", "TMath::Abs(dist1X-30)<5" +  gateL, "same"); s2->SetLineColor(1); s2->Draw("same");
+        tree->Draw("dist1>>s3(50, -7, 15)", "TMath::Abs(dist1X-40)<5" +  gateL, "same"); s3->SetLineColor(2); s3->Draw("same");
+        tree->Draw("dist1>>s4(50, -7, 15)", "TMath::Abs(dist1X-50)<5" +  gateL, "same"); s4->SetLineColor(3); s4->Draw("same");
+        tree->Draw("dist1>>s5(50, -7, 15)", "TMath::Abs(dist1X-60)<5" +  gateL, "same"); s5->SetLineColor(4); s5->Draw("same");
+        tree->Draw("dist1>>s6(50, -7, 15)", "TMath::Abs(dist1X-70)<5" +  gateL, "same"); s6->SetLineColor(5); s6->Draw("same");
+        
+        cAna->cd(5);
+        tree->Draw("ratio1>>y1(50, 0.9, 1.2)", gateDist1X +  gateL, "colz");
+        tree->Draw("ratio1>>y2(50, 0.9, 1.2)", "TMath::Abs(dist1X-30)<5" +  gateL, "same"); y2->SetLineColor(1); y2->Draw("same"); 
+        tree->Draw("ratio1>>y3(50, 0.9, 1.2)", "TMath::Abs(dist1X-40)<5" +  gateL, "same"); y3->SetLineColor(2); y3->Draw("same"); 
+        tree->Draw("ratio1>>y4(50, 0.9, 1.2)", "TMath::Abs(dist1X-50)<5" +  gateL, "same"); y4->SetLineColor(3); y4->Draw("same"); 
+        tree->Draw("ratio1>>y5(50, 0.9, 1.2)", "TMath::Abs(dist1X-60)<5" +  gateL, "same"); y5->SetLineColor(4); y5->Draw("same"); 
+        tree->Draw("ratio1>>y6(50, 0.9, 1.2)", "TMath::Abs(dist1X-70)<5" +  gateL, "same"); y6->SetLineColor(5); y6->Draw("same"); 
+        
+        cAna->cd(6);
+        tree->Draw("ratio1:liqld>>z1(200,0, 60, 50, 0.9, 1.2)", gateDist1X + gateL, "colz");
+        polL1->Draw("same");
+        polL2->Draw("same");
+        
+        /*=======================================/**/
 }

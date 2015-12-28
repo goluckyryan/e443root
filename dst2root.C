@@ -13,8 +13,8 @@
 #include "TRandom.h"
 #include "constant.h"
 
-
 using namespace std;
+
 
 int main(int argc, char * argv[]){
 
@@ -34,9 +34,6 @@ int main(int argc, char * argv[]){
     RunName = atoi(argv[1]);
   }
   
-  printf("=============================\n");
-  gROOT->ProcessLine(".!date");
-
   TString openFileName1;
   openFileName1.Form("./dstroot/run%04d_asci.dst", RunName);
   printf("input <====== %s \n", openFileName1.Data());
@@ -47,7 +44,7 @@ int main(int argc, char * argv[]){
   
   TString saveFileName;
   saveFileName.Form("run%04d.root", RunName);
-  printf("output =====> %s , nEntries:%d\n", saveFileName.Data(), nEntries);
+  printf("output >>>>>> %s \n", saveFileName.Data());
    
   TFile *f1 = new TFile (saveFileName,"recreate");
   TTree * t1 = new TTree("tree","tree");
@@ -82,6 +79,7 @@ int main(int argc, char * argv[]){
   //--------- GRRF & BANDRF
   Double_t grf,brf;
   Double_t lastgr;
+
   //-------------------------------------------------Physics
   Double_t grTOF1, grTOF2;
   Double_t badElTOF,badErTOF,blo1TOF,blo2TOF,blo3TOF,blo4TOF;
@@ -91,9 +89,9 @@ int main(int argc, char * argv[]){
 
   Double_t grXC,grthC;
   //Double_t grXAux;
+
   Int_t event = -1;
   Double_t grx1;
-
 
   //------------make tree branch
   t1->Branch("eventID", &eventID, "eventID/I");
@@ -115,10 +113,10 @@ int main(int argc, char * argv[]){
   t1->Branch("grXC", &grXC, "grXC/D");
   t1->Branch("grthC", &grthC, "grthC/D");
   //t1->Branch("grXAux", &grXAux, "grXAux/D");
+  t1->Branch("lastgr", &lastgr, "lastgr/D");
 
   t1->Branch("badEl", &badEl, "badEl/D");
   t1->Branch("badEr", &badEr, "badEr/D");
-
   
   t1->Branch("blo1", &blo1, "blo1/D");
   t1->Branch("blo2", &blo2, "blo2/D");
@@ -181,8 +179,7 @@ int main(int argc, char * argv[]){
   //t1->Branch("event", &event, "event/I");
   //t1->Branch("grx1", &grx1, "grx1/D");
   t1->Branch("lastgr", &lastgr, "lastgr/D");
-   
-   
+    
   //=================== read file
   ifstream fp1;
   fp1.open(openFileName1);
@@ -199,6 +196,23 @@ int main(int argc, char * argv[]){
     printf("******* cannot open dst file : %s\n", openFileName2.Data());
     exit(-2);
   }
+
+  printf("====== counting number of event.... \n");
+  int lineNum = 0;
+  string dummyLine;
+  while(! fp.eof()){
+    lineNum ++;
+    getline(fp, dummyLine, '\r');     
+  };
+  lineNum --;
+
+  if (argc == 2) nEntries = lineNum;
+  
+  printf("====== total number of event: %d [%6.2f%%] \n", lineNum, nEntries*100./lineNum);
+  
+  fp.clear();
+  fp.seekg(0, ios::beg); //reset position to 0
+
   TBenchmark clock;
   Bool_t shown = 0;
    
@@ -227,6 +241,7 @@ int main(int argc, char * argv[]){
    grXC = TMath::QuietNaN();
    grthC = TMath::QuietNaN();
    //grXAux = TMath::QuietNaN();
+   lastgr = TMath::QuietNaN();
 
    //--------- BAND_TELE
    badEl = TMath::QuietNaN();
@@ -516,11 +531,11 @@ int main(int argc, char * argv[]){
 
     if ( !shown ) {
       if (fmod(time, 10) < 1 ){
-        printf( "%10d[%5.2f%%]|%6.1f| %3.0f min %2.0f sec\n", 
+        printf( "%10d[%5.2f%%]|%6.0f min %2.0f sec | expect: %5.1f min\n", 
                 eventID,
                 eventID*100./nEntries,
-                time,
-                TMath::Floor(time/60.), time - TMath::Floor(time/60.)*60.);
+                TMath::Floor(time/60.), time - TMath::Floor(time/60.)*60.,
+                nEntries*time/eventID/60.);
         shown = 1;
       }
     }else{
@@ -531,11 +546,14 @@ int main(int argc, char * argv[]){
 
   }while(! fp1.eof());
 
+  fp.close();
+
   f1->cd(); //set focus on this file
   f1->Write(); 
   f1->Close();
   
   printf("=======================================\n");
-  printf("total number of event: %d \n", eventID);
+  printf("total number of event filled: %d \n", eventID-1);
   printf("............ done!\n");
+
 }
