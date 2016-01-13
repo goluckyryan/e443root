@@ -86,6 +86,7 @@ int main(int argc, char * argv[]){
   Double_t grTOF1, grTOF2;
   Double_t badElTOF,badErTOF,blo1TOF,blo2TOF,blo3TOF,blo4TOF;
   Double_t sta1hTOF,sta2hTOF,sta1vTOF,sta2vTOF,sta3vTOF,sta4vTOF;
+  Double_t sta1hTOFC,sta2hTOFC,sta1vTOFC,sta2vTOFC,sta3vTOFC,sta4vTOFC;
   Double_t liqlTOF,liqrTOF;
   Double_t sta_odd,sta_even,sta_ratio,sta_sum;
 
@@ -93,6 +94,11 @@ int main(int argc, char * argv[]){
   //Double_t grXAux;
   Int_t event = -1;
   Double_t grx1;
+
+  Double_t sta1hTOFS,sta2hTOFS,sta1vTOFS,sta2vTOFS,sta3vTOFS,sta4vTOFS;
+  Double_t sta1hEp,sta2hEp,sta1vEp,sta2vEp,sta3vEp,sta4vEp;
+  Double_t flightlength = 71;//cm
+
 
 
   //------------make tree branch
@@ -136,7 +142,9 @@ int main(int argc, char * argv[]){
   t1->Branch("blo4TOF", &blo4TOF, "blo4TOF/D");
 
   t1->Branch("adc", adc, "adc[12]/D");
+  t1->Branch("adc2", adc2, "adc2[14]/D");
   t1->Branch("tdc", tdc, "tdc[12]/D");
+  t1->Branch("tdc2", tdc2, "tdc2[12]/D");
   t1->Branch("staMult", &staMult, "staMult/I");
   t1->Branch("sta1h", &sta1h, "sta1h/D");
   t1->Branch("sta2h", &sta2h, "sta2h/D");
@@ -170,6 +178,13 @@ int main(int argc, char * argv[]){
   t1->Branch("sta3vTOF", &sta3vTOF, "sta3vTOF/D");
   t1->Branch("sta4vTOF", &sta4vTOF, "sta4vTOF/D");
 
+  t1->Branch("sta1hTOFC", &sta1hTOFC, "sta1hTOFC/D");
+  t1->Branch("sta2hTOFC", &sta2hTOFC, "sta2hTOFC/D");
+  t1->Branch("sta1vTOFC", &sta1vTOFC, "sta1vTOFC/D");
+  t1->Branch("sta2vTOFC", &sta2vTOFC, "sta2vTOFC/D");
+  t1->Branch("sta3vTOFC", &sta3vTOFC, "sta3vTOFC/D");
+  t1->Branch("sta4vTOFC", &sta4vTOFC, "sta4vTOFC/D");
+
   t1->Branch("liqlf", &liqlf, "liqlf/D");
   t1->Branch("liqld", &liqld, "liqld/D");
   t1->Branch("liqrf", &liqrf, "liqrf/D");
@@ -181,6 +196,19 @@ int main(int argc, char * argv[]){
   //t1->Branch("event", &event, "event/I");
   //t1->Branch("grx1", &grx1, "grx1/D");
   t1->Branch("lastgr", &lastgr, "lastgr/D");
+
+  t1->Branch("sta1hTOFS", &sta1hTOFS, "sta1hTOFS/D");
+  t1->Branch("sta2hTOFS", &sta2hTOFS, "sta2hTOFS/D");
+  t1->Branch("sta1vTOFS", &sta1vTOFS, "sta1vTOFS/D");
+  t1->Branch("sta2vTOFS", &sta2vTOFS, "sta2vTOFS/D");
+  t1->Branch("sta3vTOFS", &sta3vTOFS, "sta3vTOFS/D");
+  t1->Branch("sta4vTOFS", &sta4vTOFS, "sta4vTOFS/D");
+  t1->Branch("sta1hEp", &sta1hEp, "sta1hEp/D");
+  t1->Branch("sta2hEp", &sta2hEp, "sta2hEp/D");
+  t1->Branch("sta1vEp", &sta1vEp, "sta1vEp/D");
+  t1->Branch("sta2vEp", &sta2vEp, "sta2vEp/D");
+  t1->Branch("sta3vEp", &sta3vEp, "sta3vEp/D");
+  t1->Branch("sta4vEp", &sta4vEp, "sta4vEp/D");
    
    
   //=================== read file
@@ -272,6 +300,14 @@ int main(int argc, char * argv[]){
    sta2vTOF = TMath::QuietNaN();
    sta3vTOF = TMath::QuietNaN();
    sta4vTOF = TMath::QuietNaN();
+
+   sta1hTOFC = TMath::QuietNaN();
+   sta2hTOFC = TMath::QuietNaN();
+   sta1vTOFC = TMath::QuietNaN();
+   sta2vTOFC = TMath::QuietNaN();
+   sta3vTOFC = TMath::QuietNaN();
+   sta4vTOFC = TMath::QuietNaN();
+
    sta_odd = TMath::QuietNaN();
    sta_even = TMath::QuietNaN();
    sta_ratio = TMath::QuietNaN();
@@ -288,7 +324,19 @@ int main(int argc, char * argv[]){
    event = -1;
    grx1 = TMath::QuietNaN();
    lastgr = TMath::QuietNaN();
-
+   //--------physical
+   sta1hTOFS = TMath::QuietNaN();
+   sta2hTOFS = TMath::QuietNaN();
+   sta1vTOFS = TMath::QuietNaN();
+   sta2vTOFS = TMath::QuietNaN();
+   sta3vTOFS = TMath::QuietNaN();
+   sta4vTOFS = TMath::QuietNaN();
+   sta1hEp = TMath::QuietNaN();
+   sta2hEp = TMath::QuietNaN();
+   sta1vEp = TMath::QuietNaN();
+   sta2vEp = TMath::QuietNaN();
+   sta3vEp = TMath::QuietNaN();
+   sta4vEp = TMath::QuietNaN();
    //============================================= read from file
     //------------ CoinReg
     fp1>>coinReg;
@@ -397,7 +445,8 @@ int main(int argc, char * argv[]){
       
     //------------- RF
     grf = (grrf + rand->Uniform(0,1))*GR_CH2NS[0];
-    brf = (lrf[1] + rand->Uniform(0,1))*LAS_CH2NS[0];
+    //brf = (lrf[1] + rand->Uniform(0,1))*LAS_CH2NS;
+    brf = lrf[1];
     //------------ GR 
     grdE1 = TMath::Sqrt(gradc[0]*gradc[1]);
     grdE2 = TMath::Sqrt(gradc[2]*gradc[3]);
@@ -409,77 +458,121 @@ int main(int argc, char * argv[]){
     grTOF2 = grT2avg + (rand->Uniform(0,1)+rand->Uniform(0,1))/2.*GR_CH2NS[0] - grf + GR_TOF1_OFFSET;
       
     //----------- STACK 
-    sta1h = TMath::Sqrt(adc[0]/112.*adc[1]/118.);
-    sta2h = TMath::Sqrt(adc[2]/131.*adc[3]/109.);
-    sta1v = TMath::Sqrt(adc[4]/116.*adc[5]/126.);
-    sta2v = TMath::Sqrt(adc[6]/113.*adc[7]/123.);
-    sta3v = TMath::Sqrt(adc[8]/122.*adc[9]/131.);
-    sta4v = TMath::Sqrt(adc[10]/127.*adc[11]/124.);
+    sta1h = 6.4 * TMath::Sqrt(adc[0]/112.*adc[1]/118.);
+    sta2h = 6.4 * TMath::Sqrt(adc[2]/131.*adc[3]/109.);
+    sta1v = 6.4 * TMath::Sqrt(adc[4]/116.*adc[5]/126.);
+    sta2v = 6.4 * TMath::Sqrt(adc[6]/113.*adc[7]/123.);
+    sta3v = 6.4 * TMath::Sqrt(adc[8]/122.*adc[9]/131.);
+    sta4v = 6.4 * TMath::Sqrt(adc[10]/127.*adc[11]/124.);
 
     staMult = 0;
     
-    sta_even = 6.4*(sta1h+sta2h);
-    sta_odd = 6.4*(sta1v+sta2v+sta3v+sta4v);
+    sta_even = sta1h+sta2h;
+    sta_odd = sta1v+sta2v+sta3v+sta4v;
     if (sta_even + sta_odd > 0.) {
       sta_sum = sta_even+sta_odd;
       sta_ratio = (sta_even-sta_odd)/(sta_even+sta_odd);
     }
 
     //printf("%f, %f \n", tdc[0],tdc[1]);
-    sta1hTavg = (tdc[0] + tdc[1] )/2.*LAS_CH2NS[4];
-    sta2hTavg = (tdc[2] + tdc[3] )/2.*LAS_CH2NS[5];
-    sta1vTavg = (tdc[4] + tdc[5] )/2.*LAS_CH2NS[6];
-    sta2vTavg = (tdc[6] + tdc[7] )/2.*LAS_CH2NS[7];
-    sta3vTavg = (tdc[8] + tdc[9] )/2.*LAS_CH2NS[8];
-    sta4vTavg = (tdc[10]+ tdc[11])/2.*LAS_CH2NS[9];
+    //sta1hTavg = (tdc[0] + tdc[1] * 0.99649 - 1.85 )/2.*LAS_CH2NS[4];
+    //sta2hTavg = (tdc[2] + tdc[3] * 0.88497 - 0.78 )/2.*LAS_CH2NS[5]; //#1035
+    ////sta2hTavg = (tdc[2] + tdc[3] * 0.89030 - 0.67 )/2.*LAS_CH2NS[5];  //#1223
+    //sta1vTavg = (tdc[4] + tdc[5] * 0.99395 + 3.15 )/2.*LAS_CH2NS[6];
+    //sta2vTavg = (tdc[6] + tdc[7] * 1.00185 - 4.88 )/2.*LAS_CH2NS[7];
+    //sta3vTavg = (tdc[8] + tdc[9] * 1.00514 - 2.54 )/2.*LAS_CH2NS[8];
+    //sta4vTavg = (tdc[10]+ tdc[11]* 1.00760 + 4.64 )/2.*LAS_CH2NS[9];
 
-    sta1hTdif = (tdc[0] - tdc[1] + rand -> Uniform(0,1)- rand -> Uniform(0,1))*LAS_CH2NS[4];   
-    sta2hTdif = (tdc[2] - tdc[3] + rand -> Uniform(0,1)- rand -> Uniform(0,1))*LAS_CH2NS[5];   
-    sta1vTdif = (tdc[4] - tdc[5] + rand -> Uniform(0,1)- rand -> Uniform(0,1))*LAS_CH2NS[6];   
-    sta2vTdif = (tdc[6] - tdc[7] + rand -> Uniform(0,1)- rand -> Uniform(0,1))*LAS_CH2NS[7];   
-    sta3vTdif = (tdc[8] - tdc[9] + rand -> Uniform(0,1)- rand -> Uniform(0,1))*LAS_CH2NS[8];   
-    sta4vTdif = (tdc[10]- tdc[11]+ rand -> Uniform(0,1)- rand -> Uniform(0,1))*LAS_CH2NS[9];   
+    sta1hTavg = (tdc[0] * 0.9912 + tdc[1] * 0.9925 )/2. * LAS_CH2NS;     
+    sta2hTavg = (tdc[2] * 1.091  + tdc[3] * 0.9946 )/2. * LAS_CH2NS; 
+    sta1vTavg = (tdc[4] * 0.9889 + tdc[5] * 0.9865 )/2. * LAS_CH2NS;  
+    sta2vTavg = (tdc[6] * 0.9886 + tdc[7] * 0.9916 )/2. * LAS_CH2NS;  
+    sta3vTavg = (tdc[8] * 0.9758 + tdc[9] * 0.9936 )/2. * LAS_CH2NS;  
+    sta4vTavg = (tdc[10]* 0.9832 + tdc[11]* 0.9924 )/2. * LAS_CH2NS;  
     
-    sta1hTOF = sta1hTavg + ((rand->Uniform(0,1)+rand->Uniform(0,1))/2. - (lrf[1] + rand->Uniform(0,1)))*LAS_CH2NS[4] + STACK_TOF_OFFSET[0];
-    sta2hTOF = sta2hTavg + ((rand->Uniform(0,1)+rand->Uniform(0,1))/2. - (lrf[1] + rand->Uniform(0,1)))*LAS_CH2NS[5] + STACK_TOF_OFFSET[1];
-    sta1vTOF = sta1vTavg + ((rand->Uniform(0,1)+rand->Uniform(0,1))/2. - (lrf[1] + rand->Uniform(0,1)))*LAS_CH2NS[6] + STACK_TOF_OFFSET[2];
-    sta2vTOF = sta2vTavg + ((rand->Uniform(0,1)+rand->Uniform(0,1))/2. - (lrf[1] + rand->Uniform(0,1)))*LAS_CH2NS[7] + STACK_TOF_OFFSET[3];
-    sta3vTOF = sta3vTavg + ((rand->Uniform(0,1)+rand->Uniform(0,1))/2. - (lrf[1] + rand->Uniform(0,1)))*LAS_CH2NS[8] + STACK_TOF_OFFSET[4];
-    sta4vTOF = sta4vTavg + ((rand->Uniform(0,1)+rand->Uniform(0,1))/2. - (lrf[1] + rand->Uniform(0,1)))*LAS_CH2NS[9] + STACK_TOF_OFFSET[5];
-   
+   // sta1hTdif = (tdc[0] - ( tdc[1] * 0.99649 - 1.85) + rand -> Uniform(0,1)- rand -> Uniform(0,1))*LAS_CH2NS[4];   
+   // sta2hTdif = (tdc[2] - ( tdc[3] * 0.88497 - 0.78) + rand -> Uniform(0,1)- rand -> Uniform(0,1))*LAS_CH2NS[5];   //#1035
+   // //sta2hTdif = (tdc[2] - ( tdc[3] * 0.89030 - 0.67) + rand -> Uniform(0,1)- rand -> Uniform(0,1))*LAS_CH2NS[5];   //#1223
+   // sta1vTdif = (tdc[4] - ( tdc[5] * 0.99395 + 3.15) + rand -> Uniform(0,1)- rand -> Uniform(0,1))*LAS_CH2NS[6];   
+   // sta2vTdif = (tdc[6] - ( tdc[7] * 1.00185 - 4.88) + rand -> Uniform(0,1)- rand -> Uniform(0,1))*LAS_CH2NS[7];   
+   // sta3vTdif = (tdc[8] - ( tdc[9] * 1.00514 - 2.54) + rand -> Uniform(0,1)- rand -> Uniform(0,1))*LAS_CH2NS[8];   
+   // sta4vTdif = (tdc[10]- ( tdc[11]* 1.00760 + 4.64) + rand -> Uniform(0,1)- rand -> Uniform(0,1))*LAS_CH2NS[9];
+
+    sta1hTdif = (tdc[0] * 0.9912 - tdc[1] * 0.9925 + rand -> Uniform(0,1) - rand -> Uniform(0,1))*LAS_CH2NS;   
+    sta2hTdif = (tdc[2] * 1.091  - tdc[3] * 0.9946 + rand -> Uniform(0,1) - rand -> Uniform(0,1))*LAS_CH2NS;   
+    sta1vTdif = (tdc[4] * 0.9889 - tdc[5] * 0.9865 + rand -> Uniform(0,1) - rand -> Uniform(0,1))*LAS_CH2NS;   
+    sta2vTdif = (tdc[6] * 0.9886 - tdc[7] * 0.9916 + rand -> Uniform(0,1) - rand -> Uniform(0,1))*LAS_CH2NS;   
+    sta3vTdif = (tdc[8] * 0.9758 - tdc[9] * 0.9936 + rand -> Uniform(0,1) - rand -> Uniform(0,1))*LAS_CH2NS;   
+    sta4vTdif = (tdc[10]* 0.9832 - tdc[11]* 0.9924 + rand -> Uniform(0,1) - rand -> Uniform(0,1))*LAS_CH2NS;   
+    
+    //sta1hTOF = sta1hTavg + ((rand->Uniform(0,1)+rand->Uniform(0,1))/2. - (lrf[1] + rand->Uniform(0,1)))*LAS_CH2NS[4] + STACK_TOF_OFFSET[0];
+    //sta2hTOF = sta2hTavg + ((rand->Uniform(0,1)+rand->Uniform(0,1))/2. - (lrf[1] + rand->Uniform(0,1)))*LAS_CH2NS[5] + STACK_TOF_OFFSET[1];
+    //sta1vTOF = sta1vTavg + ((rand->Uniform(0,1)+rand->Uniform(0,1))/2. - (lrf[1] + rand->Uniform(0,1)))*LAS_CH2NS[6] + STACK_TOF_OFFSET[2];
+    //sta2vTOF = sta2vTavg + ((rand->Uniform(0,1)+rand->Uniform(0,1))/2. - (lrf[1] + rand->Uniform(0,1)))*LAS_CH2NS[7] + STACK_TOF_OFFSET[3];
+    //sta3vTOF = sta3vTavg + ((rand->Uniform(0,1)+rand->Uniform(0,1))/2. - (lrf[1] + rand->Uniform(0,1)))*LAS_CH2NS[8] + STACK_TOF_OFFSET[4];
+    //sta4vTOF = sta4vTavg + ((rand->Uniform(0,1)+rand->Uniform(0,1))/2. - (lrf[1] + rand->Uniform(0,1)))*LAS_CH2NS[9] + STACK_TOF_OFFSET[5];
+
+    sta1hTOF = sta1hTavg + ((rand->Uniform(0,1)+rand->Uniform(0,1))/2. - (lrf[1] + rand->Uniform(0,1)))*LAS_CH2NS;
+    sta2hTOF = sta2hTavg + ((rand->Uniform(0,1)+rand->Uniform(0,1))/2. - (lrf[1] + rand->Uniform(0,1)))*LAS_CH2NS;
+    sta1vTOF = sta1vTavg + ((rand->Uniform(0,1)+rand->Uniform(0,1))/2. - (lrf[1] + rand->Uniform(0,1)))*LAS_CH2NS;
+    sta2vTOF = sta2vTavg + ((rand->Uniform(0,1)+rand->Uniform(0,1))/2. - (lrf[1] + rand->Uniform(0,1)))*LAS_CH2NS;
+    sta3vTOF = sta3vTavg + ((rand->Uniform(0,1)+rand->Uniform(0,1))/2. - (lrf[1] + rand->Uniform(0,1)))*LAS_CH2NS;
+    sta4vTOF = sta4vTavg + ((rand->Uniform(0,1)+rand->Uniform(0,1))/2. - (lrf[1] + rand->Uniform(0,1)))*LAS_CH2NS;
+
+    //------------- stack TOF slewing correction, time zero is adjusted to target position in d(d,3He)n
+   // sta1hTOFC = sta1hTOF - 0.921305 / TMath::Sqrt(sta1h - 0.066680) + 20.3 + 2.37;
+   // sta2hTOFC = sta2hTOF - 0.299956 / TMath::Sqrt(sta2h - 0.158736) + 21.0 + 2.37;
+   // sta1vTOFC = sta1vTOF - 0.898508 / TMath::Sqrt(sta1v - 0.036919) + 20.6 + 2.37;
+   // sta2vTOFC = sta2vTOF - 1.300062 / TMath::Sqrt(sta2v - 0.009711) + 22.0 + 2.37;
+   // sta3vTOFC = sta3vTOF - 0.250203 / TMath::Sqrt(sta3v - 0.100000) + 19.5 + 2.37;
+   // sta4vTOFC = sta4vTOF - 0.367447 / TMath::Sqrt(sta4v - 0.141447) + 19.5 + 2.37;
+
+    //sta1hTOFC = sta1hTOF - 0.921305 / TMath::Sqrt(sta1h/6.4 - 0.066680) - 0.21 + 2.37;
+    //sta2hTOFC = sta2hTOF - 0.299956 / TMath::Sqrt(sta2h/6.4 - 0.158736) + 0.72 + 2.37;
+    //sta1vTOFC = sta1vTOF - 0.898508 / TMath::Sqrt(sta1v/6.4 - 0.036919) + 0.27 + 2.37;
+    //sta2vTOFC = sta2vTOF - 1.300062 / TMath::Sqrt(sta2v/6.4 - 0.009711) + 1.67 + 2.37;
+    //sta3vTOFC = sta3vTOF - 0.250203 / TMath::Sqrt(sta3v/6.4 - 0.100000) - 1.16 + 2.37;
+    //sta4vTOFC = sta4vTOF - 0.367447 / TMath::Sqrt(sta4v/6.4 - 0.141447) - 1.02 + 2.37;
+
+    sta1hTOFC = sta1hTOF - 3.173068 / TMath::Sqrt(sta1h - 0.097028) + STACK_TOF_OFFSET[0];
+    sta2hTOFC = sta2hTOF - 0.974083 / TMath::Sqrt(sta2h - 0.977325) + STACK_TOF_OFFSET[1];
+    sta1vTOFC = sta1vTOF - 0.807234 / TMath::Sqrt(sta1v - 0.828953) + STACK_TOF_OFFSET[2];
+    sta2vTOFC = sta2vTOF - 2.174546 / TMath::Sqrt(sta2v - 0.148050) + STACK_TOF_OFFSET[3];
+    sta3vTOFC = sta3vTOF - 0.705086 / TMath::Sqrt(sta3v - 0.995722) + STACK_TOF_OFFSET[4];
+    sta4vTOFC = sta4vTOF - 0.936808 / TMath::Sqrt(sta4v - 0.960274) + STACK_TOF_OFFSET[5];
            
     //------------- Telescope      
     badEl = adc2[8];
     badEr = adc2[9];
-    blo1 = TMath::Sqrt(adc2[0]*adc[1]);
-    blo2 = TMath::Sqrt(adc2[2]*adc[3]);
-    blo3 = TMath::Sqrt(adc2[4]*adc[5]);
-    blo4 = TMath::Sqrt(adc2[6]*adc[7]);
+    blo1 = TMath::Sqrt(adc2[0]*adc2[1]);
+    blo2 = TMath::Sqrt(adc2[2]*adc2[3]);
+    blo3 = TMath::Sqrt(adc2[4]*adc2[5]);
+    blo4 = TMath::Sqrt(adc2[6]*adc2[7]);
       
-    blo1Tavg = (tdc2[0]+tdc2[1])/2.*LAS_CH2NS[0];
-    blo2Tavg = (tdc2[2]+tdc2[3])/2.*LAS_CH2NS[1];
-    blo3Tavg = (tdc2[4]+tdc2[5])/2.*LAS_CH2NS[2];
-    blo4Tavg = (tdc2[6]+tdc2[7])/2.*LAS_CH2NS[3];
+    blo1Tavg = (tdc2[0]+tdc2[1])/2.*LAS_CH2NS;
+    blo2Tavg = (tdc2[2]+tdc2[3])/2.*LAS_CH2NS;
+    blo3Tavg = (tdc2[4]+tdc2[5])/2.*LAS_CH2NS;
+    blo4Tavg = (tdc2[6]+tdc2[7])/2.*LAS_CH2NS;
       
     blo1TOF = TMath::QuietNaN();
     blo2TOF = TMath::QuietNaN();
     blo3TOF = TMath::QuietNaN();
     blo4TOF = TMath::QuietNaN();
    
-    badElTOF = (tdc2[8] + rand->Uniform(0,1))*LAS_CH2NS[0] - brf ;
-    badErTOF = (tdc2[9] + rand->Uniform(0,1))*LAS_CH2NS[0] - brf ;
-    blo1TOF = blo1Tavg + ((rand->Uniform(0,1)+rand->Uniform(0,1))/2. - (lrf[1] + rand->Uniform(0,1)))*LAS_CH2NS[0] + BLOCK_TOF_OFFSET[0];
-    blo2TOF = blo2Tavg + ((rand->Uniform(0,1)+rand->Uniform(0,1))/2. - (lrf[1] + rand->Uniform(0,1)))*LAS_CH2NS[1] + BLOCK_TOF_OFFSET[1];
-    blo3TOF = blo3Tavg + ((rand->Uniform(0,1)+rand->Uniform(0,1))/2. - (lrf[1] + rand->Uniform(0,1)))*LAS_CH2NS[2] + BLOCK_TOF_OFFSET[2];
-    blo4TOF = blo4Tavg + ((rand->Uniform(0,1)+rand->Uniform(0,1))/2. - (lrf[1] + rand->Uniform(0,1)))*LAS_CH2NS[3] + BLOCK_TOF_OFFSET[3];
+    badElTOF = (tdc2[8] + rand->Uniform(0,1))*LAS_CH2NS - brf ;
+    badErTOF = (tdc2[9] + rand->Uniform(0,1))*LAS_CH2NS - brf ;
+    blo1TOF = blo1Tavg + ((rand->Uniform(0,1)+rand->Uniform(0,1))/2. - (lrf[1] + rand->Uniform(0,1)))*LAS_CH2NS + BLOCK_TOF_OFFSET[0];
+    blo2TOF = blo2Tavg + ((rand->Uniform(0,1)+rand->Uniform(0,1))/2. - (lrf[1] + rand->Uniform(0,1)))*LAS_CH2NS + BLOCK_TOF_OFFSET[1];
+    blo3TOF = blo3Tavg + ((rand->Uniform(0,1)+rand->Uniform(0,1))/2. - (lrf[1] + rand->Uniform(0,1)))*LAS_CH2NS + BLOCK_TOF_OFFSET[2];
+    blo4TOF = blo4Tavg + ((rand->Uniform(0,1)+rand->Uniform(0,1))/2. - (lrf[1] + rand->Uniform(0,1)))*LAS_CH2NS + BLOCK_TOF_OFFSET[3];
    
     //-------------- Liquid
     liqlf = adc2[10] + rand->Uniform(0,1);
     liqld = adc2[11] + rand->Uniform(0,1);
     liqrf = adc2[12] + rand->Uniform(0,1);
     liqrd = adc2[13] + rand->Uniform(0,1);
-    liqlTOF = (tdc2[10] + rand->Uniform(0,1))*LAS_CH2NS[0] - brf ;
-    liqrTOF = (tdc2[11] + rand->Uniform(0,1))*LAS_CH2NS[0] - brf ;
+    liqlTOF = (tdc2[10] + rand->Uniform(0,1))*LAS_CH2NS - brf ;
+    liqrTOF = (tdc2[11] + rand->Uniform(0,1))*LAS_CH2NS - brf ;
 
     //_______________________________ Physical
     /*
@@ -504,7 +597,52 @@ int main(int argc, char * argv[]){
     TLorentzVector pInc, pGR, pn;
 
     */
+
+    //====== stack calibration by proton #1223
       
+    if(sta1hTOFC < 100){
+      sta1hTOFS = sta1hTOFC - 59.364;
+    }else{
+      sta1hTOFS = sta1hTOFC - 59.364*2;
+    }
+
+    if(sta2hTOFC < 100){
+      sta2hTOFS = sta2hTOFC - 59.364;
+    }else{
+      sta2hTOFS = sta2hTOFC - 59.364*2;
+    }
+
+    if(sta1vTOFC < 100){
+      sta1vTOFS = sta1vTOFC - 59.364;
+    }else{
+      sta1vTOFS = sta1vTOFC - 59.364*2;
+    }
+
+    if(sta2vTOFC < 100){
+      sta2vTOFS = sta2vTOFC - 59.364;
+    }else{
+      sta2vTOFS = sta2vTOFC - 59.364*2;
+    }
+
+    if(sta3vTOFC < 100){
+      sta3vTOFS = sta3vTOFC - 59.364;
+    }else{
+      sta3vTOFS = sta3vTOFC - 59.364*2;
+    }
+
+    if(sta4vTOFC < 100){
+      sta4vTOFS = sta4vTOFC - 59.364;
+    }else{
+      sta4vTOFS = sta4vTOFC - 59.364*2;
+    }
+
+    sta1hEp = 938.272 * (1/TMath::Sqrt(1-TMath::Power((TMath::Sqrt(flightlength*flightlength+4*4)/sta1hTOFS/29.979),2)) - 1);
+    sta2hEp = 938.272 * (1/TMath::Sqrt(1-TMath::Power((TMath::Sqrt(flightlength*flightlength+4*4)/sta2hTOFS/29.979),2)) - 1);
+    sta1vEp = 938.272 * (1/TMath::Sqrt(1-TMath::Power((TMath::Sqrt(flightlength*flightlength+12*12)/sta1vTOFS/29.979),2)) - 1);
+    sta2vEp = 938.272 * (1/TMath::Sqrt(1-TMath::Power((TMath::Sqrt(flightlength*flightlength+4*4)/sta2vTOFS/29.979),2)) - 1);
+    sta3vEp = 938.272 * (1/TMath::Sqrt(1-TMath::Power((TMath::Sqrt(flightlength*flightlength+4*4)/sta3vTOFS/29.979),2)) - 1);
+    sta4vEp = 938.272 * (1/TMath::Sqrt(1-TMath::Power((TMath::Sqrt(flightlength*flightlength+12*12)/sta4vTOFS/29.979),2)) - 1);
+
     //----------- Fill       
     f1->cd(); //set focus on this file
     t1->Fill(); 

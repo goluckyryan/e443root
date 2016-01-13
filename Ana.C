@@ -1,3 +1,4 @@
+
 {
         gROOT->Reset();
         gROOT->ProcessLine(".!date");
@@ -5,7 +6,7 @@
         gROOT->ProcessLine(".L nuclei_mass.h");
         gROOT->ProcessLine(".L Fit_2Gauss.c");
         //======================================================== InPut setting
-        char * rootfile = "run10351.root";
+        char * rootfile = "run1223.root";
         Int_t Div[2] = {2,2};  //x,y
         Int_t size[2] = {400,400}; //x,y
         
@@ -22,25 +23,76 @@
 
         //======================================================== Cut/Gate      
         //------- Graphical Cut
-        TCutG * gate3He_a = new TCutG("cut3He_a", 5);
-        gate3He_a->SetVarX("grTOF1");
-        gate3He_a->SetVarY("grdE1");
-        gate3He_a->SetPoint(0, 183.7, 305.8);
-        gate3He_a->SetPoint(1, 188.4, 211.6);
-        gate3He_a->SetPoint(2, 214.2, 195.4);
-        gate3He_a->SetPoint(3, 225.9, 304.6);
-        gate3He_a->SetPoint(4, 208.6, 343.0);
-        gate3He_a->SetPoint(5, 183.7, 305.8);
+        TCutG * gate3He1_a = new TCutG("cut3He1_a", 5);
+        gate3He1_a->SetVarX("grTOF1");
+        gate3He1_a->SetVarY("grdE1");
+        //gate3He_a->SetPoint(0, 183.7, 305.8);
+        //gate3He_a->SetPoint(1, 188.4, 211.6);
+        //gate3He_a->SetPoint(2, 214.2, 195.4);
+        //gate3He_a->SetPoint(3, 225.9, 304.6);
+        //gate3He_a->SetPoint(4, 208.6, 343.0);
+        //gate3He_a->SetPoint(5, 183.7, 305.8);
+        gate3He1_a->SetPoint(0,193.772,274.187);
+        gate3He1_a->SetPoint(1,193.772,245.466);
+        gate3He1_a->SetPoint(2,209.298,226.228);
+        gate3He1_a->SetPoint(3,209.357,253.053);
+        gate3He1_a->SetPoint(4,193.772,274.187);
 	
-        TCutG * gate3He_b = new TCutG("cut3He_b", 5);
-        gate3He_b->SetVarX("grTOF1");
-        gate3He_b->SetVarY("grdE1");
-        gate3He_b->SetPoint(0, 183.7+99, 305.8);
-        gate3He_b->SetPoint(1, 188.4+99, 211.6);
-        gate3He_b->SetPoint(2, 214.2+99, 195.4);
-        gate3He_b->SetPoint(3, 225.9+99, 304.6);
-        gate3He_b->SetPoint(4, 208.6+99, 343.0);
-        gate3He_b->SetPoint(5, 183.7+99, 305.8);
+        TCutG * gate3He1_b = new TCutG("cut3He1_b", 5);
+        gate3He1_b->SetVarX("grTOF1");
+        gate3He1_b->SetVarY("grdE1");
+        //gate3He_b->SetPoint(0, 183.7+99, 305.8);
+        //gate3He_b->SetPoint(1, 188.4+99, 211.6);
+        //gate3He_b->SetPoint(2, 214.2+99, 195.4);
+        //gate3He_b->SetPoint(3, 225.9+99, 304.6);
+        //gate3He_b->SetPoint(4, 208.6+99, 343.0);
+        //gate3He_b->SetPoint(5, 183.7+99, 305.8);
+        gate3He1_b->SetPoint(0,193.772+98.85,274.187);
+		gate3He1_b->SetPoint(1,193.772+98.85,245.466);
+		gate3He1_b->SetPoint(2,209.298+98.85,226.228);
+		gate3He1_b->SetPoint(3,209.357+98.85,253.053);
+		gate3He1_b->SetPoint(4,193.772+98.85,274.187);
+
+        TCutG *gate3He2_a = new TCutG("cut3He2_a",8);
+        gate3He2_a->SetVarX("grTOF2");
+        gate3He2_a->SetVarY("grdE2");
+        gate3He2_a->SetPoint(0,195.517,448.418);
+        gate3He2_a->SetPoint(1,195.517,412.816);
+        gate3He2_a->SetPoint(2,202.037,428.639);
+        gate3He2_a->SetPoint(3,207.317,433.386);
+        gate3He2_a->SetPoint(4,210.819,420.728);
+        gate3He2_a->SetPoint(5,210.873,465.032);
+        gate3He2_a->SetPoint(6,207.425,471.361);
+        gate3He2_a->SetPoint(7,195.517,448.418);
+
+        TCutG *gate3He2_b = new TCutG("cut3He2_b",8);
+        gate3He2_b->SetVarX("grTOF2");
+		gate3He2_b->SetVarY("grdE2");
+		gate3He2_b->SetPoint(0,195.517+98.85,448.418);
+		gate3He2_b->SetPoint(1,195.517+98.85,412.816);
+		gate3He2_b->SetPoint(2,202.037+98.85,428.639);
+		gate3He2_b->SetPoint(3,207.317+98.85,433.386);
+		gate3He2_b->SetPoint(4,210.819+98.85,420.728);
+		gate3He2_b->SetPoint(5,210.873+98.85,465.032);
+		gate3He2_b->SetPoint(6,207.425+98.85,471.361);
+		gate3He2_b->SetPoint(7,195.517+98.85,448.418);
+
+        TCutG *cut1 = new TCutG("cut1",5);
+        cut1->SetVarX("grTOF1");
+		cut1->SetVarY("grdE1");
+		cut1->SetPoint(0,228.664,325.949);
+		cut1->SetPoint(1,228.664,249.473);
+		cut1->SetPoint(2,239.224,225.738);
+		cut1->SetPoint(3,239.224,296.941);
+		cut1->SetPoint(4,228.664,325.949);
+        TCutG *cut2 = new TCutG("cut2",5);
+        cut2->SetVarX("grTOF1");
+        cut2->SetVarY("grdE1");
+        cut2->SetPoint(0,287.931,318.038);
+        cut2->SetPoint(1,287.931,252.11);
+        cut2->SetPoint(2,298.491,225.738);
+        cut2->SetPoint(3,298.491,286.392);
+        cut2->SetPoint(4,287.931,318.038);
 
         TCutG * gateStaGam = new TCutG("cutsta_g",9);
         gateStaGam->SetVarX("sta_ratio");
@@ -58,32 +110,32 @@
         //--------- Simple cut
         TString gateStr; 
         
-        gateStr.Form("0<blo1Tavg && blo1Tavg<250*%f",LAS_CH2NS[0]); TCut gateBlo1 = gateStr;
-        gateStr.Form("0<blo2Tavg && blo2Tavg<250*%f",LAS_CH2NS[1]); TCut gateBlo2 = gateStr;
-        gateStr.Form("0<blo3Tavg && blo3Tavg<250*%f",LAS_CH2NS[2]); TCut gateBlo3 = gateStr;
-        gateStr.Form("0<blo4Tavg && blo4Tavg<250*%f",LAS_CH2NS[3]); TCut gateBlo4 = gateStr;
+        gateStr.Form("0<blo1Tavg && blo1Tavg<250*%f",LAS_CH2NS); TCut gateBlo1 = gateStr;
+        gateStr.Form("0<blo2Tavg && blo2Tavg<250*%f",LAS_CH2NS); TCut gateBlo2 = gateStr;
+        gateStr.Form("0<blo3Tavg && blo3Tavg<250*%f",LAS_CH2NS); TCut gateBlo3 = gateStr;
+        gateStr.Form("0<blo4Tavg && blo4Tavg<250*%f",LAS_CH2NS); TCut gateBlo4 = gateStr;
         
-        gateStr.Form("0<sta1hTavg && sta1hTavg<400*%f",LAS_CH2NS[4]); TCut gateSta1h = gateStr;
-        gateStr.Form("0<sta2hTavg && sta2hTavg<400*%f",LAS_CH2NS[5]); TCut gateSta2h = gateStr;
-        gateStr.Form("0<sta1vTavg && sta1vTavg<400*%f",LAS_CH2NS[6]); TCut gateSta1v = gateStr;
-        gateStr.Form("0<sta2vTavg && sta2vTavg<400*%f",LAS_CH2NS[7]); TCut gateSta2v = gateStr;
-        gateStr.Form("0<sta3vTavg && sta3vTavg<400*%f",LAS_CH2NS[8]); TCut gateSta3v = gateStr;
-        gateStr.Form("0<sta4vTavg && sta4vTavg<400*%f",LAS_CH2NS[9]); TCut gateSta4v = gateStr;
+        gateStr.Form("0<sta1hTavg && sta1hTavg<400*%f",LAS_CH2NS); TCut gateSta1h = gateStr;
+        gateStr.Form("0<sta2hTavg && sta2hTavg<400*%f",LAS_CH2NS); TCut gateSta2h = gateStr;
+        gateStr.Form("0<sta1vTavg && sta1vTavg<400*%f",LAS_CH2NS); TCut gateSta1v = gateStr;
+        gateStr.Form("0<sta2vTavg && sta2vTavg<400*%f",LAS_CH2NS); TCut gateSta2v = gateStr;
+        gateStr.Form("0<sta3vTavg && sta3vTavg<400*%f",LAS_CH2NS); TCut gateSta3v = gateStr;
+        gateStr.Form("0<sta4vTavg && sta4vTavg<400*%f",LAS_CH2NS); TCut gateSta4v = gateStr;
 
         //-----------------stack neutron gate
-        Double_t gnmin = -12.0, gnmax = -8.0; //ns
+        Double_t gnmin = 9.0, gnmax = 12.0; //ns
 
-        gateStr.Form("(%f < sta1hTOF && sta1hTOF < %f) || (%f + 98.5 < sta1hTOF && sta1hTOF < %f + 98.5)", gnmin, gnmax, gnmin, gnmax);
+        gateStr.Form("(%f < sta1hTOFC && sta1hTOFC < %f) || (%f + 98.85 < sta1hTOFC && sta1hTOFC < %f + 98.85)", gnmin, gnmax, gnmin, gnmax);
         TCut gateStaNeu1h = gateStr;
-        gateStr.Form("(%f < sta2hTOF && sta2hTOF < %f) || (%f + 98.5 < sta2hTOF && sta2hTOF < %f + 98.5)", gnmin, gnmax, gnmin, gnmax);
+        gateStr.Form("(%f < sta2hTOFC && sta2hTOFC < %f) || (%f + 98.85 < sta2hTOFC && sta2hTOFC < %f + 98.85)", gnmin, gnmax, gnmin, gnmax);
         TCut gateStaNeu2h = gateStr;
-        gateStr.Form("(%f < sta1vTOF && sta1vTOF < %f) || (%f + 98.5 < sta1vTOF && sta1vTOF < %f + 98.5)", gnmin, gnmax, gnmin, gnmax);
+        gateStr.Form("(%f < sta1vTOFC && sta1vTOFC < %f) || (%f + 98.85 < sta1vTOFC && sta1vTOFC < %f + 98.85)", gnmin, gnmax, gnmin, gnmax);
         TCut gateStaNeu1v = gateStr;
-        gateStr.Form("(%f < sta2vTOF && sta2vTOF < %f) || (%f + 98.5 < sta2vTOF && sta2vTOF < %f + 98.5)", gnmin, gnmax, gnmin, gnmax);
+        gateStr.Form("(%f < sta2vTOFC && sta2vTOFC < %f) || (%f + 98.85 < sta2vTOFC && sta2vTOFC < %f + 98.85)", gnmin, gnmax, gnmin, gnmax);
         TCut gateStaNeu2v = gateStr;
-        gateStr.Form("(%f < sta3vTOF && sta3vTOF < %f) || (%f + 98.5 < sta3vTOF && sta3vTOF < %f + 98.5)", gnmin, gnmax, gnmin, gnmax);
+        gateStr.Form("(%f < sta3vTOFC && sta3vTOFC < %f) || (%f + 98.85 < sta3vTOFC && sta3vTOFC < %f + 98.85)", gnmin, gnmax, gnmin, gnmax);
         TCut gateStaNeu3v = gateStr;
-        gateStr.Form("(%f < sta4vTOF && sta4vTOF < %f) || (%f + 98.5 < sta4vTOF && sta4vTOF < %f + 98.5)", gnmin, gnmax, gnmin, gnmax);
+        gateStr.Form("(%f < sta4vTOFC && sta4vTOFC < %f) || (%f + 98.85 < sta4vTOFC && sta4vTOFC < %f + 98.85)", gnmin, gnmax, gnmin, gnmax);
         TCut gateStaNeu4v = gateStr;
         //TCut gateStaNeu2h = "(gnmin < sta2hTOF && sta2hTOF < gnmax) || (gnmin + 98.5 < sta2hTOF && sta2hTOF < gnmax + 98.5)";
         //TCut gateStaNeu1v = "(gnmin < sta1vTOF && sta1vTOF < gnmax) || (gnmin + 98.5 < sta1vTOF && sta1vTOF < gnmax + 98.5)";
@@ -117,14 +169,49 @@
         TCut gateR = gateR1 || gateR2;
         */
          //------- complex gate
-        TCut gate3He = "cut3He_a || cut3He_b";
+        TCut gate3He = "(cut3He1_a || cut3He1_b) && (cut3He2_a || cut3He2_b)";
         TCut gateVeto =  "vetogate == 1";
         TCut gateBloTri  = (gateBlo1  || gateBlo2  || gateBlo3  || gateBlo4);
         TCut gateStaTri  = (gateSta1h || gateSta2h || gateSta1v || gateSta1v || gateSta2v || gateSta3v || gateSta4v);
-        TCut gateTem  = gateVeto +  gateFinite + gateGRLAS + gate3He + gateStaTri;
+ 
         TCut gateAcc = "lastgr > 1000";
         TCut gateTrue1 = "720 < lastgr && lastgr < 820";
         TCut gateTrue2 = "890 < lastgr && lastgr < 940";
+        TCut gateEve = "eventID < 3.8e6";
+
+        TCut gateTem  = "!cutsta_g" + gateVeto +  gateFinite + gateGRLAS + gate3He + gateStaTri + gateStaNeu;
+
+        //------------stack position gate
+
+        TCut gateSta1h1 = "sta1hTdif < -2";
+        TCut gateSta1h2 = "-2 <= sta1hTdif && sta1hTdif < 0";
+        TCut gateSta1h3 = " 0 <= sta1hTdif && sta1hTdif < 2";
+        TCut gateSta1h4 = "sta1hTdif >= 2";
+        TCut gateSta2h1 = "sta2hTdif < -2";
+        TCut gateSta2h2 = "-2 <= sta2hTdif && sta2hTdif < 0";
+        TCut gateSta2h3 = "0 <= sta2hTdif && sta2hTdif < 2";
+        TCut gateSta2h4 = "sta2hTdif >= 2";
+
+        TCut gateSta1v1 = "sta1vTdif >=0";
+        TCut gateSta1v2 = "sta1vTdif < 0";
+        TCut gateSta2v1 = "sta2vTdif >=0";
+        TCut gateSta2v2 = "sta2vTdif < 0";
+        TCut gateSta3v1 = "sta3vTdif >=0";
+        TCut gateSta3v2 = "sta3vTdif < 0";
+        TCut gateSta4v1 = "sta4vTdif >=0";
+        TCut gateSta4v2 = "sta4vTdif < 0";
+
+
+
+        TCut gateSta11 = gateSta1h1 || gateSta1v1;
+        TCut gateSta12 = gateSta1h2 || gateSta2v1;
+        TCut gateSta13 = gateSta1h3 || gateSta3v1;
+        TCut gateSta14 = gateSta1h4 || gateSta4v1;
+        TCut gateSta21 = gateSta2h1 || gateSta1v2;
+        TCut gateSta22 = gateSta2h2 || gateSta2v2;
+        TCut gateSta23 = gateSta2h3 || gateSta3v2;
+        TCut gateSta24 = gateSta2h4 || gateSta4v2;
+                                               
 
         printf("........ loaded gates\n"); 
    
