@@ -9,7 +9,11 @@ const double LAS_CH2NS = 0.1455;
   
 const double GR_TOF1_OFFSET = 241.545; //ns
 const double BLOCK_TOF_OFFSET[4] = {103.87, 104.37, 102.87, 100.87}; //ns
-const double STACK_TOF_OFFSET[6] = {148.55+2.37, 147.07+2.37, 141.19+2.37, 139.09+2.37, 140.39+2.37, 138.78+2.37}; //ns #1223
+//const double STACK_TOF_OFFSET[6] = {148.55+2.37, 147.07+2.37, 141.19+2.37, 139.09+2.37, 140.39+2.37, 138.78+2.37}; //ns #1223
+//const double STACK_TOF_OFFSET[6] = {168.93+2.37, 167.45+2.37, 161.49+2.37, 159.36+2.37, 160.86+2.37, 159.12+2.37}; //ns #1035
+const double STACK_TOF_OFFSET[6] = {168.93+2.37-0.25, 167.45+2.37-0.33, 161.49+2.37-0.33, 159.36+2.37-0.49, 160.86+2.37-0.50, 159.12+2.37-0.25}; //ns #1034
+
+
 
 //  const double BLOCK_TOF_OFFSET[4] = {0., 0., 0., 0.}; //ns
 //  const double STACK_TOF_OFFSET[6] = {0., 0., 0., 0., 0., 0.}; //ns

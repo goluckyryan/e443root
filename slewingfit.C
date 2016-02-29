@@ -1,11 +1,11 @@
 void slewingfit(){
 
   gROOT->ProcessLine(".!date");
-  gROOT->ProcessLine(".x Ana.C");
+  //gROOT->ProcessLine(".x Ana.C");
 
   //======================================================== InPut setting
 
-  //char * rootfile = "run1223.root";
+  char * rootfile = "run1035.root";
   Int_t Div[2] = {2,2};  //x,y
   Int_t size[2] = {600,400}; //x,y
 
@@ -20,7 +20,7 @@ void slewingfit(){
   cSlewing->Divide(Div[0],Div[1]);
   cSlewing->cd(1);
 
-  tree->Draw("sta4vTOF:sta4v>>h1(10, 1, 4, 10, -159, -157)","", "colz");
+  tree->Draw("sta2vTOF:sta2vTem>>h1(10, 0, 5, 10, -159, -156)","", "colz");
   Int_t nBin = h1->GetXaxis()->GetNbins();
   TH1F * g1 = new TH1F("g1", "g1", nBin , h1->GetXaxis()->GetXmin(), h1->GetXaxis()->GetXmax());
 
@@ -38,8 +38,8 @@ void slewingfit(){
     g1->SetBinError(xBin, yErr);
 
   }
-  TF1* fit = new TF1("fit", "[0]/TMath::Power(x-[1],0.5) +[2]",1, 4);
-  Double_t par[3] = {1, 0, -161};
+  TF1* fit = new TF1("fit", "[0]/TMath::Power(x-[1],0.5) +[2]",1, 4.5);
+  Double_t par[3] = {2, 0, -159};
 
   fit->SetParameters(par);
   // fit->SetParLimits(1,0,1.5); 
@@ -53,18 +53,18 @@ void slewingfit(){
   fit->GetParameters(par);
   printf("%f  %f  %f\n",par[0],par[1],par[2]);
   TString plotStr1;
-  plotStr1.Form("sta4v:(sta4vTOF-%f/TMath::Sqrt(sta4v-%f))>>h2(20,-161,-158,20,1,5)",par[0],par[1]);
+  plotStr1.Form("sta2vTem:(sta2vTOF-%f/TMath::Sqrt(sta2vTem-%f))>>h2(20,-161,-158,20,1,5)",par[0],par[1]);
   tree->Draw(plotStr1,"","colz");
 
   cSlewing->cd(3);
   // tree->Draw("sta2v:sta2vTOF>>h3(200,-25,0,200,0,3)","","colz");
-  tree->Draw("sta4vTOF>>h3(500,-165,-120)");
-  h3->Fit("gaus","R","",-160,-157);
+  tree->Draw("sta2vTOF>>h3(500,-165,-120)");
+  h3->Fit("gaus","R","",-159,-156);
   cSlewing->cd(4);
   TString plotStr2;
-  plotStr2.Form("(sta4vTOF-%f/TMath::Sqrt(sta4v-%f))>>h4(500,-165,-120)",par[0],par[1]);
+  plotStr2.Form("(sta2vTOF-%f/TMath::Sqrt(sta2vTem-%f))>>h4(500,-165,-120)",par[0],par[1]);
   tree->Draw(plotStr2);
-  h4->Fit("gaus","R","",-160,-158);
+  h4->Fit("gaus","R","",-161,-158);
 
 
 }
