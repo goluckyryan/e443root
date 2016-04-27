@@ -1,16 +1,17 @@
 
-{
-        gROOT->Reset();
-        //gROOT->ProcessLine(".!date");
+void Ana1034(){
+//{
+  //gROOT->Reset();
+        gROOT->ProcessLine(".!date");
         gROOT->ProcessLine(".L constant.h");
         gROOT->ProcessLine(".L nuclei_mass.h");
         gROOT->ProcessLine(".L Fit_2Gauss.c");
         //======================================================== InPut setting
-        char * rootfile = "run1223.root";
-        Int_t Div[2] = {1,1};  //x,y
+        char * rootfile = "run1034.root";
+        Int_t Div[2] = {2,2};  //x,y
         Int_t size[2] = {400,400}; //x,y
         
-        Bool_t analysis = 0; // 0 = no analysis, only load root file and gate; 1 = analysis.
+        Bool_t analysis = 1; // 0 = no analysis, only load root file and gate; 1 = analysis.
         
         Double_t BGscale = 1.0;
         
@@ -19,7 +20,6 @@
         TTree *tree = (TTree*)f0->Get("tree");
         printf("=====> /// %15s //// is loaded. Total #Entry: %10d \n", rootfile,  tree->GetEntries());
         gStyle->SetOptStat(1112211);
-        //gStyle->SetOptStat(0);
         gStyle->SetOptFit(1);
 
         //======================================================== Cut/Gate      
@@ -27,57 +27,21 @@
         TCutG * gate3He1_a = new TCutG("cut3He1_a", 5);
         gate3He1_a->SetVarX("grTOF1");
         gate3He1_a->SetVarY("grdE1");
-        gate3He1_a->SetPoint(0,193.772,274.187); //#1035
-		gate3He1_a->SetPoint(1,193.772,245.466);
-		gate3He1_a->SetPoint(2,209.298,226.228);
-		gate3He1_a->SetPoint(3,209.357,253.053);
-		gate3He1_a->SetPoint(4,193.772,274.187);
-
-		//gate3He1_a->SetPoint(0,186.604,257.051); //#1034
-		//gate3He1_a->SetPoint(1,186.604,232.051);
-		//gate3He1_a->SetPoint(2,200.154,211.538);
-		//gate3He1_a->SetPoint(3,200.154,234.615);
-		//gate3He1_a->SetPoint(4,186.604,257.051);
+	    gate3He1_a->SetPoint(0,186.604,257.051); //#1034
+	    gate3He1_a->SetPoint(1,186.604,232.051);
+	    gate3He1_a->SetPoint(2,200.154,211.538);
+	    gate3He1_a->SetPoint(3,200.154,234.615);
+	    gate3He1_a->SetPoint(4,186.604,257.051);
 	
         TCutG * gate3He1_b = new TCutG("cut3He1_b", 5);
         gate3He1_b->SetVarX("grTOF1");
         gate3He1_b->SetVarY("grdE1");
-        gate3He1_b->SetPoint(0,193.772+98.85,274.187); //#1035
-		gate3He1_b->SetPoint(1,193.772+98.85,245.466);
-		gate3He1_b->SetPoint(2,209.298+98.85,226.228);
-		gate3He1_b->SetPoint(3,209.357+98.85,253.053);
-		gate3He1_b->SetPoint(4,193.772+98.85,274.187);
-
-		//gate3He1_b->SetPoint(0,186.604+98.85,257.051); //#1034
-		//gate3He1_b->SetPoint(1,186.604+98.85,232.051);
-		//gate3He1_b->SetPoint(2,200.154+98.85,211.538);
-		//gate3He1_b->SetPoint(3,200.154+98.85,234.615);
-		//gate3He1_b->SetPoint(4,186.604+98.85,257.051);
-        //   #1035
-        TCutG *gate3He2_a = new TCutG("cut3He2_a",8);
-        gate3He2_a->SetVarX("grTOF2");
-        gate3He2_a->SetVarY("grdE2");
-        gate3He2_a->SetPoint(0,195.517,448.418);
-        gate3He2_a->SetPoint(1,195.517,412.816);
-        gate3He2_a->SetPoint(2,202.037,428.639);
-        gate3He2_a->SetPoint(3,207.317,433.386);
-        gate3He2_a->SetPoint(4,210.819,420.728);
-        gate3He2_a->SetPoint(5,210.873,465.032);
-        gate3He2_a->SetPoint(6,207.425,471.361);
-        gate3He2_a->SetPoint(7,195.517,448.418);
-
-        TCutG *gate3He2_b = new TCutG("cut3He2_b",8);
-        gate3He2_b->SetVarX("grTOF2");
-		gate3He2_b->SetVarY("grdE2");
-		gate3He2_b->SetPoint(0,195.517+98.85,448.418);
-		gate3He2_b->SetPoint(1,195.517+98.85,412.816);
-		gate3He2_b->SetPoint(2,202.037+98.85,428.639);
-		gate3He2_b->SetPoint(3,207.317+98.85,433.386);
-		gate3He2_b->SetPoint(4,210.819+98.85,420.728);
-		gate3He2_b->SetPoint(5,210.873+98.85,465.032);
-		gate3He2_b->SetPoint(6,207.425+98.85,471.361);
-		gate3He2_b->SetPoint(7,195.517+98.85,448.418);
-        /*    // #1034
+	    gate3He1_b->SetPoint(0,186.604+98.85,257.051); //#1034
+	    gate3He1_b->SetPoint(1,186.604+98.85,232.051);
+	    gate3He1_b->SetPoint(2,200.154+98.85,211.538);
+	    gate3He1_b->SetPoint(3,200.154+98.85,234.615);
+	    gate3He1_b->SetPoint(4,186.604+98.85,257.051);
+          // #1034
         TCutG *gate3He2_a = new TCutG("cut3He2_a",5);
         gate3He2_a->SetVarX("grTOF2");
         gate3He2_a->SetVarY("grdE2");
@@ -89,14 +53,14 @@
 
         TCutG *gate3He2_b = new TCutG("cut3He2_b",5);
         gate3He2_b->SetVarX("grTOF2");
-		gate3He2_b->SetVarY("grdE2");
-		gate3He2_b->SetPoint(0,188.366+98.85,467.379);
+     	gate3He2_b->SetVarY("grdE2");
+    	gate3He2_b->SetPoint(0,188.366+98.85,467.379);
         gate3He2_b->SetPoint(1,188.366+98.85,407.893);
         gate3He2_b->SetPoint(2,201.588+98.85,360.07);
         gate3He2_b->SetPoint(3,201.588+98.85,402.061);
-        gate3He2_b->SetPoint(4,188.366+98.85,467.379);*/
+        gate3He2_b->SetPoint(4,188.366+98.85,467.379);
 
-		TCutG *gateN3He = new TCutG("cutN3He",5);//narrow 3He in #1034
+        TCutG *gateN3He = new TCutG("cutN3He",5);//narrow 3He in #1034
         gateN3He->SetVarX("grx");
         gateN3He->SetVarY("grthC*TMath::RadToDeg()");
         gateN3He->SetPoint(0,53.0702,0.5);
@@ -105,29 +69,25 @@
         gateN3He->SetPoint(3,120.23,1.19136);
         gateN3He->SetPoint(4,53.0702,0.5);
 
-        TCutG * gateStaGam = new TCutG("cutsta_g",9);
-        gateStaGam->SetVarX("sta_ratio");
-        gateStaGam->SetVarY("sta_sum");
-        gateStaGam->SetPoint(0,-0.667692,1.29108);
-        gateStaGam->SetPoint(1,-0.52544,5.80139);
-        gateStaGam->SetPoint(2,-0.265832,7.68068);
-        gateStaGam->SetPoint(3,0.00088907,8.52636);
-        gateStaGam->SetPoint(4,0.271166,7.68068);
-        gateStaGam->SetPoint(5,0.427643,5.80139);
-        gateStaGam->SetPoint(6,0.530775,2.13676);
-        gateStaGam->SetPoint(7,0.548556,0.633322);
-        gateStaGam->SetPoint(8,-0.667692,1.29108);
+        TCutG * gateStaGam1 = new TCutG("cutsta_g",7); //moderate gate
+        gateStaGam1->SetVarX("sta_ratio");
+        gateStaGam1->SetVarY("sta_sum");
+        gateStaGam1->SetPoint(0,-0.714542,1.17468);
+        gateStaGam1->SetPoint(1,-0.499642,5.61443);
+        gateStaGam1->SetPoint(2,-0.0967049,8.57426);
+        gateStaGam1->SetPoint(3,0.102077,8.48177);
+        gateStaGam1->SetPoint(4,0.483524,5.24445);
+        gateStaGam1->SetPoint(5,0.698424,0.989693);
+        gateStaGam1->SetPoint(6,-0.714542,1.17468);
+     
 
-        TCutG * gateAmBe = new TCutG("cut_AmBe",7);
-        gateAmBe->SetVarX("sta_ratio");
-        gateAmBe->SetVarY("sta_sum");
-        gateAmBe->SetPoint(0,-0.743534,5.18143);
-        gateAmBe->SetPoint(1,-0.3125,6.40506);
-        gateAmBe->SetPoint(2,0.307112,6.25738);
-        gateAmBe->SetPoint(3,0.759698,5.07595);
-        gateAmBe->SetPoint(4,0.420259,1.8903);
-        gateAmBe->SetPoint(5,-0.544181,2.12236);
-        gateAmBe->SetPoint(6,-0.743534,5.18143);
+        TCutG * gateStaGam2 = new TCutG("cutsta_gl",4); //cruel gate
+        gateStaGam2->SetVarX("sta_ratio");
+        gateStaGam2->SetVarY("sta_sum");
+        gateStaGam2->SetPoint(0,-1.45595,0.434725);
+        gateStaGam2->SetPoint(1,0.0161175,12.5515);
+        gateStaGam2->SetPoint(2,1.56877,0.434725);
+        gateStaGam2->SetPoint(3,-1.45595,0.434725);
 
         //--------- Simple cut
         TString gateStr; 
@@ -145,8 +105,8 @@
         gateStr.Form("-5<sta4vTavg && sta4vTavg<400*%f",LAS_CH2NS); TCut gateSta4v = gateStr;
 
         //-----------------stack neutron gate
-        Double_t gnmin = 9.0, gnmax = 12.0; //ns #1035
-        //Double_t gnmin = 13.0, gnmax = 16.0; //ns #1034
+        //Double_t gnmin = 9.0, gnmax = 12.0; //ns #1035
+        Double_t gnmin = 12.0, gnmax = 19.0; //ns #1034
 
         gateStr.Form("(%f < sta1hTOFC && sta1hTOFC < %f) || (%f + 98.85 < sta1hTOFC && sta1hTOFC < %f + 98.85)", gnmin, gnmax, gnmin, gnmax);
         TCut gateStaNeu1h = gateStr;
@@ -160,20 +120,30 @@
         TCut gateStaNeu3v = gateStr;
         gateStr.Form("(%f < sta4vTOFC && sta4vTOFC < %f) || (%f + 98.85 < sta4vTOFC && sta4vTOFC < %f + 98.85)", gnmin, gnmax, gnmin, gnmax);
         TCut gateStaNeu4v = gateStr;
-        //TCut gateStaNeu2h = "(gnmin < sta2hTOF && sta2hTOF < gnmax) || (gnmin + 98.5 < sta2hTOF && sta2hTOF < gnmax + 98.5)";
-        //TCut gateStaNeu1v = "(gnmin < sta1vTOF && sta1vTOF < gnmax) || (gnmin + 98.5 < sta1vTOF && sta1vTOF < gnmax + 98.5)";
-        //TCut gateStaNeu2v = "(gnmin < sta2vTOF && sta2vTOF < gnmax) || (gnmin + 98.5 < sta2vTOF && sta2vTOF < gnmax + 98.5)";
-        //TCut gateStaNeu3v = "(gnmin < sta3vTOF && sta3vTOF < gnmax) || (gnmin + 98.5 < sta3vTOF && sta3vTOF < gnmax + 98.5)";
-        //TCut gateStaNeu4v = "(gnmin < sta4vTOF && sta4vTOF < gnmax) || (gnmin + 98.5 < sta4vTOF && sta4vTOF < gnmax + 98.5)";
 
         TCut gateStaNeu = (gateStaNeu1h || gateStaNeu2h || gateStaNeu1v || gateStaNeu2v || gateStaNeu3v || gateStaNeu4v); 
-       
 
-        //TCut gateXC_cent = "-171.79 < grXC && grXC < 107.67";
-        TCut gateXC_cent = "-160.59 < grXC && grXC < 111.03";
-        //TCut gateXC_side1 = "-331.53 < grXC && grXC < -171.79";
+        //------------------stack gamma gate
+        Double_t ggmin = 2.0, ggmax = 3.0; //ns #1034
+ 
+        gateStr.Form("(%f < sta1hTOFC && sta1hTOFC < %f) || (%f + 98.85 < sta1hTOFC && sta1hTOFC < %f + 98.85)", ggmin, ggmax, ggmin, ggmax);
+        TCut gateStaGam1h = gateStr;
+        gateStr.Form("(%f < sta2hTOFC && sta2hTOFC < %f) || (%f + 98.85 < sta2hTOFC && sta2hTOFC < %f + 98.85)", ggmin, ggmax, ggmin, ggmax);
+        TCut gateStaGam2h = gateStr;
+        gateStr.Form("(%f < sta1vTOFC && sta1vTOFC < %f) || (%f + 98.85 < sta1vTOFC && sta1vTOFC < %f + 98.85)", ggmin, ggmax, ggmin, ggmax);
+        TCut gateStaGam1v = gateStr;
+        gateStr.Form("(%f < sta2vTOFC && sta2vTOFC < %f) || (%f + 98.85 < sta2vTOFC && sta2vTOFC < %f + 98.85)", ggmin, ggmax, ggmin, ggmax);
+        TCut gateStaGam2v = gateStr;
+        gateStr.Form("(%f < sta3vTOFC && sta3vTOFC < %f) || (%f + 98.85 < sta3vTOFC && sta3vTOFC < %f + 98.85)", ggmin, ggmax, ggmin, ggmax);
+        TCut gateStaGam3v = gateStr;
+        gateStr.Form("(%f < sta4vTOFC && sta4vTOFC < %f) || (%f + 98.85 < sta4vTOFC && sta4vTOFC < %f + 98.85)", ggmin, ggmax, ggmin, ggmax);
+        TCut gateStaGam4v = gateStr;
+
+        TCut gateStaGam = (gateStaGam1h || gateStaGam2h || gateStaGam1v || gateStaGam2v || gateStaGam3v || gateStaGam4v); 
+       
+        //TCut gateXC_cent = "-65.88 < grXC && grXC < 23.91";//1035
+        TCut gateXC_cent = "50 < grXC && grXC < 90";//1034
         TCut gateXC_side1 = "-319.83 < grXC && grXC < = -160.59";
-        //TCut gateXC_side2 = "107.67 < grXC && grXC < 267.41";
         TCut gateXC_side2 = "111.03 < grXC && grXC < 270.27";
        
 
@@ -197,14 +167,20 @@
         TCut gateVeto =  "vetogate == 1";
         TCut gateBloTri  = (gateBlo1  || gateBlo2  || gateBlo3  || gateBlo4);
         TCut gateStaTri  = (gateSta1h || gateSta2h || gateSta1v || gateSta2v || gateSta3v || gateSta4v);
+        TCut gateStaTriH = (gateSta1h || gateSta2h);
+        TCut gateStaTriV = (gateSta1v || gateSta2v || gateSta3v || gateSta4v);
+        TCut gateStaTri1 = "!(staMultH == 0 && staMultV == 0)";
  
-        TCut gateAcc = "lastgr > 1000";
-        TCut gateTrue = "760 < lastgr && lastgr < 820";
+        TCut gateAcc = "900 < lastgr && lastgr < 1400";
+        TCut gateTrue = "700 < lastgr && lastgr < 900";
         TCut gateEve = "eventID < 3.8e6";
         TCut gatePhi = "-0.4 < grph*TMath::RadToDeg() && grph*TMath::RadToDeg() < 0.4";
-
-        TCut gateTem1  =  gateEve + gatePhi + gateVeto + gateGRLAS + gateGRFinite + gateLASFinite + gateStaTri + gateStaNeu + gate3He + "!cutsta_g";
-        TCut gateTem2  =  gateGRFinite+gateEve+gatePhi+gate3He;
+        TCut gateThre = "sta_sum>10";
+        
+        //TCut gateTem1  =  gateGRFinite+gateEve+gatePhi+gate3He;//1035
+        TCut gateTem1  =  gateGRFinite+gatePhi+gateXC_cent+gate3He;//1034
+        TCut gateTem2  =  gateTrue + gateVeto + gateGRLAS + gateStaTri1 + gateTem1;
+        TCut gateTem3  =  gateAcc + gateVeto + gateGRLAS + gateStaTri1 + gateTem1;
 
         //------------stack position gate
 
@@ -281,25 +257,141 @@
         //TF1 * fL = new TF1("fL", 3.75*x + 25, 0, 20); 
 
         */
-        
-        //tree->Draw("grdE1:grTOF1>>h1(500, 100, 350, 500, 0, 500)", "", "colz");
-        //tree->Draw("grdE1:grTOF1>>h1g(500, 100, 350, 500, 0, 500)", gate3He, "colz");
-        /* tree->Draw("grthC*TMath::RadToDeg():grXC>>h2(1200,-600,600,600,-3,3)", gate3He, "colz");
-        
+        tree->Draw("grthC*TMath::RadToDeg():grXC>>h1(600,-100,500,600,-2,2)", gateTem1,"colz");
+
         cAna->cd(2);
-        tree->Draw("grph*TMath::RadToDeg():gry>>h3(600,-100,100,600,-3,-3)", "cut3He_a || cut3He_b", "colz");
+
+       //--------ratio subtraction
+        tree->Draw("sta_ratio>>R(200,-1.5,1.5)",gateThre+gateStaNeu+gateTem2);
+        Double_t numRintotal = R->GetEntries();
 
         cAna->cd(3);
-        tree->Draw("grph*TMath::RadToDeg():grth*TMath::RadToDeg()>>h4(600,-5,5,600,-5,5)", "cut3He_a || cut3He_b", "colz");
+        tree->Draw("sta_ratio>>R1(200,-1.5,1.5)","sta_sum<10&&sta_ratio>-0.5&&sta_ratio<0.5"+gateThre+gateStaNeu+gateTem2);
+        Double_t NFR1 = R1->GetEntries();
+        tree->Draw("sta_ratio>>R2(200,-1.5,1.5)",gateVeto+gateStaTri1+gatePhi+gateStaGam+gateThre+"sta_sum<10&&sta_ratio>-0.5&&sta_ratio<0.5");
+        Double_t NFR2 = R2->GetEntries();
+        tree->Draw("sta_ratio>>Rg(200,-1.5,1.5)",gateVeto+gateStaTri1+gatePhi+gateStaGam+gateThre);
+        Double_t numRgamma = Rg->GetEntries();
 
         cAna->cd(4);
-        tree->Draw("gry:grx>>h5(600,-1000,1000,600,-100,100)", "cut3He_a || cut3He_b", "colz");
-        */
-        //tree->Draw("grthC*TMath::RadToDeg():grXC>>h3(1200,-600,600,600,-1.5,1.5)", gate3He, "colz");
-        tree->Draw("grXC>>h1(1200,-600,600)",  gateGRFinite + gateEve + gatePhi + gate3He);
+        TH1F * Rsub = new TH1F(*R);
+        Double_t NFR = NFR1/NFR2;
+        if (Rg->GetEntries()>0 && TMath::Finite(NFR)) Rsub->Add(R,Rg,1,-NFR);
+        Rsub->Draw();
+        Double_t numRsub = Rsub->GetEntries();
+        Double_t errRsub = SubtractionError(numRintotal,NFR1,NFR2,numRgamma);
+        printf("Ratio subtraction:\n
+        total:%.2f\n  
+        after subtraction:%.2f(%.2f)\n",numRintotal,numRsub,errRsub);
 
-        Fit_2Gauss(h1, 1000, -20, 50, 10, 300, 400);
-        //tree->Draw("sta_sum:sta_ratio>>s1(200,-1.1,1.1, 200,0.,35.)", "cutsta_g" + gateTem, "colz");
+        //--------TOF subtraction
+        TCanvas * cTOF = new TCanvas("cTOF", "cTOF", 200, 100 , size[0], size[1]);
+        cTOF->cd(1);
+      
+        //normalization factor of each TOF
+        Double_t NF1h, NF2h, NF1v, NF2v, NF3v, NF4v;
+        tree->Draw("sta1hTOFS>>In1h(200,0,50)",gateVeto+gateStaTri1+"sta1hTOFS>1&&sta1hTOFS<4"+gateThre+gatePhi+gate3He+"cutsta_g");
+        tree->Draw("sta1hTOFS>>Out1h(200,0,50)",gateVeto+gateStaTri1+"sta1hTOFS>1&&sta1hTOFS<4"+gateThre+gatePhi+gate3He+"!cutsta_g");
+        NF1h = Out1h->GetEntries()/In1h->GetEntries();
+        tree->Draw("sta2hTOFS>>In2h(200,0,50)",gateVeto+gateStaTri1+"sta2hTOFS>1&&sta2hTOFS<4"+gateThre+gatePhi+gate3He+"cutsta_g");
+        tree->Draw("sta2hTOFS>>Out2h(200,0,50)",gateVeto+gateStaTri1+"sta2hTOFS>1&&sta2hTOFS<4"+gateThre+gatePhi+gate3He+"!cutsta_g");
+        NF2h = Out2h->GetEntries()/In2h->GetEntries();
+        tree->Draw("sta1vTOFS>>In1v(200,0,50)",gateVeto+gateStaTri1+"sta1vTOFS>1&&sta1vTOFS<4"+gateThre+gatePhi+gate3He+"cutsta_g");
+        tree->Draw("sta1vTOFS>>Out1v(200,0,50)",gateVeto+gateStaTri1+"sta1vTOFS>1&&sta1vTOFS<4"+gateThre+gatePhi+gate3He+"!cutsta_g");
+        NF1v = Out1v->GetEntries()/In1v->GetEntries();
+        tree->Draw("sta2vTOFS>>In2v(200,0,50)",gateVeto+gateStaTri1+"sta2vTOFS>1&&sta2vTOFS<4"+gateThre+gatePhi+gate3He+"cutsta_g");
+        tree->Draw("sta2vTOFS>>Out2v(200,0,50)",gateVeto+gateStaTri1+"sta2vTOFS>1&&sta2vTOFS<4"+gateThre+gatePhi+gate3He+"!cutsta_g");
+        NF2v = Out2v->GetEntries()/In2v->GetEntries();
+        tree->Draw("sta3vTOFS>>In3v(200,0,50)",gateVeto+gateStaTri1+"sta3vTOFS>1&&sta3vTOFS<4"+gateThre+gatePhi+gate3He+"cutsta_g");
+        tree->Draw("sta3vTOFS>>Out3v(200,0,50)",gateVeto+gateStaTri1+"sta3vTOFS>1&&sta3vTOFS<4"+gateThre+gatePhi+gate3He+"!cutsta_g");
+        NF3v = Out3v->GetEntries()/In3v->GetEntries();
+        tree->Draw("sta4vTOFS>>In4v(200,0,50)",gateVeto+gateStaTri1+"sta4vTOFS>1&&sta4vTOFS<4"+gateThre+gatePhi+gate3He+"cutsta_g");
+        tree->Draw("sta4vTOFS>>Out4v(200,0,50)",gateVeto+gateStaTri1+"sta4vTOFS>1&&sta4vTOFS<4"+gateThre+gatePhi+gate3He+"!cutsta_g");
+        NF4v = Out4v->GetEntries()/In4v->GetEntries();
+
+        tree->Draw("sta1hTOFS>>TOF1h(200,0,50)","sta1hTri==1&&staMultV==0"+gateThre+gateTem2+"!cutsta_g");
+        tree->Draw("sta1hTOFS>>TOF1hg(200,0,50)","sta1hTri==1&&staMultV==0"+gateThre+gateTem2+"cutsta_g");
+        TH1F *TOF1hsub = new TH1F(*TOF1h);
+        if (TOF1hg->GetEntries()>0 && TMath::Finite(NF1h)) TOF1hsub->Add(TOF1h,TOF1hg,1,-NF1h);
+        TOF1hsub->Draw();
+        Double_t errTOF1hsub = SubtractionError(TOF1h->GetEntries(),Out1h->GetEntries(),In1h->GetEntries(),TOF1hg->GetEntries());
+
+        tree->Draw("sta2hTOFS>>TOF2h(200,0,50)","sta1hTri==0&&sta2hTri==1&&staMultV==0"+gateThre+gateTem2+"!cutsta_g");
+        tree->Draw("sta2hTOFS>>TOF2hg(200,0,50)","sta1hTri==0&&sta2hTri==1&&staMultV==0"+gateThre+gateTem2+"cutsta_g");
+        TH1F *TOF2hsub = new TH1F(*TOF2h);
+        if (TOF2hg->GetEntries()>0 && TMath::Finite(NF2h)) TOF2hsub->Add(TOF2h,TOF2hg,1,-NF2h);
+        TOF2hsub->Draw();
+        Double_t errTOF2hsub = SubtractionError(TOF2h->GetEntries(),Out2h->GetEntries(),In2h->GetEntries(),TOF2hg->GetEntries());
+
+        tree->Draw("sta1vTOFS>>TOF1v(200,0,50)","sta1vTri==1&&sta3vTri==0&&sta4vTri==0&&staMultH==0"+gateThre+gateTem2+"!cutsta_g");
+        tree->Draw("sta1vTOFS>>TOF1vg(200,0,50)","sta1vTri==1&&sta3vTri==0&&sta4vTri==0&&staMultH==0"+gateThre+gateTem2+"cutsta_g");
+        TH1F *TOF1vsub = new TH1F(*TOF1v);
+        if (TOF1vg->GetEntries()>0 && TMath::Finite(NF1v)) TOF1vsub->Add(TOF1v,TOF1vg,1,-NF1v);
+        TOF1vsub->Draw();
+        Double_t errTOF1vsub = SubtractionError(TOF1v->GetEntries(),Out1v->GetEntries(),In1v->GetEntries(),TOF1vg->GetEntries());
+
+        tree->Draw("sta2vTOFS>>TOF2v(200,0,50)","sta1vTri==0&&sta2vTri==1&&sta4vTri==0&&staMultH==0"+gateThre+gateTem2+"!cutsta_g");
+        tree->Draw("sta2vTOFS>>TOF2vg(200,0,50)","sta1vTri==0&&sta2vTri==1&&sta4vTri==0&&staMultH==0"+gateThre+gateTem2+"cutsta_g");
+        TH1F *TOF2vsub = new TH1F(*TOF2v);
+        if (TOF2vg->GetEntries()>0 && TMath::Finite(NF2v)) TOF2vsub->Add(TOF2v,TOF2vg,1,-NF2v);
+        TOF2vsub->Draw();
+        Double_t errTOF2vsub = SubtractionError(TOF2v->GetEntries(),Out2v->GetEntries(),In2v->GetEntries(),TOF2vg->GetEntries());
+
+        tree->Draw("sta3vTOFS>>TOF3v(200,0,50)","sta1vTri==0&&sta2vTri==0&&sta3vTri==1&&staMultH==0"+gateThre+gateTem2+"!cutsta_g");
+        tree->Draw("sta3vTOFS>>TOF3vg(200,0,50)","sta1vTri==0&&sta2vTri==0&&sta3vTri==1&&staMultH==0"+gateThre+gateTem2+"cutsta_g");
+        TH1F *TOF3vsub = new TH1F(*TOF3v);
+        if (TOF3vg->GetEntries()>0 && TMath::Finite(NF3v)) TOF3vsub->Add(TOF3v,TOF3vg,1,-NF3v);
+        TOF3vsub->Draw();
+        Double_t errTOF3vsub = SubtractionError(TOF3v->GetEntries(),Out3v->GetEntries(),In3v->GetEntries(),TOF3vg->GetEntries());
+
+        tree->Draw("sta4vTOFS>>TOF4v(200,0,50)","sta1vTri==0&&sta2vTri==0&&sta3vTri==0&&sta4vTri==1&&staMultH==0"+gateThre+gateTem2+"!cutsta_g");
+        tree->Draw("sta4vTOFS>>TOF4vg(200,0,50)","sta1vTri==0&&sta2vTri==0&&sta3vTri==0&&sta4vTri==1&&staMultH==0"+gateThre+gateTem2+"cutsta_g");
+        TH1F *TOF4vsub = new TH1F(*TOF4v);
+        if (TOF4vg->GetEntries()>0 && TMath::Finite(NF4v)) TOF4vsub->Add(TOF4v,TOF4vg,1,-NF4v);
+        TOF4vsub->Draw();
+        Double_t errTOF4vsub = SubtractionError(TOF4v->GetEntries(),Out4v->GetEntries(),In4v->GetEntries(),TOF4vg->GetEntries());
+
+        tree->Draw("sta1hTOFS>>TOF1hXv(200,0,50)","sta1hTri==1&&!staMultV==0"+gateThre+gateTem2+"!cutsta_g");
+        tree->Draw("sta1hTOFS>>TOF1hXvg(200,0,50)","sta1hTri==1&&!staMultV==0"+gateThre+gateTem2+"cutsta_g");
+        TH1F *TOF1hXvsub = new TH1F(*TOF1hXv);
+        if (TOF1hXvg->GetEntries()>0 && TMath::Finite(NF1h)) TOF1hXvsub->Add(TOF1hXv,TOF1hXvg,1,-NF1h);
+        TOF1hXvsub->Draw();
+        Double_t errTOF1hXvsub = SubtractionError(TOF1hXv->GetEntries(),Out1h->GetEntries(),In1h->GetEntries(),TOF1hXvg->GetEntries());
+
+        tree->Draw("sta2hTOFS>>TOF2hXv(200,0,50)","sta1hTri==0&&sta2hTri==1&&!staMultV==0"+gateThre+gateTem2+"!cutsta_g");
+        tree->Draw("sta2hTOFS>>TOF2hXvg(200,0,50)","sta1hTri==0&&sta2hTri==1&&!staMultV==0"+gateThre+gateTem2+"cutsta_g");
+        TH1F *TOF2hXvsub = new TH1F(*TOF2hXv);
+        if (TOF2hXvg->GetEntries()>0 && TMath::Finite(NF2h)) TOF2hXvsub->Add(TOF2hXv,TOF2hXvg,1,-NF2h);
+        TOF2hXvsub->Draw();
+        Double_t errTOF2hXvsub = SubtractionError(TOF2hXv->GetEntries(),Out2h->GetEntries(),In2h->GetEntries(),TOF2hXvg->GetEntries());
+      
+        tree->Draw("sta_ratio>>TOF(200,-1.5,1.5)",gateTem2+gateThre+"!cutsta_g");
+
+        printf("TOF subtraction:\n
+        1h(2h):%.2f(%.2f)\n
+        2h:%.2f(%.2f)\n
+        1v(2v):%.2f(%.2f)\n
+        2v(3v):%.2f(%.2f)\n
+        3v(4v):%.2f(%.2f)\n
+        4v:%.2f(%.2f)\n
+        1h(2h)Xv:%.2f(%.2f)\n
+        2hXv:%.2f(%.2f)\n",
+        TOF1hsub->GetEntries(),errTOF1hsub, TOF2hsub->GetEntries(),errTOF2hsub, TOF1vsub->GetEntries(),errTOF1vsub,
+        TOF2vsub->GetEntries(),errTOF2vsub, TOF3vsub->GetEntries(),errTOF3vsub, TOF4vsub->GetEntries(),errTOF4vsub,
+        TOF1hXvsub->GetEntries(),errTOF1hXvsub, TOF2hXvsub->GetEntries(),errTOF2hXvsub);
+
+        Double_t numTOFintotal = TOF1h->GetEntries()+TOF2h->GetEntries()+TOF1v->GetEntries()+TOF2v->GetEntries()+TOF3v->GetEntries()
+        +TOF4v->GetEntries()+TOF1hXv->GetEntries()+TOF2hXv->GetEntries();
+        Double_t numTOFsub = TOF1hsub->GetEntries()+TOF2hsub->GetEntries()+TOF1vsub->GetEntries()+TOF2vsub->GetEntries()+TOF3vsub->GetEntries()
+        +TOF4vsub->GetEntries()+TOF1hXvsub->GetEntries()+TOF2hXvsub->GetEntries();
+        Double_t errTOFsub = TMath::Sqrt(TMath::Power(errTOF1hsub,2)+TMath::Power(errTOF2hsub,2)+TMath::Power(errTOF1vsub,2)+TMath::Power(errTOF2vsub,2)
+        +TMath::Power(errTOF3vsub,2)+TMath::Power(errTOF4vsub,2)+TMath::Power(errTOF1hXvsub,2)+TMath::Power(errTOF2hXvsub,2));
+        printf("\n  total:%.2f, %.2f\n  after subtraction:%.2f(%.2f)\n",TOF->GetEntries(),numTOFintotal,numTOFsub,errTOFsub);
+
+        //3A/(T+A):26/1598 5 MeVee
+
+
+
         //cAna->cd(2);
         //tree->Draw("sta_sum:sta_ratio>>s2(200,-1.1,1.1, 200,0.,35.)", "!cutsta_g" + gateTem + gateXC_cent + gateStaNeu, "colz");
         //tree->Draw("grXC>>h2(1200,-600,600)",gate3He + "-0.5 < grthC*TMath::RadToDeg() && grthC*TMath::RadToDeg() < 0");
@@ -556,3 +648,9 @@
 
         printf("............. end of Ana.C\n");
 }
+Double_t SubtractionError(Double_t a, Double_t b, Double_t c, Double_t d){
+  //calculate the error of a-b/c*d by their own statistic errors
+  if (b==0 || c==0 || d==0) return TMath::Sqrt(a);
+  else
+  return TMath::Sqrt(a+d*TMath::Power(b/c,2)+b*TMath::Power(d/c,2)+TMath::Power(b*d,2)/TMath::Power(c,3));
+    }

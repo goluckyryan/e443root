@@ -56,7 +56,6 @@ int main(int argc, char * argv[]){
   //================ Primary data
   Double_t gradc[4],grtdc[4],grrf,adc[12],adc2[14],tdc[12],tdc2[12],lrf[3],dummy1,dummy2;
   Double_t ran_adc[12];//ran_adc=adc+random(0,1)
-  //Double_t test;
 
   //================ Tree branch
   //---------eventID
@@ -67,7 +66,6 @@ int main(int argc, char * argv[]){
   Int_t vetogate = 0;
   //----------GR
   Double_t grx,gry, grth, grph;
-  Double_t grx1,gry1, grth1, grph1;
   //--------- GR plastic
   Double_t grdE1, grdE2;
   Double_t grT1avg, grT2avg;
@@ -97,49 +95,24 @@ int main(int argc, char * argv[]){
   Double_t grXC,grthC;
   //Double_t grXAux;
   Int_t event = -1;
+  Double_t grx1;
 
   Double_t sta1hTOFS,sta2hTOFS,sta1vTOFS,sta2vTOFS,sta3vTOFS,sta4vTOFS;
   Double_t sta1hEk,sta2hEk,sta1vEk,sta2vEk,sta3vEk,sta4vEk;
   Double_t sta1hBeta,sta2hBeta,sta1vBeta,sta2vBeta,sta3vBeta,sta4vBeta;
-  Double_t flightlength = 75;//cm for neutron and gamma
-  //Double_t flightlength = 71;//cm for proton
+  Double_t flightlength = 75;//cm
 
-  //-----------------------------------------------d(d,3He) missing mass
-   //#1035 @13.5 degree
-  Double_t sta1htheta = 109.1 * TMath::DegToRad(); //rad
-  Double_t sta2htheta = 109.1 * TMath::DegToRad(); //rad
-  Double_t sta1vtheta = 105.5 * TMath::DegToRad(); //rad
-  Double_t sta2vtheta = 108.8 * TMath::DegToRad(); //rad
-  Double_t sta3vtheta = 112.5 * TMath::DegToRad(); //rad
-  Double_t sta4vtheta = 121.6 * TMath::DegToRad(); //rad
-  
-  /*//#1034 @5.5 degree
-  Double_t sta1htheta = 145.9 * TMath::DegToRad(); //rad
-  Double_t sta2htheta = 145.9 * TMath::DegToRad(); //rad
-  Double_t sta1vtheta = 141.0 * TMath::DegToRad(); //rad
-  Double_t sta2vtheta = 144.8 * TMath::DegToRad(); //rad
-  Double_t sta3vtheta = 149.9 * TMath::DegToRad(); //rad
-  Double_t sta4vtheta = 157.6 * TMath::DegToRad(); //rad
-  */
-  Double_t p31h,p32h,p31v,p32v,p33v,p34v;
-  Double_t Ex1h,Ex2h,Ex1v,Ex2v,Ex3v,Ex4v;
 
 
   //------------make tree branch
   t1->Branch("eventID", &eventID, "eventID/I");
   t1->Branch("coinReg", &coinReg, "coinReg/I");
   t1->Branch("vetogate", &vetogate, "vetogate/I");
-  //t1->Branch("test", &test, "test/D");
    
   t1->Branch("grx", &grx, "grx/D");
   t1->Branch("gry", &gry, "gry/D");
   t1->Branch("grth", &grth, "grth/D");
   t1->Branch("grph", &grph, "grph/D");
-
-  t1->Branch("grx1", &grx1, "grx1/D");
-  t1->Branch("gry1", &gry1, "gry1/D");
-  t1->Branch("grth1", &grth1, "grth1/D");
-  t1->Branch("grph1", &grph1, "grph1/D");
 
   t1->Branch("grdE1", &grdE1, "grdE1/D");
   t1->Branch("grdE2", &grdE2, "grdE2/D");
@@ -171,7 +144,7 @@ int main(int argc, char * argv[]){
   t1->Branch("blo3TOF", &blo3TOF, "blo3TOF/D");
   t1->Branch("blo4TOF", &blo4TOF, "blo4TOF/D");
 
-  t1->Branch("adc", adc, "adc[12]/D");
+  t1->Branch("ran_adc", ran_adc, "ran_adc[12]/D");
   t1->Branch("adc2", adc2, "adc2[14]/D");
   t1->Branch("tdc", tdc, "tdc[12]/D");
   t1->Branch("tdc2", tdc2, "tdc2[12]/D");
@@ -252,19 +225,6 @@ int main(int argc, char * argv[]){
   t1->Branch("sta2vBeta", &sta2vBeta, "sta2vBeta/D");
   t1->Branch("sta3vBeta", &sta3vBeta, "sta3vBeta/D");
   t1->Branch("sta4vBeta", &sta4vBeta, "sta4vBeta/D");
-
-  t1->Branch("p31h", &p31h, "p31h/D");
-  t1->Branch("p32h", &p32h, "p32h/D");
-  t1->Branch("p31v", &p31v, "p31v/D");
-  t1->Branch("p32v", &p32v, "p32v/D");
-  t1->Branch("p33v", &p33v, "p33v/D");
-  t1->Branch("p34v", &p34v, "p34v/D");
-  t1->Branch("Ex1h", &Ex1h, "Ex1h/D");
-  t1->Branch("Ex2h", &Ex2h, "Ex2h/D");
-  t1->Branch("Ex1v", &Ex1v, "Ex1v/D");
-  t1->Branch("Ex2v", &Ex2v, "Ex2v/D");
-  t1->Branch("Ex3v", &Ex3v, "Ex3v/D");
-  t1->Branch("Ex4v", &Ex4v, "Ex4v/D");
    
    
   //=================== read file
@@ -413,28 +373,15 @@ int main(int argc, char * argv[]){
    sta2vEk = TMath::QuietNaN();
    sta3vEk = TMath::QuietNaN();
    sta4vEk = TMath::QuietNaN();
-   p31h = TMath::QuietNaN();
-   p32h = TMath::QuietNaN();
-   p31v = TMath::QuietNaN();
-   p32v = TMath::QuietNaN();
-   p33v = TMath::QuietNaN();
-   p34v = TMath::QuietNaN();
-   Ex1h = TMath::QuietNaN();
-   Ex2h = TMath::QuietNaN();
-   Ex1v = TMath::QuietNaN();
-   Ex2v = TMath::QuietNaN();
-   Ex3v = TMath::QuietNaN();
-   Ex4v = TMath::QuietNaN();
-
 
    //============================================= read from file
     //------------ CoinReg
     fp1>>coinReg;
-    //----------- GR but wrong vdc setting
-    fp1>>grx1;   if(grx1 == -1)  grx1  = TMath::QuietNaN();
-    fp1>>grth1;  if(grth1 == -1) grth1 = TMath::QuietNaN();
-    fp1>>gry1;   if(gry1 == -1)  gry1  = TMath::QuietNaN();
-    fp1>>grph1;  if(grph1 == -1) grph1 = TMath::QuietNaN();    
+    //----------- GR
+    fp1>>grx;   if(grx == -1)  grx  = TMath::QuietNaN();
+    fp1>>grth;  if(grth == -1) grth = TMath::QuietNaN();
+    fp1>>gry;   if(gry == -1)  gry  = TMath::QuietNaN();
+    fp1>>grph;  if(grph == -1) grph = TMath::QuietNaN();    
     //----------- GR ADC, TDC
     fp1>>gradc[0]; 
     fp1>>gradc[1];
@@ -447,18 +394,18 @@ int main(int argc, char * argv[]){
     //------------ GR rf
     fp1>>grrf;
     //------------ Stack ADC
-    fp1>>adc[0];  //if(adc[0]  < 5) adc[0] = TMath::QuietNaN();
-    fp1>>adc[1];  //if(adc[1]  < 5) adc[1] = TMath::QuietNaN();
-    fp1>>adc[2];  //if(adc[2]  < 5) adc[2] = TMath::QuietNaN();
-    fp1>>adc[3];  //if(adc[3]  < 5) adc[3] = TMath::QuietNaN();
-    fp1>>adc[4];  //if(adc[4]  < 5) adc[4] = TMath::QuietNaN();
-    fp1>>adc[5];  //if(adc[5]  < 5) adc[5] = TMath::QuietNaN();
-    fp1>>adc[6];  //if(adc[6]  < 5) adc[6] = TMath::QuietNaN();
-    fp1>>adc[7];  //if(adc[7]  < 5) adc[7] = TMath::QuietNaN();
-    fp1>>adc[8];  //if(adc[8]  < 5) adc[8] = TMath::QuietNaN();
-    fp1>>adc[9];  //if(adc[9]  < 5) adc[9] = TMath::QuietNaN();
-    fp1>>adc[10]; //if(adc[10] < 5) adc[10] = TMath::QuietNaN();
-    fp1>>adc[11]; //if(adc[11] < 5) adc[11] = TMath::QuietNaN();
+    fp1>>adc[0]; 
+    fp1>>adc[1]; 
+    fp1>>adc[2]; 
+    fp1>>adc[3]; 
+    fp1>>adc[4]; 
+    fp1>>adc[5]; 
+    fp1>>adc[6]; 
+    fp1>>adc[7]; 
+    fp1>>adc[8]; 
+    fp1>>adc[9]; 
+    fp1>>adc[10];
+    fp1>>adc[11];
     //------------ BAND telesope ADC, Liquid ADC
     fp1>>adc2[0];
     fp1>>adc2[1];
@@ -508,19 +455,16 @@ int main(int argc, char * argv[]){
 
     //------------- additional variables in 2nd dst file
     fp2>>event;
-    fp2>>grx;  if (grx == -1) grx = TMath::QuietNaN();  //correct vdc setting
-    fp2>>grth;  if(grth == -1) grth = TMath::QuietNaN();
-    fp2>>gry;   if(gry == -1)  gry  = TMath::QuietNaN();
-    fp2>>grph;  if(grph == -1) grph = TMath::QuietNaN();  
+    fp2>>grx1;  if (grx1 == -1) grx1 = TMath::QuietNaN();
     fp2>>lastgr;
     fp2>>dummy2;
 
     //===================== Check matching
 
-    if( event != coinReg) {
+    if( TMath::Finite(grx) &&  grx1 != grx) {
       //printf(" grx not matching at eventID:%d, abort. \n", eventID);
       //exit(-3);
-      printf(" coinReg not matching (%d:%d) at eventID:%d, fill with NAN\n", coinReg, event, eventID);
+      printf(" grx not matching (%f:%f) at eventID:%d, fill with NAN\n", grx, grx1, eventID);
       lastgr = TMath::QuietNaN();
     }
 
@@ -537,8 +481,6 @@ int main(int argc, char * argv[]){
     vetogate = 0;
     if( TMath::IsNaN(tdc2[8]) && TMath::IsNaN(tdc2[9])  ) vetogate += 1;
       
-    //test = rand->Uniform(0,1);
-
     //------------- RF
     grf = (grrf + rand->Uniform(0,1))*GR_CH2NS[0];
     //brf = (lrf[1] + rand->Uniform(0,1))*LAS_CH2NS;
@@ -585,94 +527,78 @@ int main(int argc, char * argv[]){
     ran_adc[9] = adc[9] + rand->Uniform(0,1);
     ran_adc[10] = adc[10] + rand->Uniform(0,1);
     ran_adc[11] = adc[11] + rand->Uniform(0,1);
+    /*  
+      if (ran_adc[0]>=0 && ran_adc[1]>=0){ 
+      sta1h = 6.4 * TMath::Sqrt(ran_adc[0]/112.*ran_adc[1]/118.)/0.8130;
+    }else if (ran_adc[0]<0 && ran_adc[1]<0){
+      sta1h = -6.4 * TMath::Sqrt(ran_adc[0]/112.*ran_adc[1]/118.)/0.8130;
+    }else if (ran_adc[0]*ran_adc[1]<=0){
+      sta1h = 6.4 * TMath::Sqrt(-ran_adc[0]/112.*ran_adc[1]/118.)/0.8130*(2*(rand->Integer(2))-1.);
+      }
 
-    /*  if (adc[0]>0 && adc[1]>0){ 
-      sta1h = 6.4 * TMath::Sqrt((adc[0]+ rand->Uniform(0,1))/112.*(adc[1]+ rand->Uniform(0,1))/118.)/0.8130;
-    }else if (adc[0]<0 && adc[1]<0){
-      sta1h = -6.4 * TMath::Sqrt((adc[0]+ rand->Uniform(0,1))/112.*(adc[1]+ rand->Uniform(0,1))/118.)/0.8130;
-    }else if (adc[0]==0 || adc[1]==0){
-      sta1h = 0.;
+    if (ran_adc[2]>0 && ran_adc[3]>0){ 
+      sta2h = 6.4 * TMath::Sqrt(ran_adc[2]/131.*ran_adc[3]/109.)/0.8748 ;
+    }else if (ran_adc[2]<0 && ran_adc[3]<0){
+      sta2h = -6.4 * TMath::Sqrt(ran_adc[2]/131.*ran_adc[3]/109.)/0.8748 ;
     }else{
-      sta1h = 6.4 * TMath::Sqrt(-(adc[0]+ rand->Uniform(0,1))/112.*(adc[1]+ rand->Uniform(0,1))/118.)/0.8130;if ( (adc[0]/112.+adc[1]/118.) < 0) sta1h=-sta1h;
+      sta2h = 6.4 * TMath::Sqrt(-ran_adc[2]/131.*ran_adc[3]/109.)/0.8748;if ( (ran_adc[2]/131.+ran_adc[3]/109.) < 0) sta2h=-sta2h;
     }
 
-    if (adc[2]>0 && adc[3]>0){ 
-      sta2h = 6.4 * TMath::Sqrt((adc[2]+ rand->Uniform(0,1))/131.*(adc[3]+ rand->Uniform(0,1))/109.)/0.8748 ;
-    }else if (adc[2]<0 && adc[3]<0){
-      sta2h = -6.4 * TMath::Sqrt((adc[2]+ rand->Uniform(0,1))/131.*(adc[3]+ rand->Uniform(0,1))/109.)/0.8748 ;
-    }else if (adc[2]==0 || adc[3]==0){
-      sta2h = 0.;
+    if (ran_adc[4]>0 && ran_adc[5]>0){ 
+      sta1v = 6.4 * TMath::Sqrt(ran_adc[4]/116.*ran_adc[5]/126.)/0.8267;
+    }else if (ran_adc[4]<0 && ran_adc[5]<0){
+      sta1v = -6.4 * TMath::Sqrt(ran_adc[4]/116.*ran_adc[5]/126.)/0.8267;
     }else{
-      sta2h = 6.4 * TMath::Sqrt(-(adc[2]+ rand->Uniform(0,1))/131.*(adc[3]+ rand->Uniform(0,1))/109.)/0.8748;if ( (adc[2]/131.+adc[3]/109.) < 0) sta2h=-sta2h;
+      sta1v = 6.4 * TMath::Sqrt(-ran_adc[4]/116.*ran_adc[5]/126.)/0.8267;if ( (ran_adc[4]/116.+ran_adc[5]/126.) < 0) sta1v=-sta1v;
     }
 
-    if (adc[4]>0 && adc[5]>0){ 
-      sta1v = 6.4 * TMath::Sqrt((adc[4]+ rand->Uniform(0,1))/116.*(adc[5]+ rand->Uniform(0,1))/126.)/0.8267;
-    }else if (adc[4]<0 && adc[5]<0){
-      sta1v = -6.4 * TMath::Sqrt((adc[4]+ rand->Uniform(0,1))/116.*(adc[5]+ rand->Uniform(0,1))/126.)/0.8267;
-    }else if (adc[4]==0 || adc[5]==0){
-      sta1v = 0.;
+    if (ran_adc[6]>0 && ran_adc[7]>0){ 
+      sta2v = 6.4 * TMath::Sqrt(ran_adc[6]/113.*ran_adc[7]/123.)/0.7382;
+    }else if (ran_adc[6]<0 && ran_adc[7]<0){
+      sta2v = -6.4 * TMath::Sqrt(ran_adc[6]/113.*ran_adc[7]/123.)/0.7382;
     }else{
-      sta1v = 6.4 * TMath::Sqrt(-(adc[4]+ rand->Uniform(0,1))/116.*(adc[5]+ rand->Uniform(0,1))/126.)/0.8267;if ( (adc[4]/116.+adc[5]/126.) < 0) sta1v=-sta1v;
-    }
-
-    if (adc[6]>0 && adc[7]>0){ 
-      sta2v = 6.4 * TMath::Sqrt((adc[6]+ rand->Uniform(0,1))/113.*(adc[7]+ rand->Uniform(0,1))/123.)/0.7382;
-    }else if (adc[6]<0 && adc[7]<0){
-      sta2v = -6.4 * TMath::Sqrt((adc[6]+ rand->Uniform(0,1))/113.*(adc[7]+ rand->Uniform(0,1))/123.)/0.7382;
-    }else if (adc[6]==0 || adc[7]==0){
-      sta2v = 0.;
-    }else{
-      sta2v = 6.4 * TMath::Sqrt(-(adc[6]+ rand->Uniform(0,1))/113.*(adc[7]+ rand->Uniform(0,1))/123.)/0.7382;if ( (adc[6]/113.+adc[7]/123.) < 0) sta2v=-sta2v;
+      sta2v = 6.4 * TMath::Sqrt(-ran_adc[6]/113.*ran_adc[7]/123.)/0.7382;if ( (ran_adc[6]/113.+ran_adc[7]/123.) < 0) sta2v=-sta2v;
     }
 
     //if (0 < tdc[8] && tdc[8] < 400 && 0 < tdc[9] && tdc[9] < 400){ // offset #1223 proton case
-    //sta3v = (6.4 * TMath::Sqrt((adc[8]+ rand->Uniform(0,1))/122.*(adc[9]+ rand->Uniform(0,1))/131.)+3.0341)/0.7383;
+    //sta3v = (6.4 * TMath::Sqrt(ran_adc[8]/122.*ran_adc[9]/131.)+3.0341)/0.7383;
     //}else 
-    if (adc[8]>0 && adc[9]>0){ 
-      sta3v = 6.4 * TMath::Sqrt((adc[8]+ rand->Uniform(0,1))/122.*(adc[9]+ rand->Uniform(0,1))/131.)/0.7383;
-    }else if (adc[8]<0 && adc[9]<0){
-      sta3v = -6.4 * TMath::Sqrt((adc[8]+ rand->Uniform(0,1))/122.*(adc[9]+ rand->Uniform(0,1))/131.)/0.7383;
-    }else if (adc[8]==0 || adc[9]==0){
-      sta3v = 0.;
+    if (ran_adc[8]>0 && ran_adc[9]>0){ 
+      sta3v = 6.4 * TMath::Sqrt(ran_adc[8]/122.*ran_adc[9]/131.)/0.7383;
+    }else if (ran_adc[8]<0 && ran_adc[9]<0){
+      sta3v = -6.4 * TMath::Sqrt(ran_adc[8]/122.*ran_adc[9]/131.)/0.7383;
     }else{
-      sta3v = 6.4 * TMath::Sqrt(-(adc[8]+ rand->Uniform(0,1))/122.*(adc[9]+ rand->Uniform(0,1))/131.)/0.7383;if ( (adc[8]/122.+adc[9]/131.) < 0) sta3v=-sta3v;
+      sta3v = 6.4 * TMath::Sqrt(-ran_adc[8]/122.*ran_adc[9]/131.)/0.7383;if ( (ran_adc[8]/122.+ran_adc[9]/131.) < 0) sta3v=-sta3v;
     }
     
     //if (0 < tdc[10] && tdc[10] < 400 && 0 < tdc[11] && tdc[11] < 400){ // offset #1223 proton case
-    //sta4v = (6.4 * TMath::Sqrt((adc[10]+ rand->Uniform(0,1))/127.*(adc[11]+ rand->Uniform(0,1))/124.)+2.5245)/0.7538;
+    //sta4v = (6.4 * TMath::Sqrt(ran_adc[10]/127.*ran_adc[11]/124.)+2.5245)/0.7538;
     //}else 
-    if (adc[10]>0 && adc[11]>0){ 
-      sta4v = 6.4 * TMath::Sqrt((adc[10]+ rand->Uniform(0,1))/127.*(adc[11]+ rand->Uniform(0,1))/124.)/0.7538;
-    }else if (adc[10]<0 && adc[11]<0){
-      sta4v = -6.4 * TMath::Sqrt((adc[10]+ rand->Uniform(0,1))/127.*(adc[11]+ rand->Uniform(0,1))/124.)/0.7538;
-    }else if (adc[10]==0 || adc[11]==0){
-      sta4v = 0.;
+    if (ran_adc[10]>0 && ran_adc[11]>0){ 
+      sta4v = 6.4 * TMath::Sqrt(ran_adc[10]/127.*ran_adc[11]/124.)/0.7538;
+    }else if (ran_adc[10]<0 && ran_adc[11]<0){
+      sta4v = -6.4 * TMath::Sqrt(ran_adc[10]/127.*ran_adc[11]/124.)/0.7538;
     }else{
-      sta4v = 6.4 * TMath::Sqrt(-(adc[10]+ rand->Uniform(0,1))/127.*(adc[11]+ rand->Uniform(0,1))/124.)/0.7538;if ( (adc[10]/127.+adc[11]/124.) < 0) sta4v=-sta4v;
-    }
-    sta_even = sta1h+sta2h;  
-    sta_odd = (sta1v+sta2v+sta3v+sta4v)/1.08;     
-    if (!( sta_odd + sta_even == 0.)) {
-      sta_sum = sta_odd+sta_even;    
-      sta_ratio = (sta_even-sta_odd)/(sta_even+sta_odd);
-    }
+      sta4v = 6.4 * TMath::Sqrt(-ran_adc[10]/127.*ran_adc[11]/124.)/0.7538;if ( (ran_adc[10]/127.+ran_adc[11]/124.) < 0) sta4v=-sta4v;
+      }
     */
-    
-   
     sta1h = 6.4 * (TMath::Sqrt((ran_adc[0]+20)*(ran_adc[1]+20))-20)/sqrt(112.*118.)/0.8130;
     sta2h = 6.4 * (TMath::Sqrt((ran_adc[2]+20)*(ran_adc[3]+20))-20)/sqrt(131.*109.)/0.8748;
     sta1v = 6.4 * (TMath::Sqrt((ran_adc[4]+20)*(ran_adc[5]+20))-20)/sqrt(116.*126.)/0.8267;
     sta2v = 6.4 * (TMath::Sqrt((ran_adc[6]+20)*(ran_adc[7]+20))-20)/sqrt(113.*123.)/0.7382;
+    //if (0 < tdc[8] && tdc[8] < 400 && 0 < tdc[9] && tdc[9] < 400){ // offset #1223 proton case
+    // sta3v = (6.4 * (TMath::Sqrt((ran_adc[8]+20)*(ran_adc[9]+20))-20)/sqrt(122.*131.)+3.0341)/0.7383;
+    //}else 
     sta3v = 6.4 * (TMath::Sqrt((ran_adc[8]+20)*(ran_adc[9]+20))-20)/sqrt(122.*131.)/0.7383;
+    //if (0 < tdc[10] && tdc[10] < 400 && 0 < tdc[11] && tdc[11] < 400){ // offset #1223 proton case
+    // sta4v = (6.4 * (TMath::Sqrt((ran_adc[10]+20)*(ran_adc[11]+20))-20)/sqrt(127.*124.)+2.5245)/0.7538;
+    //}else 
     sta4v = 6.4 * (TMath::Sqrt((ran_adc[10]+20)*(ran_adc[11]+20))-20)/sqrt(127.*124.)/0.7538;
     
-    
-    
+
     //printf("%f, %f \n", tdc[0],tdc[1]);
 
     //--------------RF:tdc slope fitting in #1035
-
     sta1hTavg = (tdc[0] * 0.9912 + tdc[1] * 0.9925 )/2. * LAS_CH2NS;     
     sta2hTavg = (tdc[2] * 1.091  + tdc[3] * 0.9946 )/2. * LAS_CH2NS; 
     sta1vTavg = (tdc[4] * 0.9889 + tdc[5] * 0.9865 )/2. * LAS_CH2NS;  
@@ -710,8 +636,49 @@ int main(int argc, char * argv[]){
     sta3vTOFC = sta3vTOF - 0.705086 / TMath::Sqrt(sta3vTem - 0.995722) + STACK_TOF_OFFSET[4];
     sta4vTOFC = sta4vTOF - 0.936808 / TMath::Sqrt(sta4vTem - 0.960274) + STACK_TOF_OFFSET[5];
 
-   
-    
+    /*
+    sta_even = sta1h+sta2h;
+    sta_odd = (sta1v+sta2v+sta3v+sta4v)/1.08;     
+    if (!( sta_odd + sta_even == 0.)) {
+      sta_sum = sta_odd+sta_even;    
+      sta_ratio = (sta_even-sta_odd)/(sta_even+sta_odd);
+    }
+    */
+    /*
+    if ((sta1hTri==1 && sta2hTri==0 && sta2vTri==0 && sta3vTri==0 && sta4vTri==0) || sta1vTri==1){
+      sta_even = sta1h/1.12;
+      sta_odd = sta1v;
+    }
+    if ((sta1hTri==1 && sta2hTri==0 && sta1vTri==0 && sta3vTri==0 && sta4vTri==0) || sta2vTri==1){
+      sta_even = sta1h/1.12;
+      sta_odd = sta2v/1.14;
+    }
+    if ((sta1hTri==1 && sta2hTri==0 && sta1vTri==0 && sta2vTri==0 && sta4vTri==0) || sta3vTri==1){
+      sta_even = sta1h/1.12;
+      sta_odd = sta3v/1.14;
+    }
+    if ((sta1hTri==1 && sta2hTri==0 && sta1vTri==0 && sta2vTri==0 && sta3vTri==0) || sta4vTri==1){
+      sta_even = sta1h/1.12;
+      sta_odd = sta4v/1.1;
+    }
+    if ((sta2hTri==1 && sta1hTri==0 && sta2vTri==0 && sta3vTri==0 && sta4vTri==0) || sta1vTri==1){
+      sta_even = sta2h*1.03;
+      sta_odd = sta1v;
+    }
+    if ((sta2hTri==1 && sta1hTri==0 && sta1vTri==0 && sta3vTri==0 && sta4vTri==0) || sta2vTri==1){
+      sta_even = sta2h*1.03;
+      sta_odd = sta2v/1.14;
+    }
+    if ((sta2hTri==1 && sta1hTri==0 && sta1vTri==0 && sta2vTri==0 && sta4vTri==0) || sta3vTri==1){
+      sta_even = sta2h*1.03;
+      sta_odd = sta3v/1.14;
+    }
+    if ((sta2hTri==1 && sta1hTri==0 && sta1vTri==0 && sta2vTri==0 && sta3vTri==0) || sta4vTri==1){
+      sta_even = sta2h*1.03;
+      sta_odd = sta4v/1.1;
+    }
+
+    */
      //Mh=1,Mv=0
     if (sta1hTri==1 && sta2hTri==0 && sta1vTri==0 && sta2vTri==0 && sta3vTri==0 && sta4vTri==0){
       sta_even = sta1h;
@@ -1017,8 +984,7 @@ int main(int argc, char * argv[]){
       sta_sum = sta_odd+sta_even;    
       sta_ratio = (sta_even-sta_odd)/(sta_even+sta_odd);
     }
-    
-        
+           
     //------------- Telescope      
     badEl = adc2[8];
     badEr = adc2[9];
@@ -1076,7 +1042,7 @@ int main(int argc, char * argv[]){
 
     */
 
-  /*  //======proton beam:  kinetic energy by TOF 
+    //======proton beam:  kinetic energy by TOF 
       
     if(sta1hTOFC < 100){
       sta1hTOFS = sta1hTOFC - 59.364;// p beam
@@ -1112,10 +1078,10 @@ int main(int argc, char * argv[]){
       sta4vTOFS = sta4vTOFC - 59.364;// p beam
     }else{
       sta4vTOFS = sta4vTOFC - 59.364*2;
-    }*/
+    }
 
       //======deuteron beam:  kinetic energy by TOF 
-    if(sta1hTOFC < 100){
+    /*  if(sta1hTOFC < 100){
       sta1hTOFS = sta1hTOFC;// d beam
     }else{
       sta1hTOFS = sta1hTOFC - 98.850;
@@ -1150,7 +1116,7 @@ int main(int argc, char * argv[]){
     }else{
       sta4vTOFS = sta4vTOFC - 98.850;
       }
-
+*/
     sta1hBeta = TMath::Sqrt(flightlength*flightlength+4*4)/sta1hTOFS/29.979;
     sta2hBeta = TMath::Sqrt(flightlength*flightlength+4*4)/sta2hTOFS/29.979;
     sta1vBeta = TMath::Sqrt(flightlength*flightlength+12*12)/sta1vTOFS/29.979;
@@ -1165,19 +1131,6 @@ int main(int argc, char * argv[]){
     sta3vEk = mn * (1/TMath::Sqrt(1-TMath::Power(sta3vBeta,2)) - 1);
     sta4vEk = mn * (1/TMath::Sqrt(1-TMath::Power(sta4vBeta,2)) - 1);
 
-    p31h = TMath::Sqrt(TMath::Power(TMath::Sqrt(Td*(Td+2*md))-TMath::Sqrt(sta1hEk*(sta1hEk+2*mn))*TMath::Cos(sta1htheta),2)+TMath::Power(TMath::Sqrt(sta1hEk*(sta1hEk+2*mn))*TMath::Sin(sta1htheta),2));
-    p32h = TMath::Sqrt(TMath::Power(TMath::Sqrt(Td*(Td+2*md))-TMath::Sqrt(sta2hEk*(sta2hEk+2*mn))*TMath::Cos(sta2htheta),2)+TMath::Power(TMath::Sqrt(sta2hEk*(sta2hEk+2*mn))*TMath::Sin(sta2htheta),2));
-    p31v = TMath::Sqrt(TMath::Power(TMath::Sqrt(Td*(Td+2*md))-TMath::Sqrt(sta1vEk*(sta1vEk+2*mn))*TMath::Cos(sta1vtheta),2)+TMath::Power(TMath::Sqrt(sta1vEk*(sta1vEk+2*mn))*TMath::Sin(sta1vtheta),2));
-    p32v = TMath::Sqrt(TMath::Power(TMath::Sqrt(Td*(Td+2*md))-TMath::Sqrt(sta2vEk*(sta2vEk+2*mn))*TMath::Cos(sta2vtheta),2)+TMath::Power(TMath::Sqrt(sta2vEk*(sta2vEk+2*mn))*TMath::Sin(sta2vtheta),2));
-    p33v = TMath::Sqrt(TMath::Power(TMath::Sqrt(Td*(Td+2*md))-TMath::Sqrt(sta3vEk*(sta3vEk+2*mn))*TMath::Cos(sta3vtheta),2)+TMath::Power(TMath::Sqrt(sta3vEk*(sta3vEk+2*mn))*TMath::Sin(sta3vtheta),2));
-    p34v = TMath::Sqrt(TMath::Power(TMath::Sqrt(Td*(Td+2*md))-TMath::Sqrt(sta4vEk*(sta4vEk+2*mn))*TMath::Cos(sta4vtheta),2)+TMath::Power(TMath::Sqrt(sta4vEk*(sta4vEk+2*mn))*TMath::Sin(sta4vtheta),2));
-
-    Ex1h = md+Td+md-TMath::Sqrt(TMath::Power(p31h,2)+TMath::Power(m3He,2))-sta1hEk-mn;
-    Ex2h = md+Td+md-TMath::Sqrt(TMath::Power(p32h,2)+TMath::Power(m3He,2))-sta2hEk-mn;
-    Ex1v = md+Td+md-TMath::Sqrt(TMath::Power(p31v,2)+TMath::Power(m3He,2))-sta1vEk-mn;
-    Ex2v = md+Td+md-TMath::Sqrt(TMath::Power(p32v,2)+TMath::Power(m3He,2))-sta2vEk-mn;
-    Ex3v = md+Td+md-TMath::Sqrt(TMath::Power(p33v,2)+TMath::Power(m3He,2))-sta3vEk-mn;
-    Ex4v = md+Td+md-TMath::Sqrt(TMath::Power(p34v,2)+TMath::Power(m3He,2))-sta4vEk-mn;
 
 
 
